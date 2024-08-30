@@ -38,8 +38,6 @@ class UserController extends \App\Http\Controllers\Controller
             ]);
             
             $inputs = $this->userRepository->created($request->all());
-            
-            $result = $this->learnerHandler->store($inputs);
             if($result)
             {
                 return response()->json([
