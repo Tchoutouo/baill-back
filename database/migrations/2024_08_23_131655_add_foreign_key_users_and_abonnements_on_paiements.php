@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if(Schema::hasTable('paiements')){
+            Schema::table('paiements', function (Blueprint $table) {
+                if(!Schema::hasColumn('users','user_id')){
+                    $table->unsignedBigInteger('user_id');
+                    $table->foreign('user_id')->references('id')->on('users');
+                }
+                if(!Schema::hasColumn('abonnements','abonnement_id')){
+                    $table->unsignedBigInteger('abonnement_id');
+                    $table->foreign('abonnement_id')->references('id')->on('abonnements');
+                }
+            });
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
+};

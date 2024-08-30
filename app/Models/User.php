@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Profil;
+use App\Models\AccessRight;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -42,4 +46,32 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    //définitions des rélations
+
+    //** Un users ne peut avoir qu'un seul profil */
+    public function profils():BelongsTo
+    {
+        return $this->belongsTo(Profil::class);
+    }
+
+    //** Un users ne peut publier 0 ou +sieurs annonces */
+    public function annonces():HasMany
+    {
+        return $this->hasMany(Annonce::class);
+    }
+
+
+    //** Un users ne peut publier 0 ou +sieurs paiements */
+    public function paiements():HasMany
+    {
+        return $this->hasMany(Paiement::class);
+    }
+
+    //** Un user peut avoir un ou plusieurs droit d'accès */
+    public function access_rights():BelongsToMany
+    {
+        return $this->belongsToMany(AccessRight::class,'user_access_rights','access_right_id', 'user_id');
+    }
+
 }
