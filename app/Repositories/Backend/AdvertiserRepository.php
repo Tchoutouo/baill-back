@@ -55,6 +55,7 @@ class AdvertiserRepository   extends ResourcesRepository
         $advertiser->city= $data['city'];
         $advertiser->neighborhood= $data['neighborhood'];
         $advertiser->password= $data['password'];
+        $advertiser->profil_id= "3";
         $advertiser->save();
 
         return $advertiser;

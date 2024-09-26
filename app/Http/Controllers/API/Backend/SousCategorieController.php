@@ -1,20 +1,19 @@
 <?php
 
 namespace App\Http\Controllers\API\Backend;
-use App\Repositories\Backend\AbonnementRepository;
+
+use App\Repositories\Backend\SousCategorieRepository;
 use Exception;
-use App\Models\User;
-use App\Models\Profil;
 use Illuminate\Http\Request;
 
-class AbonnementController extends \App\Http\Controllers\Controller
+class SousCategorieController extends \App\Http\Controllers\Controller
 {
     //
-    protected $abonnementRepository;
+    protected $sous_categorieRepository;
 
-    public function __construct(AbonnementRepository $abonnementRepository)
+    public function __construct(SousCategorieRepository $sous_categorieRepository)
     {
-        $this->abonnementRepository = $abonnementRepository;
+        $this->sous_categorieRepository = $sous_categorieRepository;
     }
 
     /** index */
@@ -30,35 +29,31 @@ class AbonnementController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
+        //dd($request);
         try{
             $request -> validate([
-                'name' => 'required|string|max:255', 
-                'description' => 'required|string|max:255', 
-                'time' => 'required|string|max:255',
-                'price' => 'required|double',
-                'type' => 'required|string|max:255', 
-                'is_actived' => 'required|string|max:255',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'array_cat' => 'required|array',
             ],
             [
                 'error' => 'Erreur...',
             ]
         );
             
-            $inputs = $this->abonnementRepository->created($request->all());
-
+            $inputs = $this->sous_categorieRepository->created($request->all());
+            //dd($inputs);
             if($inputs)
             {
                 return response()->json([
-                    'message' => 'Abonnement enregistré avec success',
+                    'message' => 'Sous-categorie enregistré avec success',
                     ]
                 );
-    
             }else{
                 return response()->json([
-                    'message' => 'Abonnement non enregistré verifier vos donnée',
+                    'message' => 'Sous-categorie non enregistré verifier vos données',
                     ]
                 );
-    
             }
 
         }catch(Exception $e){
@@ -68,24 +63,19 @@ class AbonnementController extends \App\Http\Controllers\Controller
     }
 
     /**updated */
-    public function update(Request $request, $abonnement)
+    public function update(Request $request, $sous_categorie)
     {
 
         try{
             $request -> validate([
-                'name' => 'required|string|max:255', 
+                'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'time' => 'required|string|max:255',
-                'price' => 'required|double',
-                'type' => 'required|string|max:255', 
-                'is_actived' => 'required|string|max:255',
+                'array_cat' => 'required|array',
             ],
             [
                 'error' => 'Erreur...',
-            ]
-        );
-
-            $result = $this->abonnementRepository->updated($request->all(),$abonnement);
+            ]);
+            $result = $this->sous_categorieRepository->updated($request->all(),$sous_categorie);
             if($result){
                 return response()->json([
                     'message' => 'Modification effectuée avec success',
@@ -107,16 +97,16 @@ class AbonnementController extends \App\Http\Controllers\Controller
     public function show($id)
     {
         try{
-            $abonnement = $this->abonnementRepository->getById($id);
-    
-            if($abonnement){
+            $sous_categorie = $this->sous_categorieRepository->getById($id);
+        
+            if($sous_categorie){
                 return response()->json([
-                    'messsage' => 'success',
-                    'data' => $abonnement
+                    'message' => 'success',
+                    'data' => $sous_categorie
                 ]);
             }else{
                 return response()->json([
-                    'message' => 'identifiant non valide ',
+                    'message' => 'Identifiant non valide',
                     ]
                 );
             }
@@ -131,18 +121,20 @@ class AbonnementController extends \App\Http\Controllers\Controller
     public function destroy(Request $request, $id)
     {
         try{
-            $abonnement = $this->abonnementRepository->getById($id);
+            $sous_categorie = $this->sous_categorieRepository->getById($id);
 
-            // Si utilisateur à un abonnement
-            if($abonnement)
+            // Si cette sous-categorie est associée à une categorie
+            $result = $this->sous_categorieRepository->destroy($id);
+            dd($result);
+            if($sous_categorie)
             {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet abonnement en cours',
+                    'message' => 'Vous ne pouvez pas supprimé cet sous_categories abonnement en cours',
                     ]
                 );
     
             }else{
-                $result = $this->abonnementRepository->destroy($id);
+                $result = $this->sous_categorieRepository->destroy($id);
     
                 if(isset($result))
                 {
@@ -151,9 +143,10 @@ class AbonnementController extends \App\Http\Controllers\Controller
                         ]
                     );
                     
+    
                 }else{
                     return response()->json([
-                        'message' => 'Abonnement supprimé avec success',
+                        'message' => 'categorie supprimé avec success',
                         ]
                     );
     

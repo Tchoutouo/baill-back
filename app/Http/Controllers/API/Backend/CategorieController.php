@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API\Backend;
 
 use App\Repositories\Backend\CategorieRepository;
 use Exception;
 use Illuminate\Http\Request;
 
-class CategorieController extends Controller
+class CategorieController extends \App\Http\Controllers\Controller
 {
     //
     protected $categorieRepository;
@@ -31,23 +31,27 @@ class CategorieController extends Controller
     {
         try{
             $request -> validate([
-
-                // 'last_name' => 'required',
-    
-            ]);
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'array_sous' => 'required|array',
+            ],
+            [
+                'error' => 'Erreur...',
+            ]
+        );
             
             $inputs = $this->categorieRepository->created($request->all());
             
             if($inputs)
             {
                 return response()->json([
-                    'message' => 'Utilisateur enregistré avec success',
+                    'message' => 'Categorie enregistré avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
-                    'message' => 'Utilisateur non enregistré verifier vos donnée',
+                    'message' => 'Categorie non enregistré verifier vos donnée',
                     ]
                 );
     
@@ -65,7 +69,12 @@ class CategorieController extends Controller
 
         try{
             $request -> validate([
-                //validation
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'array_sous' => 'required|array',
+            ],
+            [
+                'error' => 'Erreur...',
             ]);
             $result = $this->categorieRepository->updated($request->all(),$categorie);
             if($result){
@@ -112,7 +121,7 @@ class CategorieController extends Controller
         try{
             $categorie = $this->categorieRepository->getById($id);
 
-            // Si utilisateur à un abonnement
+            // Si Categorie à un abonnement
             if($categorie)
             {
                 return response()->json([

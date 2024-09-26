@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Exception;
+
+class LoginControleurAuth extends Controller
+{
+    //
+    public function login(Request $request){
+        
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string|min:8'
+            ],
+            [
+                'error' => 'Erreur...',
+            ]);
+            
+            $user = User::where('email', $request->email)->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+
+                Auth::login($user);
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $user,
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Les informations d\'identification ne sont pas correctes.',
+            ]);
+           
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+}

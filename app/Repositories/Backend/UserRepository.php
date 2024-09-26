@@ -21,11 +21,43 @@ class UserRepository   extends ResourcesRepository
     /**created user */
     public function created($data = array()) {
         //defininir création de user
+        $user = $this->model;
+        
+        $user->name= $data['username'];
+        $user->username= $data['username'];
+        $user->last_name= $data['last_name'];
+        $user->first_name= $data['last_name'];
+        $user->email= $data['email'];
+        $user->whatsapp_number= $data['whatsapp_number'];
+        $user->country= $data['country'];
+        $user->city= $data['city'];
+        $user->neighborhood= $data['neighborhood'];
+        $user->password= $data['password'];
+        $user->profil_id= "2";
+        $user->save();
+
+        return $user;
     }
 
     /**updated user */
     public function updated($data = array(), $id) {
         //defininir update de user
+        $user = $this->model->find($id);
+        
+        $user->name= $data['username'];
+        $user->username= $data['username'];
+        $user->last_name= $data['last_name'];
+        $user->first_name= $data['last_name'];
+        $user->email= $data['email'];
+        $user->whatsapp_number= $data['whatsapp_number'];
+        $user->country= $data['country'];
+        $user->city= $data['city'];
+        $user->neighborhood= $data['neighborhood'];
+        $user->password= $data['password'];
+        $user->profil_id= "2";
+        $user->save();
+
+        return $user;
     }
 
     /**destroy user */

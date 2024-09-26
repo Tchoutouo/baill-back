@@ -22,7 +22,7 @@ class Annonce extends Model
     /** Une categories peut être attribuer à une ou plusieurs annonces */
     public function categories():BelongsToMany
     {
-        return $this->belongsToMany(Categorie::class,'categorie_annonces','categorie_id', 'annonce_id');
+        return $this->belongsToMany(Categorie::class,'categorie_annonces','annonce_id','categorie_id',);
     }
 
     /** Une annonce peut être publier par un user */
