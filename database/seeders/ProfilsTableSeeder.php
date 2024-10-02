@@ -5,6 +5,7 @@ use App\Models\Profil;
 use App\Models\AccessRight;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class ProfilsTableSeeder extends Seeder
 {
@@ -32,10 +33,6 @@ class ProfilsTableSeeder extends Seeder
             array(
                 'name' => 'Advertiser',
                 'code' => 'ADVERT'
-            ),
-            array(
-                'name' => 'Gestionnaire',
-                'code' => 'FACILIT'
             ),
         );
 

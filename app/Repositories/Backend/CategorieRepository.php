@@ -27,15 +27,15 @@ class CategorieRepository   extends ResourcesRepository
         $categorie->title= $data['title'];
         $categorie->description= $data['description'];
         $categorie->save();
-        $array_sous = $data["array_sous"];
+        // $array_sous = $data["array_sous"];
 
-        /** Remplir la table pivot categorie_sous_categories */
-        // dd(($array_sous));
-        if(isset($array_sous) && !empty($array_sous)){
-              for ($i=0; $i < count($array_sous); $i++) { 
-                $categorie->sousCategorie()->attach($array_sous[$i]);
-              }
-        }
+        // /** Remplir la table pivot categorie_sous_categories */
+        // // dd(($array_sous));
+        // if(isset($array_sous) && !empty($array_sous)){
+        //       for ($i=0; $i < count($array_sous); $i++) { 
+        //         $categorie->sousCategorie()->attach($array_sous[$i]);
+        //       }
+        // }
     
         return $categorie;
     }

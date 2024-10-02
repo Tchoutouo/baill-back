@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Categorie;
 use Illuminate\Database\Seeder;
-//use Database\Seeders\ProfilSeeder;
+use Database\Seeders\ProfilsTableSeeder;
+use Database\Seeders\UsersTableSeeder;
+use Database\Seeders\CategorieTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,5 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(ProfilsTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
+        $this->call(CategorieTableSeeder::class);
     }
 }
