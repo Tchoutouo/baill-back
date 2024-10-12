@@ -26,7 +26,7 @@ class AdvertiserRepository   extends ResourcesRepository
         $advertiser->name= $data['username'];
         $advertiser->username= $data['username'];
         $advertiser->last_name= $data['last_name'];
-        $advertiser->first_name= $data['last_name'];
+        $advertiser->first_name= $data['first_name'];
         $advertiser->email= $data['email'];
         $advertiser->whatsapp_number= $data['whatsapp_number'];
         $advertiser->country= $data['country'];
@@ -48,7 +48,7 @@ class AdvertiserRepository   extends ResourcesRepository
         $advertiser->name= $data['username'];
         $advertiser->username= $data['username'];
         $advertiser->last_name= $data['last_name'];
-        $advertiser->first_name= $data['last_name'];
+        $advertiser->first_name= $data['first_name'];
         $advertiser->email= $data['email'];
         $advertiser->whatsapp_number= $data['whatsapp_number'];
         $advertiser->country= $data['country'];
