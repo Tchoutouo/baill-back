@@ -14,8 +14,7 @@ return new class extends Migration
         if(!Schema::hasTable('pictures')){
             Schema::create('pictures', function (Blueprint $table) {
                 $table->id();
-                $table->string('name');
-                $table->string('code');
+                $table->string('location');
                 $table->timestamps();
             });
         }

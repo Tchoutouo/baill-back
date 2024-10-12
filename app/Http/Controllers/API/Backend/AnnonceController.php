@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Backend;
 
 use App\Repositories\Backend\AnnonceRepository;
 use App\Handlers\AnnonceHandler;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -12,11 +13,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
     //
     protected $annonceRepository;
     protected $annonceHandler;
+    protected $pictureController;
 
-    public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler)
+    public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
+        $this->pictureController = $pictureController;
     }
 
     /** index */
@@ -33,7 +36,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        // dd("sdfsd");
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
@@ -44,8 +46,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'country' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',//quartier
                 'is_published' => 'required|integer|max:2',
-                'is_published' => 'required|integer|max:2',
                 'status' => 'required|string|max:255',
+                // 'picture' => 'required|array',
                 'is_forward' => 'required|string|max:255',
                 'categorie_id' => 'required|string|max:255',
                 'abonnement_id' => 'required|string|max:255',
@@ -55,20 +57,23 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]
         );
-            //dd($request->all());
             $inputs = $this->annonceRepository->created($request->all());
-            //dd("sdfsdf");
+            
             $inputs = $this->annonceHandler->store($inputs);
+
+            //$pictures = $this->pictureController->store($request->picture, $inputs->id);
 
             if($inputs)
             {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Annonceur enregistré avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Annonceur non enregistré verifier vos donnée',
                     ]
                 );

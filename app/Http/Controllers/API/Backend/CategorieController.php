@@ -20,7 +20,19 @@ class CategorieController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         try{
-            return response()->json([]);
+            $allCategorie = $this->categorieRepository->getAll();
+            if(!empty($allCategorie)){
+                return response()->json([
+                    'success'=>true,
+                    'data'=>$allCategorie,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success'=>false,
+                    'data'=>$allCategorie,
+                ]);
+            }
         }catch(Exception $e){
             return response()->json($e);
         }
@@ -33,7 +45,7 @@ class CategorieController extends \App\Http\Controllers\Controller
             $request -> validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'array_sous' => 'required|array',
+                // 'array_sous' => 'required|array',
             ],
             [
                 'error' => 'Erreur...',

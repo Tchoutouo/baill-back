@@ -33,7 +33,8 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'username' => 'required|string|max:255', 
-                'last_name' => 'required|string|max:255', 
+                'last_name' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email', // unique dans la table users
                 'whatsapp_number' => 'required|min:9|max:9', // 9
                 'country' => 'required|string|max:255', 
@@ -51,12 +52,14 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             if($inputs)
             {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Utilisateur enregistré avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Utilisateur non enregistré verifier vos donnée',
                     ]
                 );

@@ -14,6 +14,11 @@ class CategorieRepository   extends ResourcesRepository
         $this->model = $categorie;
     }
 
+    public function getAll() {
+        $categorie = $this->model->get();
+        return $categorie;
+    }
+
     public function getById($id) {
         $categorie = $this->model->where('id', $id)->with('profils')->first();
         return $categorie;
