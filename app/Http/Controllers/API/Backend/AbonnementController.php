@@ -21,7 +21,19 @@ class AbonnementController extends \App\Http\Controllers\Controller
     public function index(Request $request)
     {
         try{
-            return response()->json([]);
+            $allAbonnement = $this->abonnementRepository->getAll();
+            if(!empty($allAbonnement)){
+                return response()->json([
+                    'success'=>true,
+                    'data'=>$allAbonnement,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success'=>false,
+                    'data'=>$allAbonnement,
+                ]);
+            }
         }catch(Exception $e){
             return response()->json($e);
         }

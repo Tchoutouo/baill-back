@@ -1,21 +1,25 @@
 <?php
 
 namespace App\Repositories\Backend;
-use App\Models\User;
-use App\Models\Profil;
+use App\Models\Abonnement;
 use App\Repositories\ResourcesRepository;
 use Illuminate\Http\Request;
 
 class AbonnementRepository   extends ResourcesRepository
 {
 
-    public function __construct(User $user) {
-        $this->model = $user;
+    public function __construct(Abonnement $abonnement) {
+        $this->model = $abonnement;
+    }
+
+    public function getAll() {
+        $abonnement = $this->model->all();
+        return $abonnement;
     }
 
     public function getById($id) {
-        $user = $this->model->where('id', $id)->with('profils')->first();
-        return $user;
+        $abonnement = $this->model->where('id', $id)->first();
+        return $abonnement;
     }
 
     /**created user */

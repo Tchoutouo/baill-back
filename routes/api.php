@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\Backend\AnnonceController;
+use App\Http\Controllers\API\Backend\AbonnementController;
 use App\Http\Controllers\API\Backend\UserController;
 use App\Http\Controllers\API\Backend\AdvertiserController;
 use App\Http\Controllers\API\Backend\CategorieController;
@@ -66,6 +67,16 @@ Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class
 
 /**Route liée l'annonce */
 Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
+    Route::get('/', 'index');
+    Route::post('store','store');
+    Route::get('/{id}/show', 'show');
+    Route::put('/{id}/update', 'update');
+    Route::delete('/{id}/delete', 'destroy');
+    Route::get('/inscription', 'inscription');
+});
+
+/**Route liée aux abonnements */
+Route::prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
     Route::get('/{id}/show', 'show');

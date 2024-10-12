@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API\Backend;
 
 use App\Repositories\Backend\AnnonceRepository;
+use App\Repositories\Backend\AbonnementRepository;
+use App\Repositories\Backend\CategorieRepository;
 use App\Handlers\AnnonceHandler;
 use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
@@ -14,12 +16,33 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $annonceRepository;
     protected $annonceHandler;
     protected $pictureController;
+    protected $abonnementController;
+    protected $abonnementRepository;
+    protected $categorieRepository;
 
-    public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController)
+    public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
+    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
         $this->pictureController = $pictureController;
+        $this->abonnementRepository = $abonnementRepository;
+        $this->categorieRepository = $categorieRepository;
+    }
+
+    /** index */
+    public function inscription(Request $request)
+    {
+        try{
+            $allAbonnement = $this->abonnementRepository->getAll();
+            $allCategorie = $this->categorieRepository->getAll();
+            return response()->json([
+                'abonnement'=>$allAbonnement,
+                'categorie'=>$allCategorie,
+            ]);
+        }catch(Exception $e){
+            return response()->json($e);
+        }
     }
 
     /** index */
