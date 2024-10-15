@@ -14,17 +14,17 @@ return new class extends Migration
         if(!Schema::hasTable('annonces')){
             Schema::create('annonces', function (Blueprint $table) {
                 $table->id();
-                $table->string('title');
-                $table->string('subtitle')->comment('sous-titre');
-                $table->string('description');
+                $table->string('title')->nullable();
+                $table->string('subtitle')->nullable()->comment('sous-titre');
+                $table->string('description')->nullable();
                 $table->integer('price');
-                $table->string('contact');
-                $table->string('country');
-                $table->string('neighborhood');
+                $table->string('contact')->nullable();
+                $table->string('country')->nullable();
+                $table->string('neighborhood')->nullable();
                 $table->string('location')->comment('lieu_dit');
-                $table->boolean('is_published')->nullable()->default(false);
-                $table->string('status');
-                $table->string('is_forward');
+                // $table->boolean('is_published')->nullable()->default(false);
+                $table->string('status')->nullable()->default('1');
+                $table->string('is_forward')->nullable()->default('0');
                 $table->timestamps();
             });
         }

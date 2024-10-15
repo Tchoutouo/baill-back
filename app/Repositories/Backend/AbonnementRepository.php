@@ -22,6 +22,11 @@ class AbonnementRepository   extends ResourcesRepository
         return $abonnement;
     }
 
+    public function check_account($id){
+        $abonnement = $this->model->where('id', $id)->first()->price;
+        return $abonnement;
+    }
+
     /**created user */
     public function created($data = array()) {
         //defininir création de user

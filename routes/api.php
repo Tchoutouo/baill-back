@@ -68,11 +68,11 @@ Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class
 /**Route liée l'annonce */
 Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
     Route::get('/', 'index');
+    Route::get('/create', 'create');
     Route::post('store','store');
     Route::get('/{id}/show', 'show');
     Route::put('/{id}/update', 'update');
     Route::delete('/{id}/delete', 'destroy');
-    Route::get('/inscription', 'inscription');
 });
 
 /**Route liée aux abonnements */

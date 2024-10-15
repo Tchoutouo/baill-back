@@ -16,14 +16,25 @@ class LoginControleurAuth extends Controller
         
         try {
             $request->validate([
-                'email' => 'required|email',
+                'identifiant' => 'required',
                 'password' => 'required|string|min:8'
             ],
             [
                 'error' => 'Erreur...',
             ]);
             
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->identifiant)->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+
+                Auth::login($user);
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $user,
+                ]);
+            }
+
+            $user = User::where('whatsapp_number', $request->identifiant)->first();
 
             if ($user && Hash::check($request->password, $user->password)) {
 
