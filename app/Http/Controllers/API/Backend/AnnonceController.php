@@ -8,7 +8,10 @@ use App\Repositories\Backend\CategorieRepository;
 use App\Handlers\AnnonceHandler;
 use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\Picture;
+
 
 class AnnonceController extends \App\Http\Controllers\Controller
 {
@@ -59,6 +62,31 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
+        if ($request->hasFile('images')) {
+
+            $images = $request->file('images');
+            $paths = [];
+            
+            foreach ($images as $image) {
+                $path = $image->store('images', 'public');
+                Picture::create([
+                    "location"=> $path,
+                    'annonce_id'=> 1,
+                ]);
+                $paths[] = $path;
+            }
+
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $request ->all(),
+            ]
+        );
+        $userName = Str::uuid() . '.' . $pictureAnnonce->getClientOriginalExtension();
+        $request->picture->storeAs('images', $userName);
+        
+
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 

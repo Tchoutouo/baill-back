@@ -13,7 +13,11 @@ class LoginControleurAuth extends Controller
 {
     //
     public function login(Request $request){
-        
+        return response()->json([
+            'message' => 'success cedric',
+            'data' => $request->all(),
+        ]);
+
         try {
             $request->validate([
                 'email' => 'required|email',
@@ -26,7 +30,6 @@ class LoginControleurAuth extends Controller
             $user = User::where('email', $request->email)->first();
 
             if ($user && Hash::check($request->password, $user->password)) {
-
                 Auth::login($user);
                 return response()->json([
                     'message' => 'success',
