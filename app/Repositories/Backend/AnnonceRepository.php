@@ -26,10 +26,10 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce = $this->model;
         
         $annonce->title= $data['title'];
-        $annonce->subtitle= $data['subtitle'];
+        // $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
         $annonce->price= $data['price'];
-        $annonce->contact= $data['contact'];
+        // $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
         // $annonce->is_published= $data['is_published'];

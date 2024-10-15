@@ -59,15 +59,17 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
+        
+        
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
-                'subtitle' => 'required|string|max:255', 
+                // 'subtitle' => 'required|string|max:255', 
                 'description' => 'required|string',
                 'price' => 'required|numeric',
-                'contact' => 'required|string|max:9', 
+                // 'contact' => 'required|string|max:9', 
                 'country' => 'required|string|max:255',
-                'neighborhood' => 'required|string|max:255',//quartier
+                // 'neighborhood' => 'required|string|max:255',//quartier
                 // 'is_published' => 'required|integer|max:2',
                 // 'status' => 'required|string|max:255',
                 // 'picture' => 'required|array',
@@ -80,8 +82,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]
         );
+            // dd("inside");
             $inputs = $this->annonceRepository->created($request->all());
-            
+           
             $inputs = $this->annonceHandler->store($inputs);
 
             $pictures = $this->pictureController->store($request, $inputs->id);
