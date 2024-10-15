@@ -23,9 +23,12 @@ class AnnonceHandler  {
         try {
 
             $result = DB::transaction( function() use ($inputs){
-                $categorie_id = $inputs['categorie_id'];
+                //dd($inputs['categorie']);
+                $categorie = $inputs['categorie'];
                 $annonce = $inputs['annonce'];
-                $annonce->categories()->attach($categorie_id);
+                for ($i=0; $i < count($categorie); $i++) { 
+                    $annonce->categories()->attach($categorie[$i]);
+                }
                 return $annonce;
             });
             DB::commit();

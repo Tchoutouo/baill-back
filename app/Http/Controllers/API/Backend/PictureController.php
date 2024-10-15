@@ -10,17 +10,23 @@ use Illuminate\Support\Str;
 class PictureController extends Controller
 {
     //
-    function store(Request $request, $location, $annonce_id){
-
+    function  store($request, $annonce_id){
+        
         /** Pour chaque image lié à l'annonce créer un enregistrement */
-        for ($i=0; $i < count($location); $i++) {
-            $pictureAnnonce = $request->file($location[$i]);
-            $userName = Str::uuid() . '.' . $pictureAnnonce->getClientOriginalExtension();
-            $request->picture->storeAs('images', $userName);
-            Picture::create([
-                "location"=> $location[$i],
-                'annonce_id'=> $annonce_id,
-            ]);
+        if ($request->hasFile('images')) {
+                $images = $request->file('images');
+                dd($images);
+                $paths = [];
+                
+                foreach ($images as $image) {
+                    $path = $image->store('images', 'public');
+                    Picture::create([
+                        "location"=> $path,
+                        'annonce_id'=> $annonce_id,
+                    ]);
+                    $paths[] = $path;
+                }
+            return true;
         }
     }
 }

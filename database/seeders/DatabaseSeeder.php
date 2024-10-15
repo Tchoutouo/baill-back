@@ -9,6 +9,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\ProfilsTableSeeder;
 use Database\Seeders\UsersTableSeeder;
 use Database\Seeders\CategorieTableSeeder;
+use Database\Seeders\AbonnementTableSeed;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ProfilsTableSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(CategorieTableSeeder::class);
+        $this->call(AbonnementTableSeed::class);
     }
 }

@@ -31,7 +31,7 @@ class AbonnementTableSeed extends Seeder
             "description"=>"L'annonce est standard",
             "time"=> 30,
             "price"=> 0,
-            "type"=> "Free",
+            "type"=> "Standard",
             "is_actived"=> 1,
         ]);
 
@@ -40,7 +40,7 @@ class AbonnementTableSeed extends Seeder
             "description"=>"L'annonce est premium",
             "time"=> 30,
             "price"=> 0,
-            "type"=> "Free",
+            "type"=> "Premium",
             "is_actived"=> 1,
         ]);
 

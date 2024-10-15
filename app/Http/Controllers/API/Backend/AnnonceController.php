@@ -31,7 +31,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /** index */
-    public function inscription(Request $request)
+    public function create(Request $request)
     {
         try{
             $allAbonnement = $this->abonnementRepository->getAll();
@@ -68,11 +68,11 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'contact' => 'required|string|max:9', 
                 'country' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',//quartier
-                'is_published' => 'required|integer|max:2',
-                'status' => 'required|string|max:255',
+                // 'is_published' => 'required|integer|max:2',
+                // 'status' => 'required|string|max:255',
                 // 'picture' => 'required|array',
-                'is_forward' => 'required|string|max:255',
-                'categorie_id' => 'required|string|max:255',
+                // 'is_forward' => 'required|string|max:255',
+                'categorie' => 'required|array',
                 'abonnement_id' => 'required|string|max:255',
                 'user_id' => 'required|string|max:255',
             ],
@@ -84,20 +84,20 @@ class AnnonceController extends \App\Http\Controllers\Controller
             
             $inputs = $this->annonceHandler->store($inputs);
 
-            //$pictures = $this->pictureController->store($request->picture, $inputs->id);
+            $pictures = $this->pictureController->store($request, $inputs->id);
 
-            if($inputs)
+            if($pictures)
             {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Annonceur enregistré avec success',
+                    'message' => 'Annonce enregistré avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'Annonceur non enregistré verifier vos donnée',
+                    'message' => 'Annonce non enregistré verifier vos donnée',
                     ]
                 );
     
