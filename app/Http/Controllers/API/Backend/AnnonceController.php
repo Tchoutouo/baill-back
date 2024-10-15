@@ -62,30 +62,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        if ($request->hasFile('images')) {
-
-            $images = $request->file('images');
-            $paths = [];
-            
-            foreach ($images as $image) {
-                $path = $image->store('images', 'public');
-                Picture::create([
-                    "location"=> $path,
-                    'annonce_id'=> 1,
-                ]);
-                $paths[] = $path;
-            }
-
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => $request ->all(),
-            ]
-        );
-        $userName = Str::uuid() . '.' . $pictureAnnonce->getClientOriginalExtension();
-        $request->picture->storeAs('images', $userName);
-        
 
         try{
             $request -> validate([
