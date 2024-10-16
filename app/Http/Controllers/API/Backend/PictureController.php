@@ -29,4 +29,27 @@ class PictureController extends Controller
             return true;
         }
     }
+
+    // Update des images d'une annonces
+    function  updated($request, $annonce_id){
+        
+        // Supprimer les anciennes images 
+        Picture::where('annonce_id', $annonce_id)->delete();
+
+        /** Pour chaque nouvelle image lié à l'annonce créer un enregistrement */
+        if ($request->hasFile('images')) {
+                $images = $request->file('images');
+                $paths = [];
+                
+                foreach ($images as $image) {
+                    $path = $image->store('images', 'public');
+                    Picture::create([
+                        "location"=> $path,
+                        'annonce_id'=> $annonce_id,
+                    ]);
+                    $paths[] = $path;
+                }
+            return true;
+        }
+    }
 }

@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class AdvertiserController extends \App\Http\Controllers\Controller
 {
@@ -66,12 +67,13 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     
             }
 
-        }catch(\Illuminate\Validation\ValidationException $e){
+        }catch(ValidationException $e){
             // Récupérer les erreurs
             $errors = $e->validator->errors();
 
             // Retourner les erreurs en réponse JSON ou autre objet
             return response()->json([
+                'success' => false,
                 'message' => 'Erreur de validation',
                 'errors' => $errors
             ], 422); 
@@ -86,32 +88,47 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'username' => 'required|string|max:255', 
-                'last_name' => 'required|string|max:255', 
+                'last_name' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
                 'email' => 'required|email', // unique dans la table users
                 'whatsapp_number' => 'required|min:9|max:9', // 9
                 'country' => 'required|string|max:255', 
                 'city' => 'required|string|max:255', 
                 'neighborhood' => 'required|string|max:255', 
+                'cni' => 'string|max:25',
+                'picture' => 'string|max:255',
                 'password' => 'required|string|min:8'
             ],
             [
                 'error' => 'Erreur...',
             ]);
 
-            $result = $this->advertiserRepository->updated($request->all(),$advertiser);
-            if($result){
+            $advUpdate = $this->advertiserRepository->updated($request->all(),$advertiser, $request);
+            if($advUpdate){
                 return response()->json([
+                    'success' => true,
+                    'data' => $advUpdate,
                     'message' => 'Modification effectuée avec success',
                     ]
                 );
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Echec de modification',
                     ]
                 );
             }
-        }catch(Exception $e){
-            return response()->json($e);
+
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422); 
 
         }
     }

@@ -40,7 +40,7 @@ class AdvertiserRepository   extends ResourcesRepository
     }
 
     /**updated user */
-    public function updated($data = array(), $id) {
+    public function updated($data = array(), $id, Request $request) {
         //defininir update de user
 
         $advertiser = $this->model->find($id);
@@ -55,6 +55,14 @@ class AdvertiserRepository   extends ResourcesRepository
         $advertiser->city= $data['city'];
         $advertiser->neighborhood= $data['neighborhood'];
         $advertiser->password= $data['password'];
+        if(isset($data['cni'])){
+            $advertiser->cni= $data['cni'];
+        }
+        if ($request->hasFile('picture')) {
+                $images = $request->file('picture');
+                $path = $images->store('images', 'public');
+                $advertiser->picture= $path;
+        }
         $advertiser->profil_id= "3";
         $advertiser->save();
 

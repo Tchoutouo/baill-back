@@ -46,7 +46,7 @@ class AbonnementController extends \App\Http\Controllers\Controller
             $request -> validate([
                 'name' => 'required|string|max:255', 
                 'description' => 'required|string|max:255', 
-                'time' => 'required|string|max:255',
+                'time' => 'required|integer',
                 'price' => 'required|double',
                 'type' => 'required|string|max:255', 
                 'is_actived' => 'required|string|max:255',

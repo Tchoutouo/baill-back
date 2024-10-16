@@ -9,6 +9,8 @@ use App\Handlers\AnnonceHandler;
 use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+
 
 class AnnonceController extends \App\Http\Controllers\Controller
 {
@@ -77,16 +79,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
-                // 'subtitle' => 'required|string|max:255', 
                 'description' => 'required|string',
                 'price' => 'required|numeric',
-                // 'contact' => 'required|string|max:9', 
                 'country' => 'required|string|max:255',
-                // 'neighborhood' => 'required|string|max:255',//quartier
-                // 'is_published' => 'required|integer|max:2',
-                // 'status' => 'required|string|max:255',
-                // 'picture' => 'required|array',
-                // 'is_forward' => 'required|string|max:255',
                 'categorie' => 'required|array',
                 'abonnement_id' => 'required|string|max:255',
                 'user_id' => 'required|string|max:255',
@@ -95,7 +90,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]
         );
-            // dd("inside");
             $inputs = $this->annonceRepository->created($request->all());
            
             $inputs = $this->annonceHandler->store($inputs);
@@ -119,9 +113,16 @@ class AnnonceController extends \App\Http\Controllers\Controller
     
             }
 
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
 
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
         }
     }
 
@@ -131,23 +132,46 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
         try{
             $request -> validate([
-                //validation
+                'title' => 'required|string|max:255', 
+                'description' => 'required|string',
+                'price' => 'required|numeric',
+                'country' => 'required|string|max:255',
+                'categorie' => 'required|array',
+                'abonnement_id' => 'required|string|max:255',
+                'user_id' => 'required|string|max:255',
+            ],
+            [
+                'error' => 'Erreur...',
             ]);
+
             $result = $this->annonceRepository->updated($request->all(),$annonce);
-            if($result){
+            $inputs = $this->annonceHandler->updated($result);
+
+            $pictures = $this->pictureController->updated($request, $inputs->id);
+
+            if($pictures){
                 return response()->json([
+                    'success' => true,
                     'message' => 'Modification effectuée avec success',
                     ]
                 );
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Echec de modification',
                     ]
                 );
             }
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
 
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
         }
     }
 
