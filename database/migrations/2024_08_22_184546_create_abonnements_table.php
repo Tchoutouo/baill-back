@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('name');
                 $table->string('description');
-                $table->string('time');
+                $table->integer('time');
                 $table->integer('price');
                 $table->string('type');
                 $table->integer('is_actived');

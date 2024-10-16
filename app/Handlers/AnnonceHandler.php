@@ -50,4 +50,36 @@ class AnnonceHandler  {
 
     }
 
+    // Function update
+    public function updated($inputs){
+        try {
+           
+
+            $result = DB::transaction( function() use ($inputs){
+                //dd($inputs['categorie']);
+                $categorie = $inputs['categorie'];
+                $annonce = $inputs['annonce'];
+                for ($i=0; $i < count($categorie); $i++) { 
+                    $annonce->categories()->sync($categorie[$i]);
+                }
+                return $annonce;
+            });
+            DB::commit();
+
+        }catch(Exception $e) {
+
+            DB::rollBack();
+            
+        }
+
+        if(isset($result)){
+
+            return $result;
+
+        }else{
+
+        }
+
+    }
+
 }
