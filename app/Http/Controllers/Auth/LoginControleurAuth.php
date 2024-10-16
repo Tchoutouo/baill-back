@@ -13,10 +13,6 @@ class LoginControleurAuth extends Controller
 {
     //
     public function login(Request $request){
-<<<<<<< HEAD
-        
-=======
->>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
 
         try {
             $request->validate([
@@ -36,10 +32,6 @@ class LoginControleurAuth extends Controller
                 $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
                     'success' => true,
-<<<<<<< HEAD
-                    'message' => 'success',
-=======
->>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
                     'data' => $user,
                     'token' => $token,
                     'redirect_url' => route('dashboard', ['id' => $user->id])
@@ -54,11 +46,6 @@ class LoginControleurAuth extends Controller
                 $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
                     'success' => true,
-<<<<<<< HEAD
-                    'message' => 'success',
-                    'token' => 'success',
-=======
->>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
                     'data' => $user,
                     'token' => $token,
                     'redirect_url' => route('dashboard', ['id' => $user->id])
