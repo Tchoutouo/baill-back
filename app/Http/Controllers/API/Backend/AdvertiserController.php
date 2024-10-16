@@ -36,7 +36,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'last_name' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email', // unique dans la table users
-                'whatsapp_number' => 'required|min:9|max:9', // 9
+                'whatsapp_number' => 'required|min:9|max:9|unique:users,whatsapp_number', // 9
                 'country' => 'required|string|max:255', 
                 'city' => 'required|string|max:255', 
                 'neighborhood' => 'required|string|max:255', 
@@ -66,8 +66,15 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     
             }
 
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(\Illuminate\Validation\ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422); 
 
         }
     }

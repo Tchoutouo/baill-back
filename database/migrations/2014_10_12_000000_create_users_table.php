@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('picture')->nullable();//why integer
             $table->string('number')->nullable();
-            $table->string('whatsapp_number');
+            $table->string('whatsapp_number')->unique();
+            $table->string('cni')->nullable();
             $table->string('site_url')->nullable();
             $table->string('neighborhood');//quartier
             $table->string('city');

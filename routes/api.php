@@ -73,6 +73,7 @@ Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(func
     Route::get('/{id}/show', 'show');
     Route::put('/{id}/update', 'update');
     Route::delete('/{id}/delete', 'destroy');
+    Route::get('/dashboard/{id}', 'dashboard')->name('dashboard');
 });
 
 /**Route liée aux abonnements */

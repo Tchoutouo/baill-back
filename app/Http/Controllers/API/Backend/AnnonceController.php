@@ -46,8 +46,21 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /** index */
+    public function dashboard($user)
+    {
+        dd("fdfdf");
+        try{
+            
+            return response()->json([]);
+        }catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
+    /** index */
     public function index(Request $request)
     {
+        
         try{
             
             return response()->json([]);

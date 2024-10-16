@@ -13,7 +13,10 @@ class LoginControleurAuth extends Controller
 {
     //
     public function login(Request $request){
+<<<<<<< HEAD
         
+=======
+>>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
 
         try {
             $request->validate([
@@ -26,13 +29,20 @@ class LoginControleurAuth extends Controller
             
             $user = User::where('email', $request->identifiant)->first();
 
-            if ($user && Hash::check($request->password, $user->password)) {
-
+            if (($user && Hash::check($request->password, $user->password))) {
+                // connecter ce user
                 Auth::login($user);
+                // Création du token d'API pour l'utilisateur
+                $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
                     'success' => true,
+<<<<<<< HEAD
                     'message' => 'success',
+=======
+>>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
                     'data' => $user,
+                    'token' => $token,
+                    'redirect_url' => route('dashboard', ['id' => $user->id])
                 ]);
             }
 
@@ -40,11 +50,18 @@ class LoginControleurAuth extends Controller
 
             if ($user && Hash::check($request->password, $user->password)) {
                 Auth::login($user);
+                // Création du token d'API pour l'utilisateur
+                $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
                     'success' => true,
+<<<<<<< HEAD
                     'message' => 'success',
                     'token' => 'success',
+=======
+>>>>>>> 4565f76bb837060f46a1bc872b3eb689b4832b12
                     'data' => $user,
+                    'token' => $token,
+                    'redirect_url' => route('dashboard', ['id' => $user->id])
                 ]);
             }
 
