@@ -21,6 +21,7 @@ class AnnonceHandler  {
 
     public function store ($inputs){
         try {
+           
 
             $result = DB::transaction( function() use ($inputs){
                 //dd($inputs['categorie']);
