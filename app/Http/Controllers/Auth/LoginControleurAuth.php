@@ -13,10 +13,7 @@ class LoginControleurAuth extends Controller
 {
     //
     public function login(Request $request){
-        return response()->json([
-            'message' => 'success cedric',
-            'data' => $request->all(),
-        ]);
+        
 
         try {
             $request->validate([
@@ -33,6 +30,7 @@ class LoginControleurAuth extends Controller
 
                 Auth::login($user);
                 return response()->json([
+                    'success' => true,
                     'message' => 'success',
                     'data' => $user,
                 ]);
@@ -43,13 +41,17 @@ class LoginControleurAuth extends Controller
             if ($user && Hash::check($request->password, $user->password)) {
                 Auth::login($user);
                 return response()->json([
+                    'success' => true,
                     'message' => 'success',
+                    'token' => 'success',
                     'data' => $user,
                 ]);
             }
 
             return response()->json([
+                'success' => false,
                 'message' => 'Les informations d\'identification ne sont pas correctes.',
+                'token' => 'Les informations d\'identification ne sont pas correctes.',
             ]);
            
         } catch (Exception $e) {
