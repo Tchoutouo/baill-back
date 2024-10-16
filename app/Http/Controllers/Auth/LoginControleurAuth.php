@@ -13,10 +13,6 @@ class LoginControleurAuth extends Controller
 {
     //
     public function login(Request $request){
-        return response()->json([
-            'message' => 'success cedric',
-            'data' => $request->all(),
-        ]);
 
         try {
             $request->validate([
@@ -29,12 +25,16 @@ class LoginControleurAuth extends Controller
             
             $user = User::where('email', $request->identifiant)->first();
 
-            if ($user && Hash::check($request->password, $user->password)) {
-
+            if (($user && Hash::check($request->password, $user->password))) {
+                // connecter ce user
                 Auth::login($user);
+                // Création du token d'API pour l'utilisateur
+                $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
-                    'message' => 'success',
+                    'success' => true,
                     'data' => $user,
+                    'token' => $token,
+                    'redirect_url' => route('dashboard', ['id' => $user->id])
                 ]);
             }
 
@@ -42,13 +42,18 @@ class LoginControleurAuth extends Controller
 
             if ($user && Hash::check($request->password, $user->password)) {
                 Auth::login($user);
+                // Création du token d'API pour l'utilisateur
+                $token = $user->createToken('token_name')->plainTextToken;
                 return response()->json([
-                    'message' => 'success',
+                    'success' => true,
                     'data' => $user,
+                    'token' => $token,
+                    'redirect_url' => route('dashboard', ['id' => $user->id])
                 ]);
             }
 
             return response()->json([
+                'success' => false,
                 'message' => 'Les informations d\'identification ne sont pas correctes.',
             ]);
            
