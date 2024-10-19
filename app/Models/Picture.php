@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Annonce;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Picture extends Model
 {
@@ -18,8 +19,8 @@ class Picture extends Model
     ];
 
     /** Une image appartient à une seule annonce */
-    public function annonces(): HasMany
+    public function annonces(): BelongsTo
     {
-        return $this->hasMany(Annonce::class);
+        return $this->belongsTo(Annonce::class,'annonce_id');
     }
 }

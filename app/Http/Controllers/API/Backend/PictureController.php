@@ -52,4 +52,14 @@ class PictureController extends Controller
             return true;
         }
     }
+
+
+    // Get images the l'annonce
+
+    function getImage($id){
+        
+        $allImages = Picture::select('location')->where('annonce_id', $id)->get();
+
+        return $allImages;
+    }
 }

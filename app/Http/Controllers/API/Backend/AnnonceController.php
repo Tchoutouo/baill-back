@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API\Backend;
 use App\Repositories\Backend\AnnonceRepository;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\Backend\CategorieRepository;
+use App\Repositories\Backend\UserRepository;
 use App\Handlers\AnnonceHandler;
 use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 
 
 class AnnonceController extends \App\Http\Controllers\Controller
@@ -21,41 +23,69 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $abonnementController;
     protected $abonnementRepository;
     protected $categorieRepository;
+    protected $userRepository;
 
     public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
-    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository)
+    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
         $this->pictureController = $pictureController;
         $this->abonnementRepository = $abonnementRepository;
         $this->categorieRepository = $categorieRepository;
+        $this->userRepository = $userRepository;
     }
 
-    /** index */
-    public function create(Request $request)
+    /** Dashbord d'un annonceur */
+    public function dashboard($user_id)
     {
         try{
-            $allAbonnement = $this->abonnementRepository->getAll();
-            $allCategorie = $this->categorieRepository->getAll();
-            return response()->json([
-                'abonnement'=>$allAbonnement,
-                'categorie'=>$allCategorie,
-            ]);
+            $user = $this->userRepository->getById($user_id);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id);
+            $annoncePublisher = $this->annonceRepository->getAnnoncePublisher($user->id);
+            $annonceExpired = $this->annonceRepository->getAnnonceExpired($user->id);
+            $annonceInProgress = $this->annonceRepository->getAnnonceInProgress($user->id);
+            $annoncePause = $this->annonceRepository->getAnnoncePause($user->id);
+
+            if(isset($allAnnonce)){
+                return response()->json([
+                    'success' => true,
+                    'user' => $user,
+                    'annonces' => $allAnnonce,
+                    'annonce_qte_publisher' => $annoncePublisher,
+                    'annonce_qte_expired' => $annonceExpired,
+                    'annonce_qte_inprogress' => $annonceInProgress,
+                    'annonce_qte_pause' => $annoncePause,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success' => false,
+                    'user' => $user,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
         }catch(Exception $e){
             return response()->json($e);
         }
     }
 
-    /** index */
-    public function dashboard($user)
-    {
-        dd("fdfdf");
-        try{
-            
-            return response()->json([]);
-        }catch(Exception $e){
-            return response()->json($e);
+    //Change status annonces
+    public function changeStatus($user_id, $annonce_id, $new_status){
+        $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status);
+
+        if(isset($changeStatus)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Status changé avec success',
+                'url' => route('dashboard',['id'=>$user_id])
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Echec lors de la mise à jour du status',
+            ]);
         }
     }
 
@@ -70,6 +100,23 @@ class AnnonceController extends \App\Http\Controllers\Controller
             return response()->json($e);
         }
     }
+
+    
+    /** create annonce */
+    public function create(Request $request)
+    {
+        try{
+            $allAbonnement = $this->abonnementRepository->getAll();
+            $allCategorie = $this->categorieRepository->getAll();
+            return response()->json([
+                'abonnement'=>$allAbonnement,
+                'categorie'=>$allCategorie,
+            ]);
+        }catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
 
     /**store */
     public function store(Request $request)
