@@ -63,6 +63,7 @@ class AnnonceRepository   extends ResourcesRepository
     public function updated($data = array(), $id) {
         //defininir update de annonce                
         $annonce = $this->model->find($id);
+        
         $annonce->title= $data['title'];
         $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
@@ -71,6 +72,8 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
         $annonce->number= $data['number'];
+        $annonce->sex= $data['sex'];
+        $annonce->site_url= $data['site_url'];
         // $annonce->is_published= $data['is_published'];
         if(isset($data['status'])){
             $annonce->status = $data['status'];
@@ -177,7 +180,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones homepage
     function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->get();
+        $arrayAnnonce = $this->model->where('status','!=','0')->get(); //éviter les annonces expirées
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
@@ -198,7 +201,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones à la une homepage
     function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('abonnements')
+        $arrayAnnonce = $this->model->with('abonnements')->where('status','!=','0')
                                     ->whereHas('abonnements', function($query){
                                         $query->where('price','>',0);
                                     })->get();

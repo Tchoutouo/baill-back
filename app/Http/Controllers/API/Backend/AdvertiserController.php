@@ -89,15 +89,15 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             $request -> validate([
                 'username' => 'required|string|max:255', 
                 'last_name' => 'required|string|max:255',
-                // 'first_name' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
                 'email' => 'required|email', // unique dans la table users
                 'whatsapp_number' => 'required|min:9|max:9', // 9
                 'country' => 'required|string|max:255', 
                 'city' => 'required|string|max:255', 
                 'neighborhood' => 'required|string|max:255', 
-                // 'cni' => 'string|max:25',
-                // 'picture' => 'string|max:255',
-                // 'password' => 'required|string|min:8'
+                'cni' => 'string|max:25',
+                'picture' => 'string|max:255',
+                'password' => 'required|string|min:8'
             ],
             [
                 'error' => 'Erreur...',
