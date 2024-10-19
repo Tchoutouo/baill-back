@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Backend\UserController;
 use App\Http\Controllers\API\Backend\AdvertiserController;
 use App\Http\Controllers\API\Backend\CategorieController;
 use App\Http\Controllers\API\Backend\SousCategorieController;
+use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
 
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,11 @@ Route::prefix('/abonnement_back')->controller(AbonnementController::class)->grou
     Route::get('/{id}/show', 'show');
     Route::put('/{id}/update', 'update');
     Route::delete('/{id}/delete', 'destroy');
+});
+
+/**Route index visiteur */
+Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
+    Route::get('/', 'dashboard');
 });
 
 

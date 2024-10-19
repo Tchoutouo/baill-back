@@ -19,10 +19,6 @@ class AnnonceRepository   extends ResourcesRepository
         $this->pictureController = $pictureController;
     }
 
-    public function getById($id) {
-        $annonce = $this->model->where('id', $id)->first();
-        return $annonce;
-    }
 
     /**created annonce */
     public function created($data = array()) {
@@ -74,6 +70,7 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
+        $annonce->number= $data['number'];
         // $annonce->is_published= $data['is_published'];
         if(isset($data['status'])){
             $annonce->status = $data['status'];
@@ -172,6 +169,54 @@ class AnnonceRepository   extends ResourcesRepository
                 'status' => $new_status
             ]);
             return true;
+        }
+    }
+
+
+    //** Fonction côté visiteur */
+
+    // Tous les annones homepage
+    function getAllAnnonceFront(){
+        $arrayAnnonce = $this->model->get();
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $key => $annonce) {
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;  
+            }
+
+            return $arrayAnnonce;
+        }
+    }
+
+    // Tous les annones à la une homepage
+    function getAnnonceUne(){
+        $arrayAnnonce = $this->model->with('abonnements')
+                                    ->whereHas('abonnements', function($query){
+                                        $query->where('price','>',0);
+                                    })->get();
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $key => $annonce) {
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;  
+            }
+
+            return $arrayAnnonce;
         }
     }
 }
