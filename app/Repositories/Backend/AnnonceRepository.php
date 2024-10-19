@@ -71,9 +71,6 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
-        $annonce->number= $data['number'];
-        $annonce->sex= $data['sex'];
-        $annonce->site_url= $data['site_url'];
         // $annonce->is_published= $data['is_published'];
         if(isset($data['status'])){
             $annonce->status = $data['status'];
