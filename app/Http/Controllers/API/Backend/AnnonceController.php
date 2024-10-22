@@ -141,7 +141,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
            
             $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs);
 
-            $pictures = $this->pictureController->store($request, $inputsAnnonce->id);
+            $pictures = $this->pictureController->storePicture($request, $inputsAnnonce->id);
 
             if($pictures)
             {
