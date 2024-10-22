@@ -139,9 +139,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
         );
             $inputs = $this->annonceRepository->created($request->all());
            
-            $inputs = $this->annonceHandler->store($inputs);
+            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs);
 
-            $pictures = $this->pictureController->store($request, $inputs->id);
+            $pictures = $this->pictureController->store($request, $inputsAnnonce->id);
 
             if($pictures)
             {
@@ -192,9 +192,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
             ]);
 
             $result = $this->annonceRepository->updated($request->all(),$annonce);
-            $inputs = $this->annonceHandler->updated($result);
+            $inputsAnnonce = $this->annonceHandler->updated($result);
 
-            $pictures = $this->pictureController->updated($request, $inputs->id);
+            $pictures = $this->pictureController->updated($request, $inputsAnnonce->id);
 
             if($pictures){
                 return response()->json([

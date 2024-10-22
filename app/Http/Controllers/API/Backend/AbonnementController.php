@@ -6,6 +6,8 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+
 
 class AbonnementController extends \App\Http\Controllers\Controller
 {
@@ -75,9 +77,16 @@ class AbonnementController extends \App\Http\Controllers\Controller
     
             }
 
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
 
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur d\' enregistrement',
+                'errors' => $errors
+            ], 422);
         }
     }
 
