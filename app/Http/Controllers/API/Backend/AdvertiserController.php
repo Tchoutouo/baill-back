@@ -96,8 +96,8 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'city' => 'required|string|max:255', 
                 'neighborhood' => 'required|string|max:255', 
                 'cni' => 'string|max:25',
-                'picture' => 'string|max:255',
-                'password' => 'required|string|min:8'
+                'picture' => 'string',
+                // 'password' => 'required|string|min:8'
             ],
             [
                 'error' => 'Erreur...',

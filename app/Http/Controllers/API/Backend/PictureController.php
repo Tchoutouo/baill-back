@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 class PictureController extends Controller
 {
     //
-    function  store($request, $annonce_id){
+    function  storePicture($request, $annonce_id){
         
         /** Pour chaque image lié à l'annonce créer un enregistrement */
         if ($request->hasFile('images')) {
@@ -51,5 +51,15 @@ class PictureController extends Controller
                 }
             return true;
         }
+    }
+
+
+    // Get images the l'annonce
+
+    function getImage($id){
+        
+        $allImages = Picture::select('location')->where('annonce_id', $id)->get();
+
+        return $allImages;
     }
 }

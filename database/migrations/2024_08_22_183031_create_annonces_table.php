@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->string('contact')->nullable();
                 $table->string('country')->nullable();
                 $table->string('neighborhood')->nullable();
-                $table->string('location')->comment('lieu_dit');
+                $table->string('location')->nullable()->comment('lieu_dit');
                 // $table->boolean('is_published')->nullable()->default(false);
                 $table->string('status')->nullable()->default('1');
                 $table->string('is_forward')->nullable()->default('0');

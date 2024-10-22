@@ -38,6 +38,9 @@ class AbonnementRepository   extends ResourcesRepository
         $abonnement->price= $data['price'];
         $abonnement->type= $data['type'];
         $abonnement->is_actived= $data['is_actived'];
+        if (isset($data['hight_lite'])) {
+            $abonnement->hight_lite= $data['hight_lite'];
+        }
         $abonnement->save();
 
         return $abonnement;

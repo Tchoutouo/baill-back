@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API\Backend;
 use App\Repositories\Backend\AnnonceRepository;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\Backend\CategorieRepository;
+use App\Repositories\Backend\UserRepository;
 use App\Handlers\AnnonceHandler;
 use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 
 
 class AnnonceController extends \App\Http\Controllers\Controller
@@ -21,18 +23,65 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $abonnementController;
     protected $abonnementRepository;
     protected $categorieRepository;
+    protected $userRepository;
 
     public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
-    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository)
+    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
         $this->pictureController = $pictureController;
         $this->abonnementRepository = $abonnementRepository;
         $this->categorieRepository = $categorieRepository;
+        $this->userRepository = $userRepository;
     }
 
-    /** index */
+    /** Listing des annonces */
+    public function index($user_id, $nbr_annonce)
+    {
+        try{
+            $user = $this->userRepository->getById($user_id);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce);
+            
+            if(isset($allAnnonce)){
+                return response()->json([
+                    'success' => true,
+                    'user' => $user,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success' => false,
+                    'user' => $user,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
+        }catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
+    //Change status annonces
+    public function changeStatus($user_id, $annonce_id, $new_status){
+        $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status);
+
+        if(isset($changeStatus)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Status changé avec success',
+                'url' => route('dashboard',['id'=>$user_id])
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Echec lors de la mise à jour du status',
+            ]);
+        }
+    }
+    
+    /** create annonce */
     public function create(Request $request)
     {
         try{
@@ -47,29 +96,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
         }
     }
 
-    /** index */
-    public function dashboard($user)
-    {
-        dd("fdfdf");
-        try{
-            
-            return response()->json([]);
-        }catch(Exception $e){
-            return response()->json($e);
-        }
-    }
-
-    /** index */
-    public function index(Request $request)
-    {
-        
-        try{
-            
-            return response()->json([]);
-        }catch(Exception $e){
-            return response()->json($e);
-        }
-    }
 
     /**store */
     public function store(Request $request)
@@ -92,9 +118,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
         );
             $inputs = $this->annonceRepository->created($request->all());
            
-            $inputs = $this->annonceHandler->store($inputs);
+            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs);
 
-            $pictures = $this->pictureController->store($request, $inputs->id);
+            $pictures = $this->pictureController->storePicture($request, $inputsAnnonce->id);
 
             if($pictures)
             {
@@ -145,9 +171,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
             ]);
 
             $result = $this->annonceRepository->updated($request->all(),$annonce);
-            $inputs = $this->annonceHandler->updated($result);
+            $inputsAnnonce = $this->annonceHandler->updated($result);
 
-            $pictures = $this->pictureController->updated($request, $inputs->id);
+            $pictures = $this->pictureController->updated($request, $inputsAnnonce->id);
 
             if($pictures){
                 return response()->json([
@@ -180,7 +206,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
         try{
             $annonce = $this->annonceRepository->getById($id);
-    
+            
             if($annonce){
                 return response()->json([
                     'message' => 'success ',

@@ -52,7 +52,7 @@ class User extends Authenticatable
     //** Un users ne peut avoir qu'un seul profil */
     public function profils():BelongsTo
     {
-        return $this->belongsTo(Profil::class);
+        return $this->belongsTo(Profil::class,'profil_id');
     }
 
     //** Un users ne peut publier 0 ou +sieurs annonces */
@@ -65,7 +65,7 @@ class User extends Authenticatable
     //** Un users ne peut publier 0 ou +sieurs paiements */
     public function paiements():HasMany
     {
-        return $this->hasMany(Paiement::class);
+        return $this->hasMany(Paiement::class,'paiement_id');
     }
 
     //** Un user peut avoir un ou plusieurs droit d'accès */

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Exception;
 
 class LoginControleurAuth extends Controller
@@ -58,8 +59,16 @@ class LoginControleurAuth extends Controller
                 'token' => 'Les informations d\'identification ne sont pas correctes.',
             ]);
            
-        } catch (Exception $e) {
-            return $e;
+        } catch (ValidationException $e) {
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de connexion',
+                'errors' => $errors
+            ], 422);
         }
     }
 }

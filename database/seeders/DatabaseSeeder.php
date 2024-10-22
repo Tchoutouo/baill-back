@@ -10,6 +10,7 @@ use Database\Seeders\ProfilsTableSeeder;
 use Database\Seeders\UsersTableSeeder;
 use Database\Seeders\CategorieTableSeeder;
 use Database\Seeders\AbonnementTableSeed;
+use Database\Seeders\AnnonceTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(CategorieTableSeeder::class);
         $this->call(AbonnementTableSeed::class);
+        $this->call(AnnonceTableSeeder::class);
     }
 }

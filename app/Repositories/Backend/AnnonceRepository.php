@@ -4,20 +4,21 @@ namespace App\Repositories\Backend;
 use App\Models\Annonce;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Illuminate\Http\Request;
+use Laravel\Sail\Console\PublishCommand;
 
 class AnnonceRepository   extends ResourcesRepository
 {
     protected $abonnementRepository;
-    public function __construct(Annonce $annonce, AbonnementRepository $abonnementRepository) {
+    protected $pictureController;
+
+    public function __construct(Annonce $annonce, AbonnementRepository $abonnementRepository, PictureController $pictureController) {
         $this->model = $annonce;
         $this->abonnementRepository = $abonnementRepository;
+        $this->pictureController = $pictureController;
     }
 
-    public function getById($id) {
-        $annonce = $this->model->where('id', $id)->first();
-        return $annonce;
-    }
 
     /**created annonce */
     public function created($data = array()) {
@@ -44,7 +45,7 @@ class AnnonceRepository   extends ResourcesRepository
             }
         }
 
-        $annonce->location= "Centre";
+        $annonce->location= $data['location'];
         $annonce->user_id= $data['user_id'];
         $annonce->abonnement_id= $data['abonnement_id'];
 
@@ -62,6 +63,7 @@ class AnnonceRepository   extends ResourcesRepository
     public function updated($data = array(), $id) {
         //defininir update de annonce                
         $annonce = $this->model->find($id);
+        
         $annonce->title= $data['title'];
         $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
@@ -81,7 +83,7 @@ class AnnonceRepository   extends ResourcesRepository
             }
         }
 
-        $annonce->location= "Centre";
+        $annonce->location = $data['location'];
         $annonce->user_id= $data['user_id'];
         $annonce->abonnement_id= $data['abonnement_id'];
 
@@ -105,4 +107,121 @@ class AnnonceRepository   extends ResourcesRepository
         
     }
 
+
+    function getAllAnnonce($user_id, $nbr_annonce) {
+
+        // Récupération des annonces pour un utilisateur
+        $arrayAnnonce = $this->model->with('categories')->where('user_id', $user_id)->paginate($nbr_annonce);
+        
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $key => $annonce) {
+
+                // Afficher les noms des catégories
+                $annonce['name_categorie'] = $annonce->categories->pluck('title');
+                
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;  
+            }
+
+            return $arrayAnnonce;
+        }
+    }
+
+
+    // Count nombre d'annonce publier
+    function getAnnoncePublisher($user_id){
+        // Récupération des annonces pour un utilisateur
+        $annoncePublisher = $this->model->where('user_id', $user_id)->where('status', 3)->count();
+        return $annoncePublisher;
+    }
+    
+    // Count nombre d'annonce expirer
+    function getAnnonceExpired($user_id){
+        // Récupération des annonces pour un utilisateur
+        $annonceExpired= $this->model->where('user_id', $user_id)->where('status', 0)->count();
+        return $annonceExpired;
+    }
+    
+    // Count nombre d'annonce en cours
+    function getAnnonceInProgress($user_id){
+        // Récupération des annonces pour un utilisateur
+        $annonceInProgress= $this->model->where('user_id', $user_id)->where('status', 1)->count();
+        return $annonceInProgress;
+    }
+    
+    // Count nombre d'annonce en pause
+    function getAnnoncePause($user_id){
+        // Récupération des annonces pour un utilisateur
+        $annoncePause= $this->model->where('user_id', $user_id)->where('status', 2)->count();
+        return $annoncePause;
+    }
+    
+
+    // Change status annonces
+    function changeStatusAnnonce($user_id, $annonce_id, $new_status){
+        $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        if(isset($annonce))
+        {
+            $annonce->update([
+                'status' => $new_status
+            ]);
+            return true;
+        }
+    }
+
+
+    //** Fonction côté visiteur */
+
+    // Tous les annones homepage
+    function getAllAnnonceFront(){
+        $arrayAnnonce = $this->model->where('status','!=','0')->get(); //éviter les annonces expirées
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $key => $annonce) {
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;  
+            }
+
+            return $arrayAnnonce;
+        }
+    }
+
+    // Tous les annones à la une homepage
+    function getAnnonceUne(){
+        $arrayAnnonce = $this->model->with('abonnements')->where('status','!=','0')
+                                    ->whereHas('abonnements', function($query){
+                                        $query->where('price','>',0);
+                                    })->get();
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $key => $annonce) {
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;  
+            }
+
+            return $arrayAnnonce;
+        }
+    }
 }

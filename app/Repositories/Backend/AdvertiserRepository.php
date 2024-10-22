@@ -55,6 +55,9 @@ class AdvertiserRepository   extends ResourcesRepository
         $advertiser->city= $data['city'];
         $advertiser->neighborhood= $data['neighborhood'];
         $advertiser->password= $data['password'];
+        $advertiser->number= $data['number'];
+        $advertiser->sex= $data['sex'];
+        $advertiser->site_url= $data['site_url'];
         if(isset($data['cni'])){
             $advertiser->cni= $data['cni'];
         }

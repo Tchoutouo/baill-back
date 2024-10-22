@@ -24,24 +24,27 @@ class AbonnementTableSeed extends Seeder
             "price"=> 0,
             "type"=> "Free",
             "is_actived"=> 1,
+            "hight_lite"=> "1",
         ]);
 
         Abonnement::create([
             "name"=>"Standard",
             "description"=>"L'annonce est standard",
             "time"=> 30,
-            "price"=> 0,
+            "price"=> 20,
             "type"=> "Standard",
             "is_actived"=> 1,
+            "hight_lite"=> "1",
         ]);
 
         Abonnement::create([
             "name"=>"Premium",
             "description"=>"L'annonce est premium",
             "time"=> 30,
-            "price"=> 0,
+            "price"=> 10,
             "type"=> "Premium",
             "is_actived"=> 1,
+            "hight_lite"=> "1",
         ]);
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

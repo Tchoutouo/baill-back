@@ -19,7 +19,7 @@ class AnnonceHandler  {
 
     }
 
-    public function store ($inputs){
+    public function storeAnnonce ($inputs){
         try {
            
 
