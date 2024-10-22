@@ -36,26 +36,18 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $this->userRepository = $userRepository;
     }
 
-    /** Dashbord d'un annonceur */
-    public function dashboard($user_id)
+    /** Listing des annonces */
+    public function index($user_id, $nbr_annonce)
     {
         try{
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id);
-            $annoncePublisher = $this->annonceRepository->getAnnoncePublisher($user->id);
-            $annonceExpired = $this->annonceRepository->getAnnonceExpired($user->id);
-            $annonceInProgress = $this->annonceRepository->getAnnonceInProgress($user->id);
-            $annoncePause = $this->annonceRepository->getAnnoncePause($user->id);
-
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce);
+            
             if(isset($allAnnonce)){
                 return response()->json([
                     'success' => true,
                     'user' => $user,
                     'annonces' => $allAnnonce,
-                    'annonce_qte_publisher' => $annoncePublisher,
-                    'annonce_qte_expired' => $annonceExpired,
-                    'annonce_qte_inprogress' => $annonceInProgress,
-                    'annonce_qte_pause' => $annoncePause,
                 ]);
             }
             else{
@@ -88,19 +80,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
             ]);
         }
     }
-
-    /** index */
-    public function index(Request $request)
-    {
-        
-        try{
-            
-            return response()->json([]);
-        }catch(Exception $e){
-            return response()->json($e);
-        }
-    }
-
     
     /** create annonce */
     public function create(Request $request)
