@@ -108,14 +108,19 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
 
-    function getAllAnnonce($user_id) {
+    function getAllAnnonce($user_id, $nbr_annonce) {
 
         // Récupération des annonces pour un utilisateur
-        $arrayAnnonce = $this->model->where('user_id', $user_id)->get();
+        $arrayAnnonce = $this->model->with('categories')->where('user_id', $user_id)->paginate($nbr_annonce);
+        
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as $key => $annonce) {
+
+                // Afficher les noms des catégories
+                $annonce['name_categorie'] = $annonce->categories->pluck('title');
+                
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $image = [];
 

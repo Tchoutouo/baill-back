@@ -68,7 +68,7 @@ Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class
 
 /**Route liée l'annonce */
 Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
-    Route::get('/', 'index');
+    Route::get('/{user_id}/{nbr_annonce}', 'index');
     Route::get('/create', 'create');
     Route::post('store','store');
     Route::get('/show/{id}', 'show');
