@@ -100,8 +100,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        
-        
+       
+
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
