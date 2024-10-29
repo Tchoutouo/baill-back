@@ -246,7 +246,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones homepage
     function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->with('categories')->where('status','3')->get(); //les annonces publiées
+        $arrayAnnonce = $this->model->with('categories')->where('status','3')->paginate(12); //les annonces publiées
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
