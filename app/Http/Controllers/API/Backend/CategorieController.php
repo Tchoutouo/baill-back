@@ -14,6 +14,7 @@ class CategorieController extends \App\Http\Controllers\Controller
     public function __construct(CategorieRepository $categorieRepository)
     {
         $this->categorieRepository = $categorieRepository;
+        $this->middleware('cors');
     }
 
     /** index */
