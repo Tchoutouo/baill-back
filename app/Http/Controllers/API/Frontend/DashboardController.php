@@ -29,10 +29,17 @@ class DashboardController extends \App\Http\Controllers\Controller
         $allAnnonce = $this->annonceRepository->getAllAnnonceFront();
         $annonceUne = $this->annonceRepository->getAnnonceUne();
         $allCategorie = $this->categorieRepository->getAll();
-        return response()->json([
-            'data_annonce'=> $allAnnonce,
-            'data_annonce_une'=> $annonceUne,
-            'data_categorie'=> $allCategorie,
-        ]);
+        if(isset($allCategorie)){
+            return response()->json([
+                'success'=> true,
+                'data_annonce'=> $allAnnonce,
+                'data_annonce_une'=> $annonceUne,
+                'data_categorie'=> $allCategorie,
+            ]);
+        }else{
+            return response()->json([
+                'success'=> false,
+            ]);
+        }
     }
 }
