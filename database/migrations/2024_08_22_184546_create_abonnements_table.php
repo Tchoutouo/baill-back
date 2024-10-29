@@ -17,10 +17,9 @@ return new class extends Migration
                 $table->string('name');
                 $table->string('description');
                 $table->integer('time');
-                $table->integer('price')->unique();
+                $table->integer('price');
                 $table->string('type');
                 $table->integer('is_actived');
-                $table->string('hight_lite')->nullable();
                 $table->timestamps();
             });
         }

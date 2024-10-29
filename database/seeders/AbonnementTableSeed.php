@@ -24,7 +24,7 @@ class AbonnementTableSeed extends Seeder
             "price"=> 0,
             "type"=> "Free",
             "is_actived"=> 1,
-            "hight_lite"=> "1",
+            "hight_lite"=> true,
         ]);
 
         Abonnement::create([
@@ -34,7 +34,7 @@ class AbonnementTableSeed extends Seeder
             "price"=> 20,
             "type"=> "Standard",
             "is_actived"=> 1,
-            "hight_lite"=> "1",
+            "hight_lite"=> true,
         ]);
 
         Abonnement::create([
