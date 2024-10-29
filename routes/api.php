@@ -71,7 +71,7 @@ Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(func
     Route::get('/{user_id}/{nbr_annonce}', 'index');
     Route::get('/create', 'create');
     Route::post('store','store');
-    Route::get('/show/{id}', 'show');
+    Route::get('/shows/{id}', 'shows');
     Route::put('/update/{id}', 'update');
     Route::delete('/delete/{id}', 'destroy');
     Route::get('/dashboard/{id}', 'dashboard')->name('dashboard');

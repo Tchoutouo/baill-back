@@ -5,8 +5,10 @@ use App\Models\Annonce;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
 use App\Http\Controllers\Api\Backend\PictureController;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Laravel\Sail\Console\PublishCommand;
+use Nette\Utils\Random;
 
 class AnnonceRepository   extends ResourcesRepository
 {
@@ -30,6 +32,7 @@ class AnnonceRepository   extends ResourcesRepository
         // $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
         $annonce->price= $data['price'];
+        $annonce->reference = "ANNONCE_" . date('Y_His');
         // $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
@@ -47,7 +50,10 @@ class AnnonceRepository   extends ResourcesRepository
 
         $annonce->location= $data['location'];
         $annonce->user_id= $data['user_id'];
-        $annonce->abonnement_id= $data['abonnement_id'];
+
+        if (isset($data['abonnement_id'])) {
+            $annonce->abonnement_id= $data['abonnement_id'];
+        }
 
         $annonceTable = [
             'annonce'=> $annonce,
@@ -85,7 +91,10 @@ class AnnonceRepository   extends ResourcesRepository
 
         $annonce->location = $data['location'];
         $annonce->user_id= $data['user_id'];
-        $annonce->abonnement_id= $data['abonnement_id'];
+
+        if (isset($data['abonnement_id'])) {
+            $annonce->abonnement_id= $data['abonnement_id'];
+        }
 
         $annonceTable = [
             'annonce'=> $annonce,
@@ -107,32 +116,87 @@ class AnnonceRepository   extends ResourcesRepository
         
     }
 
-
-    function getAllAnnonce($user_id, $nbr_annonce) {
+    // Tous les annonces liées à un utilisateur
+    function getAllAnnonce($user_id, $nbr_annonce, $detail = null) {
 
         // Récupération des annonces pour un utilisateur
-        $arrayAnnonce = $this->model->with('categories')->where('user_id', $user_id)->paginate($nbr_annonce);
+        $arrayAnnonce = $this->model
+                    ->with('categories')
+                    ->with('abonnements')
+                    ->where('user_id', $user_id)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($nbr_annonce);
         
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $key => $annonce) {
-
-                // Afficher les noms des catégories
-                $annonce['name_categorie'] = $annonce->categories->pluck('title');
+            foreach ($arrayAnnonce as $annonce) {
                 
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $image = [];
-
-                //Parcourir chaque image add à son annonce
-                foreach ($picture as $key => $pict) {
-                    $image[] = $pict->location;
+                if ($annonce->status === '1') {
+                    $annonce['next_expiration_date'] = '...';
+                }else {
+                    // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
+                    $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
+                    
+                    // Vérifier si cette date est dépassée
+                    if (Carbon::now()->greaterThan($nextExpirationDate)) {
+                        // Si la date est dépassée, on met "expiré"
+                        $annonce['next_expiration_date'] = 'expiré';
+                    } else {
+                        // Sinon, on retourne la date au format AAAA-MM-JJ
+                        $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                    }
                 }
-                $annonce['url_image']= $image;  
+
+                if(isset($detail)){
+                    $picture  = $this->pictureController->getImage($annonce->id);
+                    $image = [];
+    
+                    //Parcourir chaque image add à son annonce
+                    foreach ($picture as $pict) {
+                        $image[] = $pict->location;
+                    }
+                    $annonce['url_image']= $image;
+                }
             }
 
             return $arrayAnnonce;
         }
+    }
+
+
+    function getAnnonce($annonce_id) {
+
+        // Récupération des annonces pour un utilisateur
+        $annonce = $this->model->with('categories')->with('abonnements')->where('id', $annonce_id)->first();
+        
+
+        // Vérifiez si la collection est vide
+        if ($annonce->isNotEmpty()) {
+                // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
+                $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
+                
+                // Vérifier si cette date est dépassée
+                if (Carbon::now()->greaterThan($nextExpirationDate)) {
+                    // Si la date est dépassée, on met "expiré"
+                    $annonce['next_expiration_date'] = 'expiré';
+                } else {
+                    // Sinon, on retourne la date au format AAAA-MM-JJ
+                    $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                }
+
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;
+
+            return $annonce;
+        }
+        return null;
     }
 
 
@@ -182,7 +246,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones homepage
     function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->where('status','!=','0')->get(); //éviter les annonces expirées
+        $arrayAnnonce = $this->model->with('categories')->where('status','3')->get(); //les annonces publiées
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
@@ -203,9 +267,9 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones à la une homepage
     function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('abonnements')->where('status','!=','0')
+        $arrayAnnonce = $this->model->with('categories')->with('abonnements')->where('status','3')
                                     ->whereHas('abonnements', function($query){
-                                        $query->where('price','>',0);
+                                        $query->where('hight_lite',1);
                                     })->get();
 
         // Vérifiez si la collection est vide
@@ -218,7 +282,7 @@ class AnnonceRepository   extends ResourcesRepository
                 foreach ($picture as $key => $pict) {
                     $image[] = $pict->location;
                 }
-                $annonce['url_image']= $image;  
+                $annonce['url_image']= $image;
             }
 
             return $arrayAnnonce;

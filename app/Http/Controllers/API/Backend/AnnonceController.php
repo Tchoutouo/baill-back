@@ -202,10 +202,11 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /**show */
-    public function show($id)
+    public function shows($annonce_id)
     {
+        dd("sds");
         try{
-            $annonce = $this->annonceRepository->getById($id);
+            $annonce = $this->annonceRepository->getAnnonce($annonce_id);
             
             if($annonce){
                 return response()->json([

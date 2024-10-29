@@ -21,6 +21,7 @@ class AnnonceTableSeeder extends Seeder
                 "title" => "Chambre à louer " . ($i + 1),
                 "subtitle" => "Porte " . ($i + 1),
                 "description" => "Description de la chambre " . ($i + 1),
+                "reference" => "ANN " . ($i + 1),
                 "price" => rand(2000, 5000) + (rand(0, 99) / 100), // Prix aléatoire entre 2000 et 5000
                 "contact" => "693124" . rand(1000, 9999), // Numéro de contact aléatoire
                 "country" => "Cameroun",
