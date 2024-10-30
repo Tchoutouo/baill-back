@@ -37,11 +37,11 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /** Listing des annonces */
-    public function index($user_id, $nbr_annonce)
+    public function index($user_id, $nbr_annonce, $search = null)
     {
         try{
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
             
             if(isset($allAnnonce)){
                 return response()->json([
@@ -201,10 +201,15 @@ class AnnonceController extends \App\Http\Controllers\Controller
         }
     }
 
+    /** Détail annonce */
+    public function detail($id){
+        dd($id);   
+    }
+
     /**show */
     public function shows($annonce_id)
     {
-        dd("sds");
+        dd("bonjour");
         try{
             $annonce = $this->annonceRepository->getAnnonce($annonce_id);
             

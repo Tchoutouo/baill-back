@@ -117,16 +117,26 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Tous les annonces liées à un utilisateur
-    function getAllAnnonce($user_id, $nbr_annonce, $detail = null) {
+    function getAllAnnonce($user_id, $nbr_annonce, $search = null) {
 
         // Récupération des annonces pour un utilisateur
         $arrayAnnonce = $this->model
                     ->with('categories')
                     ->with('abonnements')
-                    ->where('user_id', $user_id)
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($nbr_annonce);
-        
+                    ->where('user_id', $user_id);
+
+                // Si $search existe
+                if ($search) {
+                $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
+                        $q->where('title', 'LIKE', "%$search%")
+                        ->orWhereHas('categories', function ($q) use ($search) {
+                            $q->where('title', 'LIKE', "%$search%");
+                        });
+                    });
+                }
+
+                $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
+                ->paginate($nbr_annonce);
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
@@ -250,12 +260,12 @@ class AnnonceRepository   extends ResourcesRepository
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $key => $annonce) {
+            foreach ($arrayAnnonce as  $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $image = [];
 
                 //Parcourir chaque image add à son annonce
-                foreach ($picture as $key => $pict) {
+                foreach ($picture as  $pict) {
                     $image[] = $pict->location;
                 }
                 $annonce['url_image']= $image;  
