@@ -26,6 +26,7 @@ class PictureController extends Controller
                     ]);
                     $paths[] = $path;
                 }
+                
             return true;
         }
     }
