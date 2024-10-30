@@ -48,11 +48,7 @@ class DashboardController extends \App\Http\Controllers\Controller
     public function trie(Request $request)
     {
         try{
-            $categ = $request->query('categ');
-            $country = $request->query('country');
-            $city = $request->query('city');
-            $allAnnonce = $this->annonceRepository->getTrieAnnonce($categ, $country, $city);
-            
+            $allAnnonce = $this->annonceRepository->getTrieAnnonce($request->categ, $request->country, $request->city);
             if(isset($allAnnonce)){
                 return response()->json([
                     'success' => true,
