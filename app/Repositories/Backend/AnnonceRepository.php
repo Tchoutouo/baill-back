@@ -277,7 +277,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones à la une homepage
     function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('categories')->with('abonnements')->where('status','3')
+        $arrayAnnonce = $this->model->with('users')->with('categories')->with('abonnements')->where('status','3')
                                     ->whereHas('abonnements', function($query){
                                         $query->where('hight_lite',1);
                                     })->get();
@@ -290,6 +290,53 @@ class AnnonceRepository   extends ResourcesRepository
 
                 //Parcourir chaque image add à son annonce
                 foreach ($picture as $key => $pict) {
+                    $image[] = $pict->location;
+                }
+                $annonce['url_image']= $image;
+            }
+
+            return $arrayAnnonce;
+        }
+    }
+
+    
+    // Trie en fonction des categories/country/city
+    function getTrieAnnonce($categ = null, $country = null, $city = null) {
+        // Récupération des annonces pour un utilisateur
+        $arrayAnnonce = $this->model
+                    ->with('users')
+                    ->with('categories')
+                    ->with('abonnements')
+                    ->where('status','3');
+                    
+                // Si $categorie existe
+                if ($categ){
+                    $arrayAnnonce = $arrayAnnonce->whereHas('categories', function ($q) use ($categ) {
+                        $q->where('title', 'LIKE', "%$categ%");
+                    });
+                }
+
+                // Si $country existe
+                if ($country) {
+                    $arrayAnnonce->where('country', 'LIKE', "%$country%");
+                }
+                
+                // Si $city existe
+                if ($city) {
+                    $arrayAnnonce->where('location', 'LIKE', "%$city%");
+                }
+                
+                $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
+                ->paginate(12);
+
+        // Vérifiez si la collection est vide
+        if ($arrayAnnonce->isNotEmpty()) {
+            foreach ($arrayAnnonce as $annonce) {
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $pict) {
                     $image[] = $pict->location;
                 }
                 $annonce['url_image']= $image;

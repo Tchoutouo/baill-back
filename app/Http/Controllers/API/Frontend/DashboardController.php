@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\AnnonceRepository;
 use App\Http\Controllers\Api\Backend\PictureController;
+use Exception;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
@@ -40,6 +41,32 @@ class DashboardController extends \App\Http\Controllers\Controller
             return response()->json([
                 'success'=> false,
             ]);
+        }
+    }
+
+    /** Trie homepage */
+    public function trie(Request $request)
+    {
+        try{
+            $categ = $request->query('categ');
+            $country = $request->query('country');
+            $city = $request->query('city');
+            $allAnnonce = $this->annonceRepository->getTrieAnnonce($categ, $country, $city);
+            
+            if(isset($allAnnonce)){
+                return response()->json([
+                    'success' => true,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success' => false,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
+        }catch(Exception $e){
+            return response()->json($e);
         }
     }
 }
