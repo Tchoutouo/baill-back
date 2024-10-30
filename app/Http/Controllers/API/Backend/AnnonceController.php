@@ -55,7 +55,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 return response()->json([
                     'success' => false,
                     'user' => $user,
-                    'annonces' => $allAnnonce,
+                    'annonces' => [],
                 ]);
             }
         }catch(Exception $e){
