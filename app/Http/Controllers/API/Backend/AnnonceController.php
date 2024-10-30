@@ -39,6 +39,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** Listing des annonces */
     public function index($user_id, $nbr_annonce, $search = null)
     {
+
         try{
             $user = $this->userRepository->getById($user_id);
             $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
