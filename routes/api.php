@@ -101,7 +101,7 @@ Route::prefix('/abonnement_back')->controller(AbonnementController::class)->grou
 /**Route index visiteur */
 Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
     Route::get('/', 'dashboard');
-    Route::get('/trie/{objectTri}', 'trie');
+    Route::post('/trie', 'trie');
 });
 
 

@@ -318,6 +318,7 @@ class AnnonceRepository   extends ResourcesRepository
 
                 // Si $country existe
                 if ($country) {
+                    dd("ffff00");
                     $arrayAnnonce->where('country', 'LIKE', "%$country%");
                 }
                 
