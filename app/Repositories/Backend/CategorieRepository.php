@@ -4,6 +4,7 @@ namespace App\Repositories\Backend;
 use App\Models\Categorie;
 use App\Models\User;
 use App\Repositories\ResourcesRepository;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Illuminate\Http\Request;
 
 use function PHPSTORM_META\type;
@@ -11,8 +12,11 @@ use function PHPSTORM_META\type;
 class CategorieRepository   extends ResourcesRepository
 {
 
-    public function __construct(Categorie $categorie) {
+    private $pictureController;
+
+    public function __construct(Categorie $categorie, PictureController $pictureController) {
         $this->model = $categorie;
+        $this->pictureController = $pictureController;
     }
 
     public function getAll() {
@@ -92,8 +96,18 @@ class CategorieRepository   extends ResourcesRepository
             $arrayCa = [];
 
             foreach ($annonces as $annonce) {
-                $annonce['users'] = User::find($annonce->user_id);
                 $arrayCa[]= $categorie->title;
+                
+                $picture  = $this->pictureController->getImage($annonce->id);
+                $image = [];
+                
+                //Parcourir chaque image add à son annonce
+                foreach ($picture as $pictu) {
+                    $image[] = $pictu->location;
+                }
+                
+                $annonce['url_image']= $image;
+                $annonce['users'] = User::find($annonce->user_id);
                 $annonce['categorie'] = $arrayCa;
             }
         }
