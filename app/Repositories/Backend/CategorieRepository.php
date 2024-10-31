@@ -80,4 +80,17 @@ class CategorieRepository   extends ResourcesRepository
         }
     }
 
+
+    public function getAnnonceCateg($arrayCateg){
+
+        $arrayCateg = json_decode($arrayCateg);
+        for ($i=0; $i < count($arrayCateg); $i++) { 
+            $categorie = $this->model->with('annonces')->find($arrayCateg[$i]);
+            dd($categorie->annonces());
+            foreach ($categorie->annonces() as $value) {
+                # code...
+            }
+        }
+    }
+
 }
