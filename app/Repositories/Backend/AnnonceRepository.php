@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Backend;
 use App\Models\Annonce;
+use App\Models\Picture;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
 use App\Http\Controllers\Api\Backend\PictureController;
@@ -108,11 +109,24 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     /**destroy annonce */
-    public function destroy($id) {
-        //defininir destroy de annonce
+    public function deleteAnnonce($id, $categorie) {
 
-        // $annonce = $this->model->find($id);
-        // $annonce->categories()->detach();
+        $annonce = $this->model->with('categories')->find($id);
+        if(!empty($annonce)){
+            if($annonce->status === "3"){
+                //Supprimer les attâches dans la table pivot
+                for ($i=0; $i < count($categorie); $i++) {
+                    $annonce->categories()->detach($categorie[$i]);
+                }
+                // dd($annonce);
+
+                // Supprimer ses images 
+                Picture::where('annonce_id', $annonce->id)->delete();
+
+                $annonce->delete();
+                return true;
+            }
+        }
         
     }
 
