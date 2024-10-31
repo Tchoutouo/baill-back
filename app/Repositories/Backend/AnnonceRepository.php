@@ -264,6 +264,18 @@ class AnnonceRepository   extends ResourcesRepository
         }
     }
 
+    // Change abonnment annonces
+    function changeAbonnementAnnonce($user_id, $annonce_id, $new_abonnement){
+        $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        if(isset($annonce))
+        {
+            $annonce->update([
+                'abonnement_id' => $new_abonnement
+            ]);
+            return true;
+        }
+    }
+
 
     //** Fonction côté visiteur */
 
