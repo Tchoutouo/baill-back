@@ -208,19 +208,19 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /**show */
-    public function shows($annonce_id)
+    public function get_annonce($annonce_id)
     {
-        dd("bonjour");
         try{
             $annonce = $this->annonceRepository->getAnnonce($annonce_id);
             
             if($annonce){
                 return response()->json([
-                    'message' => 'success ',
+                    'success' => true,
                     'data' => $annonce,
                 ]);
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
                 );

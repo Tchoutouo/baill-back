@@ -176,13 +176,12 @@ class AnnonceRepository   extends ResourcesRepository
 
 
     function getAnnonce($annonce_id) {
-
         // Récupération des annonces pour un utilisateur
-        $annonce = $this->model->with('categories')->with('abonnements')->where('id', $annonce_id)->first();
+        $annonce = $this->model->with('users')->with('categories')->with('abonnements')->where('id', $annonce_id)->first();
         
-
+        
         // Vérifiez si la collection est vide
-        if ($annonce->isNotEmpty()) {
+        if (!empty($annonce)) {
                 // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
                 $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
                 

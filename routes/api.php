@@ -82,12 +82,12 @@ Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(func
     Route::get('/{user_id}/{nbr_annonce}/{search?}', 'index');
     Route::get('/create', 'create');
     Route::post('store','store');
-    Route::get('/shows/{id}', 'shows');
     Route::put('/update/{id}', 'update');
     Route::delete('/delete/{id}', 'destroy');
     Route::get('/dashboard/{id}', 'dashboard')->name('dashboard');
     Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
 });
+Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 
 /**Route liée aux abonnements */
 Route::prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
