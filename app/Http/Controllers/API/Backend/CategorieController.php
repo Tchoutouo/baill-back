@@ -165,4 +165,11 @@ class CategorieController extends \App\Http\Controllers\Controller
             return response()->json($e);
         }
     }
+
+
+    //** Listes des annonces en fonction des catégories */
+    public function categAnnonce($arrayCateg){
+        $result = $this->categorieRepository->getAnnonceCateg($arrayCateg);
+        
+    }
 }
