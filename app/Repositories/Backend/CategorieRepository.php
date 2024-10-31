@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Backend;
 use App\Models\Categorie;
+use App\Models\User;
 use App\Repositories\ResourcesRepository;
 use Illuminate\Http\Request;
 
@@ -83,14 +84,21 @@ class CategorieRepository   extends ResourcesRepository
 
     public function getAnnonceCateg($arrayCateg){
 
-        $arrayCateg = json_decode($arrayCateg);
-        for ($i=0; $i < count($arrayCateg); $i++) { 
+        for ($i=0; $i < count($arrayCateg); $i++) {
+
             $categorie = $this->model->with('annonces')->find($arrayCateg[$i]);
-            dd($categorie->annonces());
-            foreach ($categorie->annonces() as $value) {
-                # code...
+
+            $annonces = $categorie->annonces()->get();
+            $arrayCa = [];
+
+            foreach ($annonces as $annonce) {
+                $annonce['users'] = User::find($annonce->user_id);
+                $arrayCa[]= $categorie->title;
+                $annonce['categorie'] = $arrayCa;
             }
         }
+
+        return $annonces;
     }
 
 }
