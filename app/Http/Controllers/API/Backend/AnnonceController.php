@@ -12,7 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
-
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class AnnonceController extends \App\Http\Controllers\Controller
 {
@@ -232,22 +232,25 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /**destroy */
-    public function destroy(Request $request, $id)
+    public function destroy($id, $arrayCategorie)
     {
+        $arrayCategorie = json_decode($arrayCategorie);
+        
         try{
-            $result = $this->annonceRepository->destroy($id);
-
+            $result = $this->annonceRepository->deleteAnnonce($id,$arrayCategorie);
             if(isset($result))
             {
                 return response()->json([
-                    'message' => 'Une erreur est survenu lors de la suppression',
+                    'success' => true,
+                    'message' => 'Annonce supprimé avec success',
                     ]
                 );
                 
 
             }else{
                 return response()->json([
-                    'message' => 'Annonce supprimé avec success',
+                    'success' => false,
+                    'message' => 'Une erreur est survenu lors de la suppression',
                     ]
                 );
 
