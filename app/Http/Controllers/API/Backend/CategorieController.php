@@ -169,7 +169,27 @@ class CategorieController extends \App\Http\Controllers\Controller
 
     //** Listes des annonces en fonction des catégories */
     public function categAnnonce($arrayCateg){
-        $result = $this->categorieRepository->getAnnonceCateg($arrayCateg);
         
+        try{
+            $arrayCateg = json_decode($arrayCateg);
+            $categorie = $this->categorieRepository->getAnnonceCateg($arrayCateg);
+    
+            if($categorie){
+                return response()->json([
+                    'success' => true,
+                    'data' => $categorie,
+                ]);
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'data' => [],
+                    ]
+                );
+            }
+        }
+        catch(Exception $e){
+            return response()->json($e);
+
+        }
     }
 }
