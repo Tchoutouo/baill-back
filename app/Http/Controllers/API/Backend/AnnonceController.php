@@ -105,18 +105,28 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** create annonce */
     public function create(Request $request)
     {
-        dd('inside creqte');
-        try{
-            $allAbonnement = $this->abonnementRepository->getAll();
-            $allCategorie = $this->categorieRepository->getAll();
-            dd("allAbonnement", $allAbonnement);
-            return response()->json([
-                'abonnement'=>$allAbonnement,
-                'categorie'=>$allCategorie,
-            ]);
-        }catch(Exception $e){
-            return response()->json($e);
-        }
+        try {  
+            // Votre logique pour créer une annonce  
+            return response()->json(['message' => 'Annonce created successfully!'], 201);  
+        } catch (\Exception $e) {  
+            // Journalisation de l'erreur  
+            \Log::error($e);  
+    
+            // Réponse en cas d'erreur  
+            return response()->json(['error' => 'Une erreur est survenue.'], 500);  
+        }  
+        // dd('inside creqte');
+        // try{
+        //     $allAbonnement = $this->abonnementRepository->getAll();
+        //     $allCategorie = $this->categorieRepository->getAll();
+        //     dd("allAbonnement", $allAbonnement);
+        //     return response()->json([
+        //         'abonnement'=>$allAbonnement,
+        //         'categorie'=>$allCategorie,
+        //     ]);
+        // }catch(Exception $e){
+        //     return response()->json($e);
+        // }
     }
 
 
