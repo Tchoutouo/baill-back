@@ -39,6 +39,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** Listing des annonces */
     public function index($user_id, $nbr_annonce, $search = null)
     {
+
         try{
             $user = $this->userRepository->getById($user_id);
             $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
@@ -133,8 +134,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        
-        
+       
+
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
@@ -247,6 +248,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]);
             }else{
                 return response()->json([
+                    
                     'success' => false,
                     'message' => 'identifiant non valide ',
                     ]

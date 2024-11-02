@@ -107,6 +107,7 @@ Route::prefix('/home_back')->controller(DashboardController::class)->group(funct
 });
 
 
+
 // Route pour traiter la soumission du formulaire de connexion
 Route::post('/login', [LoginControleurAuth::class, 'login']);
 

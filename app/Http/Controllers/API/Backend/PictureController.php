@@ -26,6 +26,7 @@ class PictureController extends Controller
                     ]);
                     $paths[] = $path;
                 }
+                
             return true;
         }
     }
@@ -59,12 +60,6 @@ class PictureController extends Controller
     function getImage($id){
         
         $allImages = Picture::select('location')->where('annonce_id', $id)->get();
-        $url = [];
-        if(isset($allImages)){
-            foreach($allImages as $image){
-                $url[] = asset('storage/' . $image->location);
-            }
-            return $url;
-        }
+        return $allImages;
     }
 }
