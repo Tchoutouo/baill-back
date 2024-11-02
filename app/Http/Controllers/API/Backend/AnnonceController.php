@@ -108,6 +108,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
         try{
             $allAbonnement = $this->abonnementRepository->getAll();
             $allCategorie = $this->categorieRepository->getAll();
+            dd("allAbonnement", $allAbonnement);
             return response()->json([
                 'abonnement'=>$allAbonnement,
                 'categorie'=>$allCategorie,
