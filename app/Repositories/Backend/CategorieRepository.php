@@ -4,7 +4,7 @@ namespace App\Repositories\Backend;
 use App\Models\Categorie;
 use App\Models\User;
 use App\Repositories\ResourcesRepository;
-use App\Http\Controllers\Api\Backend\PictureController;
+use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Http\Request;
 
 use function PHPSTORM_META\type;
