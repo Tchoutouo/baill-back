@@ -21,6 +21,7 @@ class CategorieController extends \App\Http\Controllers\Controller
     {
         try{
             $allCategorie = $this->categorieRepository->getAll();
+            dd("allCategorie",$allCategorie);
             if(!empty($allCategorie)){
                 return response()->json([
                     'success'=>true,
