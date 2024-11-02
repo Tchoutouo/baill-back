@@ -27,16 +27,16 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::middleware(['cors'])->group(function () {
-//     /**Route liée à la categorie */
-//     Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
-//         Route::get('/', 'index');
-//         Route::post('store','store');
-//         Route::get('/show/{id}', 'show');
-//         Route::put('/update/{id}', 'update');
-//         Route::delete('/delete/{id}', 'destroy');
-//     });
-// });
+Route::middleware(['cors'])->group(function () {
+    /**Route liée à la categorie */
+    Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
+        Route::get('/', 'index');
+        Route::post('store','store');
+        Route::get('/show/{id}', 'show');
+        Route::put('/update/{id}', 'update');
+        Route::delete('/delete/{id}', 'destroy');
+    });
+});
 
 
 Route::prefix('/users_back')->controller(UserController::class)->group(function(){
@@ -59,14 +59,14 @@ Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->grou
 
 
 /**Route liée à la categorie */
-Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
-    Route::get('/', 'index');
-    Route::post('store','store');
-    Route::get('/show/{id}', 'show');
-    Route::put('/update/{id}', 'update');
-    Route::delete('/delete/{id}', 'destroy');
-    Route::get('/annonce_by_categ/{array_categ}', 'categAnnonce');
-});
+// Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
+//     Route::get('/', 'index');
+//     Route::post('store','store');
+//     Route::get('/show/{id}', 'show');
+//     Route::put('/update/{id}', 'update');
+//     Route::delete('/delete/{id}', 'destroy');
+//     Route::get('/annonce_by_categ/{array_categ}', 'categAnnonce');
+// });
 
 
 /**Route liée à la sous-categorie */
