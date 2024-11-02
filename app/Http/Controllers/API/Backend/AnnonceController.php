@@ -7,7 +7,7 @@ use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\UserRepository;
 use App\Handlers\AnnonceHandler;
-use App\Http\Controllers\Api\Backend\PictureController;
+use App\Http\Controllers\API\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -220,6 +220,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]);
             }else{
                 return response()->json([
+                    
                     'success' => false,
                     'message' => 'identifiant non valide ',
                     ]

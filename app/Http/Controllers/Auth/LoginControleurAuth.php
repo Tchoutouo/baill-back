@@ -35,7 +35,7 @@ class LoginControleurAuth extends Controller
                     'success' => true,
                     'data' => $user,
                     'token' => $token,
-                    'redirect_url' => route('dashboard', ['id' => $user])
+                    // 'redirect_url' => route('dashboard', ['id' => $user])
                 ]);
             }
 
@@ -49,7 +49,7 @@ class LoginControleurAuth extends Controller
                     'success' => true,
                     'data' => $user,
                     'token' => $token,
-                    'redirect_url' => route('dashboard', ['id' => $user])
+                    // 'redirect_url' => route('dashboard', ['id' => $user])
                 ]);
             }
 
