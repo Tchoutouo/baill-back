@@ -105,6 +105,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** create annonce */
     public function create(Request $request)
     {
+        dd('inside creqte');
         try{
             $allAbonnement = $this->abonnementRepository->getAll();
             $allCategorie = $this->categorieRepository->getAll();
