@@ -82,19 +82,52 @@ class AnnonceController extends \App\Http\Controllers\Controller
         }
     }
     
+
+    //Change abonnement annonce
+    public function changeAbonnement($user_id, $annonce_id, $new_abonnement){
+        // dd("bbb");
+        $changeAbonnement = $this->annonceRepository->changeAbonnementAnnonce($user_id, $annonce_id, $new_abonnement);
+
+        if(isset($changeAbonnement)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Abonnement changé avec success',
+                'url' => route('dashboard',['id'=>$user_id])
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Echec lors de la mise à jour du status',
+            ]);
+        }
+    }
+    
     /** create annonce */
     public function create(Request $request)
     {
-        try{
-            $allAbonnement = $this->abonnementRepository->getAll();
-            $allCategorie = $this->categorieRepository->getAll();
-            return response()->json([
-                'abonnement'=>$allAbonnement,
-                'categorie'=>$allCategorie,
-            ]);
-        }catch(Exception $e){
-            return response()->json($e);
-        }
+        try {  
+            // Votre logique pour créer une annonce  
+            return response()->json(['message' => 'Annonce created successfully!'], 201);  
+        } catch (\Exception $e) {  
+            // Journalisation de l'erreur  
+            \Log::error($e);  
+    
+            // Réponse en cas d'erreur  
+            return response()->json(['error' => 'Une erreur est survenue.'], 500);  
+        }  
+        // dd('inside creqte');
+        // try{
+        //     $allAbonnement = $this->abonnementRepository->getAll();
+        //     $allCategorie = $this->categorieRepository->getAll();
+        //     dd("allAbonnement", $allAbonnement);
+        //     return response()->json([
+        //         'abonnement'=>$allAbonnement,
+        //         'categorie'=>$allCategorie,
+        //     ]);
+        // }catch(Exception $e){
+        //     return response()->json($e);
+        // }
     }
 
 
@@ -200,11 +233,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'errors' => $errors
             ], 422);
         }
-    }
-
-    /** Détail annonce */
-    public function detail($id){
-        dd($id);   
     }
 
     /**show */

@@ -87,6 +87,7 @@ Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(func
     Route::delete('/delete/{id}/{array_categ}', 'destroy');
     Route::get('/dashboard/{id}', 'dashboard')->name('dashboard');
     Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
+    Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
 });
 Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 

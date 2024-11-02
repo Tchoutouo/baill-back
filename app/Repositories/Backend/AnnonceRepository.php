@@ -5,7 +5,7 @@ use App\Models\Annonce;
 use App\Models\Picture;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
-use App\Http\Controllers\Api\Backend\PictureController;
+use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Laravel\Sail\Console\PublishCommand;
@@ -259,6 +259,18 @@ class AnnonceRepository   extends ResourcesRepository
         {
             $annonce->update([
                 'status' => $new_status
+            ]);
+            return true;
+        }
+    }
+
+    // Change abonnment annonces
+    function changeAbonnementAnnonce($user_id, $annonce_id, $new_abonnement){
+        $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        if(isset($annonce))
+        {
+            $annonce->update([
+                'abonnement_id' => $new_abonnement
             ]);
             return true;
         }
