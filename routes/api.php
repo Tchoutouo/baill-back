@@ -57,7 +57,6 @@ Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->grou
 });
 
 
-
 /**Route liée à la categorie */
 Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
     Route::get('/', 'index');
@@ -105,7 +104,6 @@ Route::prefix('/home_back')->controller(DashboardController::class)->group(funct
     Route::get('/', 'dashboard');
     Route::post('/trie', 'trie');
 });
-
 
 
 // Route pour traiter la soumission du formulaire de connexion
