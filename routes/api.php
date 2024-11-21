@@ -104,6 +104,10 @@ Route::prefix('/home_back')->controller(DashboardController::class)->group(funct
     Route::get('/', 'dashboard');
     Route::post('/trie', 'trie');
 });
+// Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
+//     Route::get('/', 'dashboard');
+//     Route::post('/trie', 'trie');
+// });
 
 
 // Route pour traiter la soumission du formulaire de connexion
