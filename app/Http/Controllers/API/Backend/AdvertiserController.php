@@ -21,16 +21,11 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     /** index */
     public function index(Request $request)
     {
-        // try{
-        //     return response()->json([]);
-        // }catch(Exception $e){
-        //     return response()->json($e);
-        // }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Echec lors de la mise à jour du status',
-            ]);
+        try{
+            return response()->json([]);
+        }catch(Exception $e){
+            return response()->json($e);
+        }
     }
 
     /**store */

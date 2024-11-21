@@ -5,7 +5,7 @@ use App\Models\Annonce;
 use App\Models\Picture;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
-use App\Http\Controllers\API\Backend\PictureController;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Laravel\Sail\Console\PublishCommand;
