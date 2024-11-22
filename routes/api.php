@@ -38,7 +38,6 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 //     });
 // });
 
-
 Route::prefix('/users_back')->controller(UserController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
@@ -84,7 +83,7 @@ Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(func
     Route::post('store','store');
     Route::put('/update/{id}', 'update');
     Route::delete('/delete/{id}/{array_categ}', 'destroy');
-    Route::get('/dashboard/{id}', 'dashboard')->name('dashboard');
+    Route::get('dashboard/{id}', 'dashboard')->name('dashboard');
     Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
     Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
 });
