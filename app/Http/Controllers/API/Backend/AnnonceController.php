@@ -261,7 +261,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     'message' => 'Annonce supprimé avec success',
                     ]
                 );
-                
 
             }else{
                 return response()->json([

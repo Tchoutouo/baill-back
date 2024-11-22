@@ -83,7 +83,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
 
     /**updated */
     public function update(Request $request, $advertiser)
-    {
+    { 
 
         try{
             $request -> validate([
