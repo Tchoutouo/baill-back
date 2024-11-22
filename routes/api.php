@@ -48,7 +48,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 });
 
 /**Route des users ayant pour status annonceur */
-Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->grozup(function(){
+Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
     Route::get('/show/{id}', 'show');
