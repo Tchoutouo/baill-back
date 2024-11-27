@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API\Frontend;
 use Illuminate\Http\Request;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\AnnonceRepository;
-use App\Http\Controllers\API\Backend\PictureController;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 
 class DashboardController extends \App\Http\Controllers\Controller

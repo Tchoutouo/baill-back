@@ -35,7 +35,7 @@ class LoginControleurAuth extends Controller
                     'success' => true,
                     'data' => $user,
                     'token' => $token,
-                    // 'redirect_url' => route('dashboard', ['id' => $user])
+                    'redirect_url' => route('dashboard', ['id' => $user])
                 ]);
             }
 
@@ -49,14 +49,13 @@ class LoginControleurAuth extends Controller
                     'success' => true,
                     'data' => $user,
                     'token' => $token,
-                    // 'redirect_url' => route('dashboard', ['id' => $user])
+                    'redirect_url' => route('dashboard', ['id' => $user])
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Les informations d\'identification ne sont pas correctes.',
-                'token' => 'Les informations d\'identification ne sont pas correctes.',
             ]);
            
         } catch (ValidationException $e) {

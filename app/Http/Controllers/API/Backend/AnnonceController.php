@@ -7,7 +7,7 @@ use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\UserRepository;
 use App\Handlers\AnnonceHandler;
-use App\Http\Controllers\API\Backend\PictureController;
+use App\Http\Controllers\Api\Backend\PictureController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -39,7 +39,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** Listing des annonces */
     public function index($user_id, $nbr_annonce, $search = null)
     {
-
         try{
             $user = $this->userRepository->getById($user_id);
             $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
@@ -85,7 +84,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
     //Change abonnement annonce
     public function changeAbonnement($user_id, $annonce_id, $new_abonnement){
-        // dd("bbb");
+        
         $changeAbonnement = $this->annonceRepository->changeAbonnementAnnonce($user_id, $annonce_id, $new_abonnement);
 
         if(isset($changeAbonnement)){
@@ -106,36 +105,24 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /** create annonce */
     public function create(Request $request)
     {
-        try {  
-            // Votre logique pour créer une annonce  
-            return response()->json(['message' => 'Annonce created successfully!'], 201);  
-        } catch (\Exception $e) {  
-            // Journalisation de l'erreur  
-            \Log::error($e);  
-    
-            // Réponse en cas d'erreur  
-            return response()->json(['error' => 'Une erreur est survenue.'], 500);  
-        }  
-        // dd('inside creqte');
-        // try{
-        //     $allAbonnement = $this->abonnementRepository->getAll();
-        //     $allCategorie = $this->categorieRepository->getAll();
-        //     dd("allAbonnement", $allAbonnement);
-        //     return response()->json([
-        //         'abonnement'=>$allAbonnement,
-        //         'categorie'=>$allCategorie,
-        //     ]);
-        // }catch(Exception $e){
-        //     return response()->json($e);
-        // }
+        try{
+            $allAbonnement = $this->abonnementRepository->getAll();
+            $allCategorie = $this->categorieRepository->getAll();
+            return response()->json([
+                'abonnement'=>$allAbonnement,
+                'categorie'=>$allCategorie,
+            ]);
+        }catch(Exception $e){
+            return response()->json($e);
+        }
     }
 
 
     /**store */
     public function store(Request $request)
     {
-       
-
+        
+        
         try{
             $request -> validate([
                 'title' => 'required|string|max:255', 
@@ -248,7 +235,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]);
             }else{
                 return response()->json([
-                    
                     'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
@@ -275,7 +261,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     'message' => 'Annonce supprimé avec success',
                     ]
                 );
-                
 
             }else{
                 return response()->json([

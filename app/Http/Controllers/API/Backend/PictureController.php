@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Backend;
+namespace App\Http\Controllers\Api\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -26,7 +26,6 @@ class PictureController extends Controller
                     ]);
                     $paths[] = $path;
                 }
-                
             return true;
         }
     }
@@ -60,6 +59,12 @@ class PictureController extends Controller
     function getImage($id){
         
         $allImages = Picture::select('location')->where('annonce_id', $id)->get();
-        return $allImages;
+        $url = [];
+        if(isset($allImages)){
+            foreach($allImages as $image){
+                $url[] = asset('storage/' . $image->location);
+            }
+            return $url;
+        }
     }
 }
