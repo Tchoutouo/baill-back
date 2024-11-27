@@ -116,13 +116,13 @@ class AnnonceRepository   extends ResourcesRepository
             if($annonce->status === "1"){
 
                 //Supprimer les attâches dans la table pivot
-                // for ($i=0; $i < count($categorie); $i++) {
-                //     $annonce->categories()->detach($categorie[$i]);
-                // }
-
-                foreach($categorie as $categ){
-                    $annonce->categories()->detach($categ->id);
+                for ($i=0; $i < count($categorie); $i++) {
+                    $annonce->categories()->detach($categorie[$i]);
                 }
+
+                // foreach($categorie as $categ){
+                //     $annonce->categories()->detach($categ->id);
+                // }
 
                 // Supprimer ses images 
                 Picture::where('annonce_id', $annonce->id)->delete();
