@@ -51,7 +51,7 @@ class CategorieController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]
         );
-            
+                
             $inputs = $this->categorieRepository->created($request->all());
             
             if($inputs)

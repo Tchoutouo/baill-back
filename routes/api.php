@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Backend\UserController;
 use App\Http\Controllers\API\Backend\AdvertiserController;
 use App\Http\Controllers\API\Backend\CategorieController;
 use App\Http\Controllers\API\Backend\SousCategorieController;
+use App\Http\Controllers\API\Backend\DashboardAdminController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
 
@@ -48,13 +49,21 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 });
 
 /**Route des users ayant pour status annonceur */
+Route::prefix('/dashboard_advertiser')->controller(DashboardAdminController::class)->group(function(){
+    Route::get('/{id}', 'dashboard');
+});
+
+
+/**Route des users ayant pour status annonceur */
 Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
     Route::get('/show/{id}', 'show');
-    Route::put('/update/{id}', 'update');
+    Route::post('/update/{id}', 'update');
+    // Route::post('/mupdate/{id}', 'myUpdate');
     Route::delete('/delete/{id}', 'destroy');
 });
+
 
 
 /**Route liée à la categorie */
@@ -105,14 +114,9 @@ Route::prefix('/home_back')->controller(DashboardController::class)->group(funct
     Route::post('/trie', 'trie');
 });
 
-// Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
-//     Route::get('/', 'dashboard');
-//     Route::post('/trie', 'trie');
-// });
-
 
 // Route pour traiter la soumission du formulaire de connexion
-Route::post('login', [LoginControleurAuth::class, 'login']);
+Route::post('/login', [LoginControleurAuth::class, 'login']);
 
 
 // /** Route Interface des advertisers */
