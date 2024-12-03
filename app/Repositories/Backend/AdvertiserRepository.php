@@ -5,6 +5,8 @@ use App\Models\User;
 use App\Models\Profil;
 use App\Repositories\ResourcesRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class AdvertiserRepository   extends ResourcesRepository
 {
@@ -62,14 +64,39 @@ class AdvertiserRepository   extends ResourcesRepository
             $advertiser->cni= $data['cni'];
         }
         if ($request->hasFile('picture')) {
-                $images = $request->file('picture');
-                $path = $images->store('images', 'public');
-                $advertiser->picture= $path;
+            $images = $request->file('picture');
+            $path = $images->store('images', 'public');
+            $advertiser->picture= $path;
         }
         $advertiser->profil_id= "3";
         $advertiser->save();
 
         return $advertiser;
+    }
+
+    public function handleUpdate($id, $request){
+        DB::beginTransaction();
+        try {
+            if (isset($request['picture'])) {
+                $images = $request['picture'];
+                $path = $images->store('images/users', 'public');
+                $request['picture']= $path;
+            }
+            
+            $this->update($id, $request);
+            
+            DB::commit();
+
+            return true;
+
+        } catch (\Exception $th) {
+
+            DB::rollBack();
+            
+            return $th->getMessage() ;
+        }
+
+        
     }
 
     /**destroy user */

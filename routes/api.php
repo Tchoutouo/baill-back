@@ -70,7 +70,8 @@ Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->grou
     Route::get('/', 'index');
     Route::post('store','store');
     Route::get('/show/{id}', 'show');
-    Route::put('/update/{id}', 'update');
+    Route::post('/update/{id}', 'update');
+    // Route::post('/mupdate/{id}', 'myUpdate');
     Route::delete('/delete/{id}', 'destroy');
 });
 

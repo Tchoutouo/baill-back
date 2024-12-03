@@ -83,8 +83,8 @@ class AdvertiserController extends \App\Http\Controllers\Controller
 
     /**updated */
     public function update(Request $request, $advertiser)
-    {
-
+    { 
+        
         try{
             $request -> validate([
                 'username' => 'required|string|max:255', 
@@ -95,15 +95,20 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'country' => 'required|string|max:255', 
                 'city' => 'required|string|max:255', 
                 'neighborhood' => 'required|string|max:255', 
-                'cni' => 'string|max:25',
-                'picture' => 'string',
+                // 'cni' => 'string|max:25',
+                // 'picture' => 'string',
                 // 'password' => 'required|string|min:8'
             ],
             [
                 'error' => 'Erreur...',
             ]);
-
-            $advUpdate = $this->advertiserRepository->updated($request->all(),$advertiser, $request);
+            $datas = $request->all();
+            if ($request->hasFile('picture')) {
+                $user_img = $request->file('picture');
+                $datas['picture'] = $user_img;
+            }
+            $advUpdate = $this->advertiserRepository->handleUpdate($advertiser, $datas);
+            
             if($advUpdate){
                 return response()->json([
                     'success' => true,
@@ -153,7 +158,6 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         }
         catch(Exception $e){
             return response()->json($e);
-
         }
     }
 
