@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Backend;
 use App\Repositories\Backend\CategorieRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CategorieController extends \App\Http\Controllers\Controller
 {
@@ -17,10 +18,10 @@ class CategorieController extends \App\Http\Controllers\Controller
     }
 
     /** index */
-    public function index(Request $request)
+    public function index($pagination, $search = null)
     {
         try{
-            $allCategorie = $this->categorieRepository->getAll();
+            $allCategorie = $this->categorieRepository->getAllCategories($pagination,$search);
             if(!empty($allCategorie)){
                 return response()->json([
                     'success'=>true,
@@ -69,9 +70,16 @@ class CategorieController extends \App\Http\Controllers\Controller
     
             }
 
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
 
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
         }
     }
 
@@ -83,7 +91,7 @@ class CategorieController extends \App\Http\Controllers\Controller
             $request -> validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'array_sous' => 'required|array',
+                // 'array_sous' => 'required|array',
             ],
             [
                 'error' => 'Erreur...',
@@ -91,18 +99,27 @@ class CategorieController extends \App\Http\Controllers\Controller
             $result = $this->categorieRepository->updated($request->all(),$categorie);
             if($result){
                 return response()->json([
+                    'success' => true,
                     'message' => 'Modification effectuée avec success',
                     ]
                 );
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Echec de modification',
                     ]
                 );
             }
-        }catch(Exception $e){
-            return response()->json($e);
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
 
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
         }
     }
 
@@ -133,32 +150,35 @@ class CategorieController extends \App\Http\Controllers\Controller
         try{
             $categorie = $this->categorieRepository->getById($id);
 
-            // Si Categorie à un abonnement
+            // Si Categorie existe
             if($categorie)
             {
-                return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet categories abonnement en cours',
-                    ]
-                );
-    
-            }else{
                 $result = $this->categorieRepository->destroy($id);
-    
+                // Suppression ok
                 if(isset($result))
                 {
                     return response()->json([
-                        'message' => 'Une erreur est survenu lors de la suppression',
+                        'success' => true,
+                        'message' => 'categorie supprimée avec success',
                         ]
                     );
-                    
-    
+                
+                //Si elle est associée à une annonce pas de suppression
                 }else{
                     return response()->json([
-                        'message' => 'categorie supprimé avec success',
+                        'success' => false,
+                        'message' => 'Cette catégorie est attachée à une annonce',
                         ]
                     );
     
                 }
+                
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Identifiant invalide',
+                    ]
+                );
             }
         }
         catch(Exception $e){

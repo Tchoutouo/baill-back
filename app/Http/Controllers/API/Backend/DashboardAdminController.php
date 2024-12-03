@@ -30,16 +30,16 @@ class DashboardAdminController extends Controller
             $this->userRepository = $userRepository;
         }
 
-    /** Dashbord d'un annonceur */
+    /** Dashbord admin */
     public function dashboard($user_id)
     {
         try{
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, 5);
-            $annoncePublisher = $this->annonceRepository->getAnnoncePublisher($user->id);
-            $annonceExpired = $this->annonceRepository->getAnnonceExpired($user->id);
-            $annonceInProgress = $this->annonceRepository->getAnnonceInProgress($user->id);
-            $annoncePause = $this->annonceRepository->getAnnoncePause($user->id);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce(null, 5);
+            $annoncePublisher = $this->annonceRepository->getAnnoncePublisher(null);
+            $annonceExpired = $this->annonceRepository->getAnnonceExpired(null);
+            $annonceInProgress = $this->annonceRepository->getAnnonceInProgress(null);
+            $annoncePause = $this->annonceRepository->getAnnoncePause(null);
 
             if(isset($allAnnonce)){
                 return response()->json([

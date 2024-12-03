@@ -31,12 +31,23 @@ class LoginControleurAuth extends Controller
                 Auth::login($user);
                 // Création du token d'API pour l'utilisateur
                 $token = $user->createToken('token_name')->plainTextToken;
-                return response()->json([
-                    'success' => true,
-                    'data' => $user,
-                    'token' => $token,
-                    'redirect_url' => route('dashboard', ['id' => $user])
-                ]);
+
+                //redirection en fonction du profil
+                if ($user->profil_id == "2") {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $user,
+                        'token' => $token,
+                        'redirect_url' => route('dashboard_admin', ['id' => $user])
+                    ]);
+                }else{
+                    return response()->json([
+                        'success' => true,
+                        'data' => $user,
+                        'token' => $token,
+                        'redirect_url' => route('dashboard_advertiser', ['id' => $user])
+                    ]);
+                }
             }
 
             $user = User::where('whatsapp_number', $request->identifiant)->first();
@@ -45,12 +56,22 @@ class LoginControleurAuth extends Controller
                 Auth::login($user);
                 // Création du token d'API pour l'utilisateur
                 $token = $user->createToken('token_name')->plainTextToken;
-                return response()->json([
-                    'success' => true,
-                    'data' => $user,
-                    'token' => $token,
-                    'redirect_url' => route('dashboard', ['id' => $user])
-                ]);
+                //redirection en fonction du profil
+                if ($user->profil_id == "2") {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $user,
+                        'token' => $token,
+                        'redirect_url' => route('dashboard_admin', ['id' => $user])
+                    ]);
+                }else{
+                    return response()->json([
+                        'success' => true,
+                        'data' => $user,
+                        'token' => $token,
+                        'redirect_url' => route('dashboard_advertiser', ['id' => $user])
+                    ]);
+                }
             }
 
             return response()->json([
