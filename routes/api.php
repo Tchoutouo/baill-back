@@ -67,12 +67,17 @@ Route::middleware(['auth:sanctum','access.advertiser'])
 
 /**Route des users ayant pour status annonceur */
 Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
-    Route::get('/', 'index');
+    Route::get('/{paginate}/{search?}', 'index');
     Route::post('store','store');
     Route::get('/show/{id}', 'show');
     Route::post('/update/{id}', 'update');
-    // Route::post('/mupdate/{id}', 'myUpdate');
     Route::delete('/delete/{id}', 'destroy');
+    // Route::get('/change/{id}', 'status');
+});
+
+/**Route des users ayant pour status annonceur */
+Route::prefix('/advertiser_bac')->controller(AdvertiserController::class)->group(function(){
+    Route::get('/change/{id}', 'status');
 });
 
 

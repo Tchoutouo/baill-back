@@ -4,6 +4,7 @@ namespace App\Repositories\Backend;
 use App\Models\User;
 use App\Models\Profil;
 use App\Repositories\ResourcesRepository;
+use App\Repositories\Backend\AnnonceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -11,8 +12,11 @@ use Illuminate\Support\Facades\DB;
 class AdvertiserRepository   extends ResourcesRepository
 {
 
-    public function __construct(User $user) {
+    protected $annonceRepository;
+    
+    public function __construct(User $user, AnnonceRepository $annonceRepository) {
         $this->model = $user;
+        $this->annonceRepository = $annonceRepository;
     }
 
     public function getById($id) {
@@ -103,6 +107,39 @@ class AdvertiserRepository   extends ResourcesRepository
     public function destroy($id) {
         //defininir destroy de user
         
+    }
+
+
+    //**Listing des users */
+    public function getAlluser($paginate , $search = null){
+
+        $allAdv = $this->model->withCount("annonces")->where('profil_id',3);
+
+        if($search){
+            $allAdv = $allAdv->where(function($q) use ($search){
+                $q->where("username","LIKE", "%$search%");
+            });
+        }
+        $allAdv = $allAdv->orderBy('created_at', 'desc')
+                        ->paginate($paginate);
+
+        //**nbre annonces publiés */
+        foreach($allAdv as $adv){
+            $adv["nbre_publisher"] = $this->annonceRepository->getAnnoncePublisher($adv->id);
+        }
+        
+        return $allAdv;
+    }
+
+    //** Change status */
+    public function changeStatus($id){
+        $advertiser = $this->model->find($id);
+
+        if(isset($advertiser)){
+            $advertiser->status= !$advertiser->status;
+            $advertiser->save();
+            return true;
+        }
     }
 
 }
