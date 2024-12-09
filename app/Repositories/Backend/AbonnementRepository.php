@@ -27,14 +27,35 @@ class AbonnementRepository   extends ResourcesRepository
         return $abonnement;
     }
 
+    // Caluler la durée en jours
+    public function totalDay(string $type_time){
+
+        //Si c'est semaine
+        if($type_time == "S"){
+            return 7;
+        }
+
+        //Si c'est le mois
+        if($type_time == "M"){
+            return 30;
+        }
+
+        //Si c'est le année
+        if($type_time == "A"){
+            return 365;
+        }
+
+        return 1;
+    }
+
     /**created user */
     public function created($data = array()) {
         //defininir création de user
         $abonnement = $this->model;
         
         $abonnement->name= $data['name'];
-        $abonnement->description= $data['description'];
-        $abonnement->time= $data['time'];
+        $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        $abonnement->type_time= $data['type_time'];
         $abonnement->price= $data['price'];
         $abonnement->type= $data['type'];
         $abonnement->is_actived= $data['is_actived'];
@@ -52,16 +73,15 @@ class AbonnementRepository   extends ResourcesRepository
 
         $abonnement = $this->model->find($id);
         
-        $abonnement->name= $data['username'];
-        $abonnement->username= $data['username'];
-        $abonnement->last_name= $data['last_name'];
-        $abonnement->first_name= $data['last_name'];
-        $abonnement->email= $data['email'];
-        $abonnement->whatsapp_number= $data['whatsapp_number'];
-        $abonnement->country= $data['country'];
-        $abonnement->city= $data['city'];
-        $abonnement->neighborhood= $data['neighborhood'];
-        $abonnement->password= $data['password'];
+        $abonnement->name= $data['name'];
+        $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        $abonnement->type_time= $data['type_time'];
+        $abonnement->price= $data['price'];
+        $abonnement->type= $data['type'];
+        $abonnement->is_actived= $data['is_actived'];
+        if (isset($data['hight_lite'])) {
+            $abonnement->hight_lite= $data['hight_lite'];
+        }
         $abonnement->save();
 
         return $abonnement;

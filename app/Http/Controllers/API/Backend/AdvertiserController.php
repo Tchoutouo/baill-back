@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
+
 use Illuminate\Validation\ValidationException;
 
 class AdvertiserController extends \App\Http\Controllers\Controller
@@ -154,16 +155,18 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     /**show */
     public function show($id)
     {
+        
         try{
             $advertiser = $this->advertiserRepository->getById($id);
     
             if($advertiser){
                 return response()->json([
-                    'messsage' => 'success',
+                    'success' => true,
                     'data' => $advertiser
                 ]);
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
                 );
