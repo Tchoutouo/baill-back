@@ -124,12 +124,20 @@ class CategorieRepository   extends ResourcesRepository
     public function getAllCategories($nbre, $search = null){
         $allCateg = $this->model;
         if (isset($allCateg)) {
+
             if ($search) {
                 $allCateg = $allCateg->where(function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%$search%");
                 });
             }
-            $allCateg = $allCateg->orderBy('created_at', 'desc')->paginate($nbre);
+
+            if($nbre){
+                $allCateg = $allCateg->orderBy('created_at', 'desc')->paginate($nbre);
+            }
+            else{
+                $allCateg = $allCateg->orderBy('created_at', 'desc')->get();
+            }
+
             return $allCateg;
         }
         return null;

@@ -39,6 +39,28 @@ class CategorieController extends \App\Http\Controllers\Controller
         }
     }
 
+    /** index */
+    public function ListingCategorie(Request $request)
+    {
+        try{
+            $allCategorie = $this->categorieRepository->getAllCategories(null, null);
+            if(!empty($allCategorie)){
+                return response()->json([
+                    'success'=>true,
+                    'data'=>$allCategorie,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success'=>false,
+                    'data'=>$allCategorie,
+                ]);
+            }
+        }catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
     /**store */
     public function store(Request $request)
     {
