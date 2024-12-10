@@ -46,12 +46,11 @@ class AbonnementController extends \App\Http\Controllers\Controller
     {
         try{
             $request -> validate([
-                'name' => 'required|string|max:255', 
-                'description' => 'required|string|max:255', 
+                'name' => 'required|string|max:255',
                 'time' => 'required|integer',
-                'price' => 'required|double',
-                'type' => 'required|string|max:255', 
-                'is_actived' => 'required|string|max:255',
+                'type_time' => 'required|string|max:1',
+                'price' => 'required|integer',
+                'type' => 'required|string|max:255',
             ],
             [
                 'error' => 'Erreur...',
@@ -96,12 +95,11 @@ class AbonnementController extends \App\Http\Controllers\Controller
 
         try{
             $request -> validate([
-                'name' => 'required|string|max:255', 
-                'description' => 'required|string',
-                'time' => 'required|string|max:255',
-                'price' => 'required|double',
-                'type' => 'required|string|max:255', 
-                'is_actived' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                'time' => 'required|integer',
+                'type_time' => 'required|string|max:1',
+                'price' => 'required|integer',
+                'type' => 'required|string|max:255',
             ],
             [
                 'error' => 'Erreur...',
@@ -111,11 +109,13 @@ class AbonnementController extends \App\Http\Controllers\Controller
             $result = $this->abonnementRepository->updated($request->all(),$abonnement);
             if($result){
                 return response()->json([
+                    'success' => true,
                     'message' => 'Modification effectuée avec success',
                     ]
                 );
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Echec de modification',
                     ]
                 );
@@ -134,11 +134,12 @@ class AbonnementController extends \App\Http\Controllers\Controller
     
             if($abonnement){
                 return response()->json([
-                    'messsage' => 'success',
+                    'success' => true,
                     'data' => $abonnement
                 ]);
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
                 );

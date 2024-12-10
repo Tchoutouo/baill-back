@@ -126,6 +126,7 @@ class AdvertiserRepository   extends ResourcesRepository
         //**nbre annonces publiés */
         foreach($allAdv as $adv){
             $adv["nbre_publisher"] = $this->annonceRepository->getAnnoncePublisher($adv->id);
+            $adv["nbre_expired"] = $this->annonceRepository->getAnnonceExpired($adv->id);
         }
         
         return $allAdv;
