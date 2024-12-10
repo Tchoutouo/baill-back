@@ -88,7 +88,7 @@ Route::middleware(['auth:sanctum','access.admin'])
 
 
 /**Route liée à la categorie */
-Route::middleware(['auth:sanctum','access.admin'])
+Route::middleware(middleware: ['auth:sanctum','access.admin'])
     ->prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
     Route::get('/{nbr_categ}/{search?}', 'index');
     Route::post('store','store');
