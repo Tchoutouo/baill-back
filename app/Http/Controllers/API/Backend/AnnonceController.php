@@ -36,6 +36,29 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $this->userRepository = $userRepository;
     }
 
+    /** Listing des annonces coté admin */
+    public function getAllAnnonce($nbr_annonce, $search = null)
+    {
+        try{
+            $allAnnonce = $this->annonceRepository->getAllAnnonce(null, $nbr_annonce, $search);
+            
+            if(isset($allAnnonce)){
+                return response()->json([
+                    'success' => true,
+                    'annonces' => $allAnnonce,
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success' => false,
+                    'annonces' => [],
+                ]);
+            }
+        }catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
     /** Listing des annonces */
     public function index($user_id, $nbr_annonce, $search = null)
     {

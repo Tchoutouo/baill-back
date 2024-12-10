@@ -121,6 +121,13 @@ Route::middleware(['auth:sanctum','access.advertiser'])
         Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
         Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
 });
+
+/**Route categorie access admin*/
+Route::middleware(['auth:sanctum','access.admin'])
+    ->prefix('/annonce_back_admin')->controller(AnnonceController::class)->group(function(){
+        Route::get('/{nbr_annonce}/{search?}', 'getAllAnnonce');
+});
+
 Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 
 /**Route liée aux abonnements */
