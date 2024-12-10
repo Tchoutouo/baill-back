@@ -14,7 +14,6 @@ use Hamcrest\Type\IsBoolean;
 class LoginControleurAuth extends Controller
 {
     //
-
     public function verifylog($user){
         if ($user->status) {
             // connecter ce user
