@@ -283,7 +283,12 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
-        $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        if ($user_id) {
+            $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        }
+        else{
+            $annonce = $this->model->where('id', $annonce_id)->first();
+        }
         if(isset($annonce))
         {
             $annonce->update([

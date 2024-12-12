@@ -103,6 +103,25 @@ class AnnonceController extends \App\Http\Controllers\Controller
             ]);
         }
     }
+
+    //Change status annonces par l'administrateur
+    public function changeStatusAdmin($annonce_id, $new_status){
+        $changeStatus = $this->annonceRepository->changeStatusAnnonce(null, $annonce_id, $new_status);
+
+        if(isset($changeStatus)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Status changé avec success',
+                // 'url' => route('dashboard',['id'=>$user_id])
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Echec lors de la mise à jour du status',
+            ]);
+        }
+    }
     
 
     //Change abonnement annonce
