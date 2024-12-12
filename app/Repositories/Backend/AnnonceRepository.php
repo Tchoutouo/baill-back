@@ -135,13 +135,17 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Tous les annonces liées à un utilisateur
-    function getAllAnnonce($user_id, $nbr_annonce, $search = null) {
+    function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
 
         // Récupération des annonces pour un utilisateur
         $arrayAnnonce = $this->model
                     ->with('categories')
-                    ->with('abonnements')
-                    ->where('user_id', $user_id);
+                    ->with('abonnements');
+
+                // Si user_id existe
+                if($user_id){
+                    $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
+                }
 
                 // Si $search existe
                 if ($search) {
@@ -229,36 +233,62 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Count nombre d'annonce publier
     function getAnnoncePublisher($user_id){
-        // Récupération des annonces pour un utilisateur
-        $annoncePublisher = $this->model->where('user_id', $user_id)->where('status', 3)->count();
+        if ($user_id) {
+            // Récupération des annonces pour un utilisateur
+            $annoncePublisher = $this->model->where('user_id', $user_id)->where('status', 3)->count();
+        }else{
+            $annoncePublisher = $this->model->where('status', 3)->count();
+        }
+
+        
         return $annoncePublisher;
     }
     
     // Count nombre d'annonce expirer
     function getAnnonceExpired($user_id){
-        // Récupération des annonces pour un utilisateur
-        $annonceExpired= $this->model->where('user_id', $user_id)->where('status', 0)->count();
+
+        if ($user_id) {
+            // Récupération des annonces pour un utilisateur
+            $annonceExpired= $this->model->where('user_id', $user_id)->where('status', 0)->count();
+        }
+        else {
+            $annonceExpired= $this->model->where('status', 0)->count();
+        }
         return $annonceExpired;
     }
     
     // Count nombre d'annonce en cours
     function getAnnonceInProgress($user_id){
-        // Récupération des annonces pour un utilisateur
-        $annonceInProgress= $this->model->where('user_id', $user_id)->where('status', 1)->count();
+
+        if($user_id){
+            // Récupération des annonces pour un utilisateur
+            $annonceInProgress= $this->model->where('user_id', $user_id)->where('status', 1)->count();
+        }else{
+            $annonceInProgress= $this->model->where('status', 1)->count();
+        }
         return $annonceInProgress;
     }
     
     // Count nombre d'annonce en pause
     function getAnnoncePause($user_id){
-        // Récupération des annonces pour un utilisateur
-        $annoncePause= $this->model->where('user_id', $user_id)->where('status', 2)->count();
+        if($user_id){
+            // Récupération des annonces pour un utilisateur
+            $annoncePause= $this->model->where('user_id', $user_id)->where('status', 2)->count();
+        }else{
+            $annoncePause= $this->model->where('status', 2)->count();
+        }
         return $annoncePause;
     }
     
 
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
-        $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        if ($user_id) {
+            $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+        }
+        else{
+            $annonce = $this->model->where('id', $annonce_id)->first();
+        }
         if(isset($annonce))
         {
             $annonce->update([

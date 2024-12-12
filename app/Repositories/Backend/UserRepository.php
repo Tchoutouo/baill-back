@@ -64,5 +64,6 @@ class UserRepository   extends ResourcesRepository
     public function destroy($id) {
         //defininir destroy de user
     }
+    
 
 }

@@ -7,6 +7,7 @@ use App\Repositories\ResourcesRepository;
 use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Http\Request;
 
+use function Laravel\Prompts\search;
 use function PHPSTORM_META\type;
 
 class CategorieRepository   extends ResourcesRepository
@@ -25,7 +26,7 @@ class CategorieRepository   extends ResourcesRepository
     }
 
     public function getById($id) {
-        $categorie = $this->model->where('id', $id)->with('profils')->first();
+        $categorie = $this->model->where('id', $id)->first();
         return $categorie;
     }
 
@@ -60,15 +61,15 @@ class CategorieRepository   extends ResourcesRepository
             $categorie->title= $data['title'];
             $categorie->description= $data['description'];
             $categorie->save();
-            $array_sous = $data["array_sous"];
+            // $array_sous = $data["array_sous"];
 
-            /** Remplir la table pivot categorie_sous_categories */
+            // /** Remplir la table pivot categorie_sous_categories */
             
-            if(isset($array_sous) && !empty($array_sous)){
-                  for ($i=0; $i < count($array_sous); $i++) { 
-                    $categorie->sousCategorie()->sync($array_sous[$i]);
-                  }
-            }
+            // // if(isset($array_sous) && !empty($array_sous)){
+            // //       for ($i=0; $i < count($array_sous); $i++) { 
+            // //         $categorie->sousCategorie()->sync($array_sous[$i]);
+            // //       }
+            // // }
         }
 
         return $categorie;
@@ -76,13 +77,17 @@ class CategorieRepository   extends ResourcesRepository
 
     /**destroy categorie */
     public function destroy($id) {
-        //defininir destroy de categorie
-        $categories = $this->model->find($id);
 
-        if(isset($categories)){
-            $categories = $categories->delete();
-            return $categories;
+        //definir destroy de categorie withCount:count notre d'occurrence dans la table pivot
+        $categorie = $this->model->withCount('annonces')->find($id);
+
+        // Si elle est associée à une annonce pas de suppression
+        if($categorie->annonces_count > 0){
+            return null;
         }
+        $categorie = $categorie->delete();
+        return true;
+        
     }
 
 
@@ -113,6 +118,29 @@ class CategorieRepository   extends ResourcesRepository
         }
 
         return $annonces;
+    }
+
+
+    public function getAllCategories($nbre, $search = null){
+        $allCateg = $this->model;
+        if (isset($allCateg)) {
+
+            if ($search) {
+                $allCateg = $allCateg->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', "%$search%");
+                });
+            }
+
+            if($nbre){
+                $allCateg = $allCateg->orderBy('created_at', 'desc')->paginate($nbre);
+            }
+            else{
+                $allCateg = $allCateg->orderBy('created_at', 'desc')->get();
+            }
+
+            return $allCateg;
+        }
+        return null;
     }
 
 }

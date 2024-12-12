@@ -15,11 +15,11 @@ return new class extends Migration
             Schema::create('abonnements', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
-                $table->string('description');
                 $table->integer('time');
+                $table->string('type_time');
                 $table->integer('price');
                 $table->string('type');
-                $table->integer('is_actived');
+                $table->boolean('is_actived')->default(true);
                 $table->timestamps();
             });
         }

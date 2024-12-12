@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
+
 use Illuminate\Validation\ValidationException;
 
 class AdvertiserController extends \App\Http\Controllers\Controller
@@ -19,10 +20,23 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     }
 
     /** index */
-    public function index(Request $request)
+    public function index($paginate , $search = null)
     {
         try{
-            return response()->json([]);
+            $allAdvertiser = $this->advertiserRepository->getAlluser($paginate,$search);
+            
+            if(isset($allAdvertiser) && !empty($allAdvertiser)){
+                return response()->json([
+                    "success"=>true,
+                    "data"=>$allAdvertiser
+                ]);
+            }else{
+                return response()->json([
+                    "success"=>false,
+                    "message"=>"Aucune donnée trouvée..."
+                ]);
+            }
+
         }catch(Exception $e){
             return response()->json($e);
         }
@@ -141,16 +155,18 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     /**show */
     public function show($id)
     {
+        
         try{
             $advertiser = $this->advertiserRepository->getById($id);
     
             if($advertiser){
                 return response()->json([
-                    'messsage' => 'success',
+                    'success' => true,
                     'data' => $advertiser
                 ]);
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
                 );
@@ -196,6 +212,30 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
+            return response()->json($e);
+        }
+    }
+
+
+    //** Change status */
+    public function status(Request $request, $id){
+        
+        try{
+            $result = $this->advertiserRepository->changeStatus($id);
+            
+            if(isset($result) && !empty($result)){
+                return response()->json([
+                    "success"=>true,
+                    "data"=>"Status changé avec success"
+                ]);
+            }else{
+                return response()->json([
+                    "success"=>false,
+                    "message"=>"Identifiant non valide..."
+                ]);
+            }
+
+        }catch(Exception $e){
             return response()->json($e);
         }
     }
