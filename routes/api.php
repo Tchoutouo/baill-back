@@ -24,6 +24,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::options('{any}', function () {
+    return response('', 200)
+    ->header('Access-Control-Allow-Origin', '*')
+    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+})->where('any', '.*');
+
+
+
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -69,19 +78,14 @@ Route::middleware(['auth:sanctum','access.advertiser'])
 Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
     Route::get('/{paginate}/{search?}', 'index');
     Route::post('store','store');
+    Route::get('/show/{id}', 'show');
     Route::post('/update/{id}', 'update');
     Route::delete('/delete/{id}', 'destroy');
     // Route::get('/change/{id}', 'status');
 });
 
 /**Route des users ayant pour status annonceur */
-Route::prefix('/advertiser_ba')->controller(AdvertiserController::class)->group(function(){
-    Route::get('/show/{id}', 'show');
-});
-
-/**Route pour changer le status d'un annonceur */
-Route::middleware(['auth:sanctum','access.admin'])
-    ->prefix('/advertiser_bac')->controller(AdvertiserController::class)->group(function(){
+Route::prefix('/advertiser_bac')->controller(AdvertiserController::class)->group(function(){
     Route::get('/change/{id}', 'status');
 });
 
@@ -142,8 +146,8 @@ Route::middleware(['auth:sanctum','access.admin'])
     ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
-    Route::get('/show/{id}', 'show');
-    Route::put('/update/{id}', 'update');
+    Route::get('/{id}/show', 'show');
+    Route::put('/{id}/update', 'update');
     Route::delete('/{id}/delete', 'destroy');
 });
 
