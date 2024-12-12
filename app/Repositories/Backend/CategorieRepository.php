@@ -143,4 +143,32 @@ class CategorieRepository   extends ResourcesRepository
         return null;
     }
 
+
+    /** Categories populaire */
+    public function getCategPopulaire(){
+
+        /** Pour chaque annonces associées à une categorie recuperer son id et user_id */
+        $allCateg = $this->model->with(['annonces' => function ($query) {
+            $query->select('annonces.id', 'annonces.user_id');
+        }])->get();
+        
+        /**Le map parcours chaque élément de la collection allCateg et retourn une nouvelle collection
+         * On bien faire un foreach à la place
+         */
+        if(isset($allCateg)){
+            $result = $allCateg->map(function ($categorie) {
+                $totalAnnonces = $categorie->annonces->count(); // Nombre d'annonces
+                $uniqueUsers = $categorie->annonces->pluck('user_id')->unique()->count(); // Nombre d'utilisateurs uniques
+                return  [
+                    'categorie_id' => $categorie->id,
+                    'nom' => $categorie->title,
+                    'total_annonces' => $totalAnnonces,
+                    'total_users' => $uniqueUsers,
+                ];
+            });
+            return $result;
+        }
+        
+        return "Aucune categorie populaire ...";
+    }
 }

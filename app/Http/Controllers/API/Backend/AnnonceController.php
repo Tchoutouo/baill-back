@@ -106,6 +106,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
     //Change status annonces par l'administrateur
     public function changeStatusAdmin($annonce_id, $new_status){
+        
         $changeStatus = $this->annonceRepository->changeStatusAnnonce(null, $annonce_id, $new_status);
 
         if(isset($changeStatus)){

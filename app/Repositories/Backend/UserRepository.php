@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Backend;
 use App\Models\User;
-use App\Models\Profil;
+use Carbon\Carbon;
 use App\Repositories\ResourcesRepository;
 use Illuminate\Http\Request;
 
@@ -18,6 +18,14 @@ class UserRepository   extends ResourcesRepository
         return $user;
     }
 
+    public function getAllUsers() {
+        
+        $user = $this->model->where('profil_id', 3)->count();
+        
+        return $user;
+    }
+
+    
     /**created user */
     public function created($data = array()) {
         //defininir création de user
@@ -64,6 +72,61 @@ class UserRepository   extends ResourcesRepository
     public function destroy($id) {
         //defininir destroy de user
     }
-    
+
+    /**Listing des utilisateurs bloqués */
+    public function getUserLock(){
+        $userlock = $this->model->where('status',0)->where('profil_id', 3)->get();
+
+        if (isset($userlock)) {
+
+            $taUserblock = [];
+            foreach ($userlock as $user) {
+                $user->date_update = $this->tempsPasse($user->date_update);
+                $taUserblock[]= [
+                    "id" => $user->id,
+                    "username" => $user->username,
+                    "time_lock" => $user->date_update
+                ];
+            }
+
+            return $taUserblock;
+        }
+        return "Aucun utilisateur bloqué...";
+    }
+
+
+    /** Temps passé */
+    public function tempsPasse($date)
+    {
+        // Convertir la date en instance de Carbon
+        $dateDonnee = Carbon::parse($date);
+        $dateActuelle = Carbon::now();
+
+        // Calculer la différence
+        $differenceEnSecondes = $dateDonnee->diffInSeconds($dateActuelle);
+
+        // Vérifier les unités de temps dans l'ordre décroissant
+        if ($differenceEnSecondes >= 31536000) { // 1 an
+            $annees = $dateDonnee->diffInYears($dateActuelle);
+            return 'Il y\'a '.$annees . ' ' . ($annees > 1 ? 'années' : 'année');
+        }
+        if ($differenceEnSecondes >= 2592000) { // 1 mois
+            $mois = $dateDonnee->diffInMonths($dateActuelle);
+            return 'Il y\'a '.$mois . ' ' . ($mois > 1 ? 'mois' : 'mois');
+        }
+        if ($differenceEnSecondes >= 86400) { // 1 jour
+            $jours = $dateDonnee->diffInDays($dateActuelle);
+            return 'Il y\'a '.$jours . ' ' . ($jours > 1 ? 'jours' : 'jour');
+        }
+        if ($differenceEnSecondes >= 3600) { // 1 heure
+            $heures = $dateDonnee->diffInHours($dateActuelle);
+            return 'Il y\'a '.$heures . ' ' . ($heures > 1 ? 'heures' : 'heure');
+        }
+        if ($differenceEnSecondes >= 60) { // 1 minute
+            $minutes = $dateDonnee->diffInMinutes($dateActuelle);
+            return 'Il y\'a '.$minutes . ' ' . ($minutes > 1 ? 'minutes' : 'minute');
+        }
+        return 'Quelques secondes';
+    }
 
 }

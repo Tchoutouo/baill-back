@@ -28,7 +28,7 @@ class AnnonceTableSeeder extends Seeder
                 "neighborhood" => "Melen",
                 // "is_published" => 1,
                 // "images" => json_encode(["apropos1.PNG", "balafong.jpg"]),
-                "status" => "prof",
+                "status" => 0,
                 "is_forward" => 1,
                 // "categorie" => json_encode(["1"]),
                 "abonnement_id" => "1",

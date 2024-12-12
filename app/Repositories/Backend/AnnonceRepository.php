@@ -7,6 +7,7 @@ use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
 use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Support\Carbon;
+use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
@@ -22,6 +23,13 @@ class AnnonceRepository   extends ResourcesRepository
         $this->pictureController = $pictureController;
     }
 
+    /**count annonces */
+    public function countAnnonce(){
+
+        $annonce = $this->model->count();
+        
+        return $annonce;
+    }
 
     /**created annonce */
     public function created($data = array()) {
@@ -280,6 +288,24 @@ class AnnonceRepository   extends ResourcesRepository
         return $annoncePause;
     }
     
+    //progression status
+    public function progressStatusAnnonce(){
+        $progressStatus = $this->model
+                    ->select('status', DB::raw('count(*) as total'))
+                    ->groupBy('status')
+                    ->get();
+
+        $bigTotal = 0;
+        foreach($progressStatus as $pro){
+            $bigTotal = $bigTotal + $pro->total;
+        }
+
+        foreach($progressStatus as $pro){
+            $pro->total = ($pro->total * 100 ) / $bigTotal;
+        }
+
+        return $progressStatus;
+    }
 
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){

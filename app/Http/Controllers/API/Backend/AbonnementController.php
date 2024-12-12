@@ -20,10 +20,10 @@ class AbonnementController extends \App\Http\Controllers\Controller
     }
 
     /** index */
-    public function index(Request $request)
+    public function index($nbre_page, $search = null)
     {
         try{
-            $allAbonnement = $this->abonnementRepository->getAll();
+            $allAbonnement = $this->abonnementRepository->getAllAbonnement($nbre_page,$search);
             if(!empty($allAbonnement)){
                 return response()->json([
                     'success'=>true,

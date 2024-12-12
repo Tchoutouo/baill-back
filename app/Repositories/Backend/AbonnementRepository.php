@@ -3,6 +3,7 @@
 namespace App\Repositories\Backend;
 use App\Models\Abonnement;
 use App\Repositories\ResourcesRepository;
+use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class AbonnementRepository   extends ResourcesRepository
@@ -91,6 +92,80 @@ class AbonnementRepository   extends ResourcesRepository
     public function destroy($id) {
         //defininir destroy de user
         
+    }
+
+    /**Get all abonnement */
+    public function getAllAbonnement($nbre_page, $search) {
+
+        //* Pour chaque abonnement compter le nombre d'utilisateur associer dans la table annonces
+        $abonnement = $this->model->with('annonces')
+                    ->select('abonnements.*', DB::raw('(
+                        SELECT COUNT(DISTINCT annonces.user_id)
+                        FROM annonces
+                        WHERE annonces.abonnement_id = abonnements.id
+                    ) as total_users'));
+
+        if($search){
+            $abonnement = $abonnement->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%$search%");
+            });
+        }
+
+        if($nbre_page){
+            $abonnement = $abonnement->orderBy('created_at', 'desc')->paginate($nbre_page);
+        }
+        else{
+            $abonnement = $abonnement->orderBy('created_at', 'desc')->get();
+        }
+
+        return $abonnement;
+    }
+
+    /**Progress Abonnement */
+    public function progressAbonnement() {
+
+        //* Pour chaque abonnement compter le nombre d'utilisateur associer dans la table annonces
+        $abonnement = $this->model
+                    ->select('abonnements.*', DB::raw('(
+                        SELECT COUNT(*)
+                        FROM annonces
+                        WHERE annonces.abonnement_id = abonnements.id
+                        AND annonces.status = 3
+                    ) as total_annonces'),
+                    DB::raw('(
+                        SELECT COUNT(*)
+                        FROM annonces
+                        WHERE annonces.status = 3
+                    ) as total_publier'))
+                    ->get();
+
+        /** Calcul des progressions et durée*/
+        foreach ($abonnement as $abon) {
+
+            $abon->progress = ($abon->total_annonces * 100) / $abon->total_publier ;
+
+            $abon->type_time = $this->typeTime($abon->type_time,$abon->time) ;
+
+        }
+
+        return $abonnement;
+    }
+
+    public function typeTime($timeType, $time){
+
+        if($timeType == "S"){
+            $timeType  = $time / 7 ." Semaine(s)";
+        }
+
+        if($timeType  == "M"){
+            $timeType  = $time / 30 ." Mois";
+        }
+
+        if($timeType  == "A"){
+            $timeType  = $time / 365 ." Année(s)";
+        }
+
+        return $timeType;
     }
 
 }

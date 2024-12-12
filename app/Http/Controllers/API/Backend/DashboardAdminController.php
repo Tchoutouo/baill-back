@@ -31,34 +31,32 @@ class DashboardAdminController extends Controller
         }
 
     /** Dashbord admin */
-    public function dashboard($user_id)
+    public function dashboard()
     {
         try{
-            $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce(null, 5);
-            $annoncePublisher = $this->annonceRepository->getAnnoncePublisher(null);
-            $annonceExpired = $this->annonceRepository->getAnnonceExpired(null);
-            $annonceInProgress = $this->annonceRepository->getAnnonceInProgress(null);
-            $annoncePause = $this->annonceRepository->getAnnoncePause(null);
 
-            if(isset($allAnnonce)){
-                return response()->json([
-                    'success' => true,
-                    'user' => $user,
-                    'annonces' => $allAnnonce,
-                    'annonce_qte_publisher' => $annoncePublisher,
-                    'annonce_qte_expired' => $annonceExpired,
-                    'annonce_qte_inprogress' => $annonceInProgress,
-                    'annonce_qte_pause' => $annoncePause,
-                ]);
-            }
-            else{
-                return response()->json([
-                    'success' => false,
-                    'user' => $user,
-                    'annonces' => $allAnnonce,
-                ]);
-            }
+            $totalUsers = $this->userRepository->getAllUsers();
+
+            $totalAnnonce = $this->annonceRepository->countAnnonce();
+
+            $progressAbonnement = $this->abonnementRepository->progressAbonnement();
+
+            $progressStatusAnnonce = $this->annonceRepository->progressStatusAnnonce();
+            
+            $userLock = $this->userRepository->getUserLock();
+
+            $categPopulaire = $this->categorieRepository->getCategPopulaire();
+
+            return response()->json([
+                'success' => true,
+                'total_users' => $totalUsers,
+                'total_annonces' => $totalAnnonce,
+                'progress_abonnement' => $progressAbonnement,
+                'progress_status' => $progressStatusAnnonce,
+                'tab_user_lock' => $userLock,
+                'tab_categ_popular' => $categPopulaire,
+            ]);
+
         }catch(Exception $e){
             return response()->json($e);
         }
