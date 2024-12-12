@@ -100,6 +100,12 @@ Route::middleware(['auth:sanctum','access.admin'])
 });
 
 
+/**Route liée à la categorie pour les visiteurs*/
+Route::prefix('/categorie_back_public')->controller(CategorieController::class)->group(function(){
+    Route::get('/', 'ListingCategorie');
+});
+
+
 /**Route liée à la sous-categorie */
 Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class)->group(function(){
     Route::get('/', 'index');
@@ -109,7 +115,7 @@ Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class
     Route::delete('/delete/{id}', 'destroy');
 });
 
-/**Route liée l'annonce */
+/**Route liée l'annonce access bailleur*/
 Route::middleware(['auth:sanctum','access.advertiser'])
     ->prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
         Route::get('/{user_id}/{nbr_annonce}/{search?}', 'index');
@@ -121,6 +127,14 @@ Route::middleware(['auth:sanctum','access.advertiser'])
         Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
         Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
 });
+
+/**Route categorie access admin*/
+Route::middleware(['auth:sanctum','access.admin'])
+    ->prefix('/annonce_back_admin')->controller(AnnonceController::class)->group(function(){
+        Route::get('/{nbr_annonce}/{search?}', 'getAllAnnonce');
+        Route::get('/update_status/{id_annonce}/{new_status}', 'changeStatusAdmin')->name('changeStatusAdmin');
+});
+
 Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 
 /**Route liée aux abonnements */

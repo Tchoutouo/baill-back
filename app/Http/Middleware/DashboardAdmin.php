@@ -16,10 +16,11 @@ class DashboardAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->profil_id == "2") {
+        if (Auth::user()->profil_id == "2" || Auth::user()->profil_id == "1") {
             return $next($request);
         }
         else{
+            dd("bien");
             return response()->json([
                 "success"=>false,
                 "message"=>"Access non autorisé...",

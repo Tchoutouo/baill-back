@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Profil;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,9 @@ class LoginControleurAuth extends Controller
             // Création du token d'API pour l'utilisateur
             $token = $user->createToken('token_name')->plainTextToken;
 
+            $profil = Profil::where('id',$user->profil_id)->first();
+            $user->profil_name = $profil->name;
+            
             //redirection en fonction du profil
             if ($user->profil_id == "2") {
                 
