@@ -78,7 +78,7 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $routeMiddleware = [
-        // 'cors' => \App\Http\Middleware\Cors::class,
+        'cors' => \App\Http\Middleware\Cors::class,
         "access.admin"=>\App\Http\Middleware\DashboardAdmin::class,
         "access.advertiser"=>\App\Http\Middleware\DashboardAdvertiser::class,
     ];
