@@ -24,11 +24,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::options('{any}', function () {
-    return response('', 200)
-    ->header('Access-Control-Allow-Origin', '*')
-    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+Route::options('{any}', function (Request $request) {
+return response()->json([], 200, [
+'Access-Control-Allow-Origin' => '*',
+'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+]);
 })->where('any', '.*');
 
 
@@ -159,7 +160,8 @@ Route::prefix('/home_back')->controller(DashboardController::class)->group(funct
 
 
 // Route pour traiter la soumission du formulaire de connexion
-Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');
+// Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');
+Route::get('/login', [LoginControleurAuth::class, 'login'])->name('login');
 
 
 // /** Route Interface des advertisers */
