@@ -24,13 +24,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::options('{any}', function (Request $request) {
-return response()->json([], 200, [
-'Access-Control-Allow-Origin' => '*',
-'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-]);
-})->where('any', '.*');
+
+// Route::options('{any}', function () {
+//     return response('', 200)
+//     ->header('Access-Control-Allow-Origin', '*')
+//     ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+//     ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+// })->where('any', '.*');
 
 
 
@@ -38,16 +38,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::middleware(['cors'])->group(function () {
-//     /**Route liée à la categorie */
-//     Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
-//         Route::get('/', 'index');
-//         Route::post('store','store');
-//         Route::get('/show/{id}', 'show');
-//         Route::put('/update/{id}', 'update');
-//         Route::delete('/delete/{id}', 'destroy');
-//     });
-// });
+Route::middleware(['cors'])->group(function () {
+    Route::match(['post', 'options'], '/login',[LoginControleurAuth::class, 'login']);
+});
 
 
 Route::prefix('/users_back')->controller(UserController::class)->group(function(){

@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\Cors::class,
+            
         ],
 
         'api' => [
@@ -83,8 +83,4 @@ class Kernel extends HttpKernel
         "access.advertiser"=>\App\Http\Middleware\DashboardAdvertiser::class,
     ];
 
-    protected $except = [
-        'api/csrf-token',
-        'api/login',
-    ];
 }
