@@ -114,12 +114,12 @@ Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class
 });
 
 /**Route liée l'annonce access bailleur*/
-Route::middleware(['auth:sanctum','access.advertiser'])
-    ->prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
+Route::prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
         Route::get('/{user_id}/{nbr_annonce}/{search?}', 'index');
         Route::get('/create', 'create');
         Route::post('store','store');
-        Route::put('/update/{id}', 'update');
+        Route::put('/update_old/{id}', 'update');
+        Route::post('/update/{id}', 'update');
         Route::delete('/delete/{id}/{array_categ}', 'destroy');
         // Route::get('/dashboard/{id}', 'dashboard')->name('dashboard')->middleware(['auth:sanctum, dashboard.advertiser']);
         Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
@@ -136,8 +136,7 @@ Route::middleware(['auth:sanctum','access.admin'])
 Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 
 /**Route liée aux abonnements */
-Route::middleware(['auth:sanctum','access.admin'])
-    ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
+Route::prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
     Route::get('/', 'index');
     Route::post('store','store');
     Route::get('/{id}/show', 'show');

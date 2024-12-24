@@ -325,7 +325,9 @@ class AnnonceRepository   extends ResourcesRepository
 
                 //Parcourir chaque image add à son annonce
                 foreach ($picture as  $pict) {
-                    $image[] = $pict->location;
+                    if(isset($pict->location)){
+                        $image[] = $pict->location;
+                    }
                 }
                 $annonce['url_image']= $image;  
             }
@@ -349,7 +351,9 @@ class AnnonceRepository   extends ResourcesRepository
 
                 //Parcourir chaque image add à son annonce
                 foreach ($picture as $key => $pict) {
-                    $image[] = $pict->location;
+                    if(isset($pict->location)){
+                        $image[] = $pict->location;
+                    }
                 }
                 $annonce['url_image']= $image;
             }
