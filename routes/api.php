@@ -7,10 +7,10 @@ use App\Http\Controllers\API\Backend\UserController;
 use App\Http\Controllers\API\Backend\AdvertiserController;
 use App\Http\Controllers\API\Backend\CategorieController;
 use App\Http\Controllers\API\Backend\SousCategorieController;
+use App\Http\Controllers\API\Backend\StripeControllers;
 use App\Http\Controllers\API\Backend\DashboardAdminController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
-
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -100,11 +100,12 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         /**Route liée aux abonnements */
         Route::middleware(['auth:sanctum','access.admin'])
         ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
-        Route::get('/{nbr_abonnement}/{search?}', 'index');
-        Route::post('store','store');
-        Route::get('/show/{id}', 'show');
-        Route::put('/update/{id}', 'update');
-        Route::delete('/{id}/delete', 'destroy');
+            Route::get('/status/{id}', 'statusAbonnement');
+            Route::get('/{nbr_abonnement}/{search?}', 'index');
+            Route::post('store','store');
+            Route::get('/show/{id}', 'show');
+            Route::put('/update/{id}', 'update');
+            Route::delete('/{id}/delete', 'destroy');
         });
 
 /**------------------- Fin des routes admin ------------------------------------- */
@@ -183,3 +184,9 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         });
 
 /**------------------- Fin des routes visiteurs  --------------------------------------------------- */
+
+
+
+
+// Route::get('/stripe', [StripeController::class, 'index'])->name('stripe.index');
+Route::post('/stripe/checkout', [StripeControllers::class, 'checkout'])->name('stripe.checkout');

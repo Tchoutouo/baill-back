@@ -168,4 +168,15 @@ class AbonnementRepository   extends ResourcesRepository
         return $timeType;
     }
 
+
+    public function changeStatusAbonnement($id){
+        $abonnement = $this->model->find($id);
+
+        if(isset($abonnement)){
+            $abonnement->is_actived= !$abonnement->is_actived;
+            $abonnement->save();
+            return true;
+        }
+    }
+
 }

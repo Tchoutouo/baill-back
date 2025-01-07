@@ -188,4 +188,22 @@ class AbonnementController extends \App\Http\Controllers\Controller
             return response()->json($e);
         }
     }
+
+    public function statusAbonnement($id){
+        // dd("ffff");
+        $changeStatus = $this->abonnementRepository->changeStatusAbonnement($id);
+
+        if(isset($changeStatus)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Status changé avec success'
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Echec lors de la mise à jour du status',
+            ]);
+        }
+    }
 }
