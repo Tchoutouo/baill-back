@@ -24,12 +24,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::options('{any}', function () {
-    return response('', 200)
-    ->header('Access-Control-Allow-Origin', '*')
-    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
-})->where('any', '.*');
+
+// Route::options('{any}', function () {
+//     return response('', 200)
+//     ->header('Access-Control-Allow-Origin', '*')
+//     ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+//     ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+// })->where('any', '.*');
 
 
 
@@ -37,16 +38,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::middleware(['cors'])->group(function () {
-//     /**Route liée à la categorie */
-//     Route::prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
-//         Route::get('/', 'index');
-//         Route::post('store','store');
-//         Route::get('/show/{id}', 'show');
-//         Route::put('/update/{id}', 'update');
-//         Route::delete('/delete/{id}', 'destroy');
-//     });
-// });
+Route::middleware(['cors'])->group(function () {
+    Route::match(['post', 'options'], '/login',[LoginControleurAuth::class, 'login']);
+});
 
 
 Route::prefix('/users_back')->controller(UserController::class)->group(function(){
@@ -139,6 +133,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
             Route::get('/create', 'create');
             Route::post('store','store');
             Route::put('/update/{id}', 'update');
+            Route::put('/update_old/{id}', 'update');
             Route::delete('/delete/{id}/{array_categ}', 'destroy');
             // Route::get('/dashboard/{id}', 'dashboard')->name('dashboard')->middleware(['auth:sanctum, dashboard.advertiser']);
             Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
@@ -148,42 +143,21 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 /**------------------- Fin des routes advertiser/bailleur ------------------------------------- */
 
 
+/**------------------- Routes des visiteurs ------------------------------------- */
 
-/**------------------- Route des visiteurs  --------------------------------------------------- */
+    Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
 
-        /**Route des users ayant pour status annonceur */
-        Route::prefix('/advertiser_ba')->controller(AdvertiserController::class)->group(function(){
-            Route::get('/show/{id}', 'show');
-        });
+    /**Route index visiteur */
+    Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
+        Route::get('/', 'dashboard');
+        Route::post('/trie', 'trie');
+    });
 
+/**------------------- Fin des routes des visiteurs ------------------------------------- */
 
-
-        /**Route liée à la categorie*/
-        Route::prefix('/categorie_back_public')->controller(CategorieController::class)->group(function(){
-            Route::get('/', 'ListingCategorie');
-        });
-        
-        Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
-
-        /**Route index visiteur */
-        Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
-            Route::get('/', 'dashboard');
-            Route::post('/trie', 'trie');
-        });
-
-        // Route pour traiter la soumission du formulaire de connexion
-        Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');
-
-        /**Route liée à la sous-categorie */
-        Route::prefix('/sous_categorie_back')->controller(SousCategorieController::class)->group(function(){
-            Route::get('/', 'index');
-            Route::post('store','store');
-            Route::get('/show/{id}', 'show');
-            Route::put('/update/{id}', 'update');
-            Route::delete('/delete/{id}', 'destroy');
-        });
-
-/**------------------- Fin des routes visiteurs  --------------------------------------------------- */
+// Route pour traiter la soumission du formulaire de connexion
+// Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');
+// Route::get('/login', [LoginControleurAuth::class, 'login'])->name('login');
 
 
 
