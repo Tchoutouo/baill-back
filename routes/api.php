@@ -8,6 +8,7 @@ use App\Http\Controllers\API\Backend\AdvertiserController;
 use App\Http\Controllers\API\Backend\CategorieController;
 use App\Http\Controllers\API\Backend\SousCategorieController;
 use App\Http\Controllers\API\Backend\StripeControllers;
+use App\Http\Controllers\API\Backend\PaymentController;
 use App\Http\Controllers\API\Backend\DashboardAdminController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
@@ -164,3 +165,4 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 // Route::get('/stripe', [StripeController::class, 'index'])->name('stripe.index');
 Route::post('/stripe/checkout', [StripeControllers::class, 'checkout'])->name('stripe.checkout');
+Route::get('/payment/confirm/{payment_intent_id}/{payment_method_id}/{number_whatsapp}/{user_id}/{annonce_id}/{abonnement_id}', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
