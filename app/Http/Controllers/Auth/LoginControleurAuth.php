@@ -24,6 +24,8 @@ class LoginControleurAuth extends Controller
 
             $profil = Profil::where('id',$user->profil_id)->first();
             $user->profil_name = $profil->name;
+            $user->profil_code = $profil->code;
+
             
             //redirection en fonction du profil
             if ($user->profil_id == "2") {
