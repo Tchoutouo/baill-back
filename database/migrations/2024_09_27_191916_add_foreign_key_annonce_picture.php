@@ -26,6 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        
+        if(Schema::hasTable('pictures')){
+            Schema::table('pictures', function (Blueprint $table) {
+                if(Schema::hasColumn('annonces','annonce_id')){
+                    $table->dropColumn('annonce_id');
+                }
+            });
+        }
     }
 };

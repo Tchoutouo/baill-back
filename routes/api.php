@@ -10,6 +10,7 @@ use App\Http\Controllers\API\Backend\SousCategorieController;
 use App\Http\Controllers\API\Backend\StripeControllers;
 use App\Http\Controllers\API\Backend\PaymentController;
 use App\Http\Controllers\API\Backend\DashboardAdminController;
+use App\Http\Controllers\API\Backend\ModePaiementController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
 use Illuminate\Support\Facades\Route;
@@ -95,12 +96,19 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         /**Route liée aux abonnements */
         Route::middleware(['auth:sanctum','access.admin'])
         ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
+            Route::get('/show/{id}', 'show');
             Route::get('/status/{id}', 'statusAbonnement');
             Route::get('/{nbr_abonnement}/{search?}', 'index');
             Route::post('store','store');
-            Route::get('/show/{id}', 'show');
             Route::put('/update/{id}', 'update');
             Route::delete('/{id}/delete', 'destroy');
+        });
+        
+        /**Route liée aux modes de paiement */
+        Route::middleware(['auth:sanctum','access.admin'])
+            ->prefix('/mode_paiement_back')->controller(ModePaiementController::class)->group(function(){
+                Route::get('/', 'index');
+                Route::get('/changeStatus/{id}', 'status');
         });
 
 /**------------------- Fin des routes admin ------------------------------------- */
@@ -124,7 +132,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
             Route::post('store','store');
             Route::post('/update/{id}', 'update');
             Route::delete('/delete/{id}', 'destroy');
-            // Route::get('/change/{id}', 'status');
+            
         });
 
         /**Route liée l'annonce*/
@@ -141,6 +149,13 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
             Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
         });
 
+        /**Route liée aux modes de paiement */
+            Route::middleware(['auth:sanctum','access.advertiser'])
+            ->prefix('/mode_paiement_advert')->controller(ModePaiementController::class)->group(function(){
+                Route::get('/', 'indexAdvert');
+                // Route::get('/changeStatus/{id}', 'status');
+        });
+
 /**------------------- Fin des routes advertiser/bailleur ------------------------------------- */
 
 
@@ -155,6 +170,17 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
     });
 
 /**------------------- Fin des routes des visiteurs ------------------------------------- */
+
+
+
+/**------------------- Routes partagées Admin et Advertiser ------------------------------------- */
+    /**Route update password */
+    Route::middleware('auth:sanctum')
+        ->controller(AdvertiserController::class)
+        ->group(function(){
+        Route::put('/updatePassword/{id}', 'updatePassword');
+        Route::put('/forgetPassword/{id}', 'forgetPassword');
+    });
 
 // Route pour traiter la soumission du formulaire de connexion
 // Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');

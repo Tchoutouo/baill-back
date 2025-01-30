@@ -67,7 +67,7 @@ class CategorieController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'title' => 'required|string|max:255',
-                'description' => 'required|string',
+                // 'description' => 'required|string',
                 // 'array_sous' => 'required|array',
             ],
             [
@@ -112,7 +112,7 @@ class CategorieController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'title' => 'required|string|max:255',
-                'description' => 'required|string',
+                // 'description' => 'required|string',
                 // 'array_sous' => 'required|array',
             ],
             [

@@ -47,14 +47,14 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     {
         try{
             $request -> validate([
-                'username' => 'required|string|max:255', 
+                'username' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email', // unique dans la table users
                 'whatsapp_number' => 'required|min:9|max:9|unique:users,whatsapp_number', // 9
-                'country' => 'required|string|max:255', 
-                'city' => 'required|string|max:255', 
-                'neighborhood' => 'required|string|max:255', 
+                'country' => 'required|string|max:255',
+                'city' => 'required|string|max:255',
+                'neighborhood' => 'required|string|max:255',
                 'password' => 'required|string|min:8'
             ],
             [
@@ -90,14 +90,14 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'success' => false,
                 'message' => 'Erreur de validation',
                 'errors' => $errors
-            ], 422); 
+            ], 422);
 
         }
     }
 
     /**updated */
     public function update(Request $request, $advertiser)
-    { 
+    {
         
         try{
             $request -> validate([
@@ -237,6 +237,102 @@ class AdvertiserController extends \App\Http\Controllers\Controller
 
         }catch(Exception $e){
             return response()->json($e);
+        }
+    }
+
+    //** Update password */
+    public function updatePassword(Request $request, $advertiser){
+        
+        try{
+            $request -> validate([
+                'password' => 'required|string|min:8',
+                'newpassword' => 'required|string|min:8'
+            ]);
+
+            $datas = $request->all();
+
+            $updatePass = $this->advertiserRepository->updatePassword($advertiser, $datas);
+            if(isset($updatePass)){
+                if ($updatePass === true) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Modification effectuée avec success',
+                        ]
+                    );
+                }else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Mot de passe actuel invalide',
+                        ]
+                    );
+                }
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Identifiant non valide...',
+                    ]
+                );
+            }
+
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
+
+        }
+    }
+
+    //** forget password */
+    public function forgetPassword(Request $request, $advertiser){
+        
+        try{
+            $request -> validate([
+                'email' => 'required|email|exists:users,email',
+            ]);
+
+            $datas = $request->all();
+
+            $forgetPass = $this->advertiserRepository->forgetPassword($advertiser, $datas);
+            if(isset($forgetPass)){
+                
+                if ($forgetPass === true) { //Si le mail a été envoyé
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Réinitialisation effectuée avec success ',
+                        ]
+                    );
+                }else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Echec d\'envoi du mail',
+                        ]
+                    );
+                }
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Identifiant non valide...',
+                    ]
+                );
+            }
+
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
+
         }
     }
 }
