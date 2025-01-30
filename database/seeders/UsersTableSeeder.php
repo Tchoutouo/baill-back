@@ -18,19 +18,32 @@ class UsersTableSeeder extends Seeder
     //
     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
     
-    /** Super-admin */
-    User::create([
-                "username"=>"Super-admin",
-                "first_name"=>"Super-admin",
-                "last_name"=>"Super-admin",
-                "email"=>"superadmin@gmail.com",
-                "whatsapp_number"=>"695124532",
-                "country"=>"Cameroun",
-                "city"=>"Yaoundé",
-                "neighborhood"=>"Melen",
-                "password"=>Hash::make("superadmin"),
-                "profil_id"=>"1",
-            ]);
+        /** Super-admin */
+        User::create([
+            "username"=>"Super-admin",
+            "first_name"=>"Super-admin",
+            "last_name"=>"Super-admin",
+            "email"=>"superadmin@gmail.com",
+            "whatsapp_number"=>"695124532",
+            "country"=>"CM",
+            "city"=>"Yaoundé",
+            "neighborhood"=>"Melen",
+            "password"=>Hash::make("superadmin"),
+            "profil_id"=>"1",
+        ]);
+
+        User::create([
+            "username"=>"Owner bailleurnet",
+            "first_name"=>"Bioclean",
+            "last_name"=>"MOUMBE",
+            "email"=>"biocleanmoumbe@gmail.com",
+            "whatsapp_number"=>"694798186",
+            "country"=>"CM",
+            "city"=>"Yaoundé",
+            "neighborhood"=>"Coron",
+            "password"=>Hash::make("superadmin"),
+            "profil_id"=>"1",
+        ]);
     
     /** Administrateur */
     User::create([
@@ -39,7 +52,7 @@ class UsersTableSeeder extends Seeder
                 "last_name"=>"Admin",
                 "email"=>"admin@gmail.com",
                 "whatsapp_number"=>"698125857",
-                "country"=>"Cameroun",
+                "country"=>"CM",
                 "city"=>"Yaoundé",
                 "neighborhood"=>"Cradat",
                 "password"=>Hash::make("administrateur"),
@@ -53,7 +66,7 @@ class UsersTableSeeder extends Seeder
                 "first_name"=>"Advertiser",
                 "email"=>"Advertiser@gmail.com",
                 "whatsapp_number"=>"693124855",
-                "country"=>"Cameroun",
+                "country"=>"CM",
                 "city"=>"Douala",
                 "neighborhood"=>"Deido",
                 "password"=>Hash::make("advertiser"),

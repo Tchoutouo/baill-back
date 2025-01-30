@@ -99,12 +99,12 @@ class AbonnementController extends \App\Http\Controllers\Controller
                 'time' => 'required|integer',
                 'type_time' => 'required|string|max:1',
                 'price' => 'required|integer',
-                'type' => 'required|string|max:255',
-            ],
-            [
-                'error' => 'Erreur...',
-            ]
-        );
+                // 'type' => 'required|string|max:255',
+                ],
+                [
+                    'error' => 'Erreur...',
+                ]
+            );
 
             $result = $this->abonnementRepository->updated($request->all(),$abonnement);
             if($result){
