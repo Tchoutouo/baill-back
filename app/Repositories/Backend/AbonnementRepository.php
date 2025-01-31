@@ -20,6 +20,7 @@ class AbonnementRepository   extends ResourcesRepository
 
     public function getById($id) {
         $abonnement = $this->model->where('id', $id)->first();
+        $abonnement->type_time = $this->typeTime($abonnement->type_time,$abonnement->time);
         return $abonnement;
     }
 

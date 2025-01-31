@@ -8,6 +8,10 @@ use App\Repositories\Backend\AnnonceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PasswordForgetMail;
+use Illuminate\Support\Facades\Auth;
 
 class AdvertiserRepository   extends ResourcesRepository
 {
@@ -140,6 +144,61 @@ class AdvertiserRepository   extends ResourcesRepository
             $advertiser->status= !$advertiser->status;
             $advertiser->save();
             return true;
+        }
+    }
+
+    //** Change password */
+    public function updatePassword($id, $data){
+
+        $advertiser = $this->model->find($id);
+        // $user = Auth::user();
+
+        if(isset($advertiser)){
+            if (Hash::check($data['password'],$advertiser->password)) {
+                
+                $advertiser->password = Hash::make($data['newpassword']);
+                $advertiser->save();
+                return true;
+            }
+            return false;
+        }
+    }
+
+    //** Change password */
+    public function forgetPassword($id, $data){
+
+        $advertiser = $this->model->find($id);
+
+        if(isset($advertiser)){
+
+            if($data['email'] === $advertiser->email) {
+
+                $newpassword = $this->PasswordRandom(8);
+
+                $mail = $this->sendMail($newpassword,$data['email']);
+
+                if ($mail === true) { //Si le mail a été bien envoyé
+                    $advertiser->password = Hash::make($newpassword);
+                    $advertiser->save();
+                    return true;
+                }else {//Sinon
+                    return false;
+                }
+            }
+        }
+    }
+
+    public function PasswordRandom($longueur) {
+        return bin2hex(random_bytes($longueur / 2));
+    }
+
+    public function sendMail($newpassword,$email){
+        try {
+            // Envoyer l'email
+            Mail::to($email)->send(new PasswordForgetMail($email,$newpassword));
+            return true;
+        } catch (\Exception $e) {
+            return false;
         }
     }
 

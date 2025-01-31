@@ -190,7 +190,7 @@ class AbonnementController extends \App\Http\Controllers\Controller
     }
 
     public function statusAbonnement($id){
-        // dd("ffff");
+     
         $changeStatus = $this->abonnementRepository->changeStatusAbonnement($id);
 
         if(isset($changeStatus)){
