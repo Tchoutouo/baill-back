@@ -37,4 +37,9 @@ class PaiementRepository   extends ResourcesRepository
         return $paiement;
     }
 
+    /** Chiffre d'affaires */
+    public function ChiffreAffaire(){
+        return $this->model->sum('montant');
+    }
+
 }
