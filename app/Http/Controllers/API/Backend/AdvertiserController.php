@@ -51,7 +51,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'last_name' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email', // unique dans la table users
-                'whatsapp_number' => 'required|min:9|max:9|unique:users,whatsapp_number', // 9
+                'whatsapp_number' => 'required|min:9|max:15|unique:users,whatsapp_number', // 9-15
                 'country' => 'required|string|max:255',
                 'city' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',
