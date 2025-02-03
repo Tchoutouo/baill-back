@@ -162,6 +162,8 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 /**------------------- Routes des visiteurs ------------------------------------- */
 
     Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
+    
+    Route::get('/categorie_back_public',[CategorieController::class,'ListingCategorie']);
 
     /**Route index visiteur */
     Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
