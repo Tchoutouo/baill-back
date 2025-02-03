@@ -347,15 +347,17 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as  $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                $image = [];
+                // $image = [];
 
-                //Parcourir chaque image add à son annonce
-                foreach ($picture as  $pict) {
-                    if(isset($pict->location)){
-                        $image[] = $pict->location;
-                    }
-                }
-                $annonce['url_image']= $image;  
+                // //Parcourir chaque image add à son annonce
+                // foreach ($picture as  $pict) {
+                //     if(isset($pict->location)){
+                //         $image[] = $pict->location;
+                //     }
+                // }
+                // $annonce['url_image']= $image;  
+                $annonce['url_image']= $picture;  
+
             }
 
             return $arrayAnnonce;
@@ -373,15 +375,17 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as $key => $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                $image = [];
+                // $image = [];
 
-                //Parcourir chaque image add à son annonce
-                foreach ($picture as $key => $pict) {
-                    if(isset($pict->location)){
-                        $image[] = $pict->location;
-                    }
-                }
-                $annonce['url_image']= $image;
+                // //Parcourir chaque image add à son annonce
+                // foreach ($picture as $key => $pict) {
+                //     if(isset($pict->location)){
+                //         $image[] = $pict->location;
+                //     }
+                // }
+                // $annonce['url_image']= $image;
+                $annonce['url_image']= $picture;
+
             }
 
             return $arrayAnnonce;
@@ -407,7 +411,6 @@ class AnnonceRepository   extends ResourcesRepository
 
                 // Si $country existe
                 if ($country) {
-                    dd("ffff00");
                     $arrayAnnonce->where('country', 'LIKE', "%$country%");
                 }
                 
@@ -423,13 +426,15 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                $image = [];
+                // $image = [];
 
-                //Parcourir chaque image add à son annonce
-                foreach ($picture as $pict) {
-                    $image[] = $pict->location;
-                }
-                $annonce['url_image']= $image;
+                // //Parcourir chaque image add à son annonce
+                // foreach ($picture as $pict) {
+                //     $image[] = $pict->location;
+                // }
+                // $annonce['url_image']= $image;
+                $annonce['url_image']= $picture;
+
             }
 
             return $arrayAnnonce;

@@ -136,7 +136,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         });
 
         /**Route liée l'annonce*/
-        Route::middleware(['auth:sanctum','access.advertiser'])
+        Route::middleware(['auth:sanctum'])
         ->prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
             Route::get('/{user_id}/{nbr_annonce}/{search?}', 'index');
             Route::get('/create', 'create');
@@ -162,7 +162,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 /**------------------- Routes des visiteurs ------------------------------------- */
 
     Route::get('/get_annonce/{id}',[AnnonceController::class, 'get_annonce']);
-    
+
     Route::get('/categorie_back_public',[CategorieController::class,'ListingCategorie']);
 
     /**Route index visiteur */
