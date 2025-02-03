@@ -125,7 +125,7 @@ class SousCategorieController extends \App\Http\Controllers\Controller
 
             // Si cette sous-categorie est associée à une categorie
             $result = $this->sous_categorieRepository->destroy($id);
-            dd($result);
+            //dd($result);
             if($sous_categorie)
             {
                 return response()->json([

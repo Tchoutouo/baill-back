@@ -7,6 +7,7 @@ use App\Repositories\Backend\AnnonceRepository;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\UserRepository;
+use App\Repositories\Backend\PaiementRepository;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -19,15 +20,18 @@ class DashboardAdminController extends Controller
         protected $abonnementRepository;
         protected $categorieRepository;
         protected $userRepository;
+        protected $paiementRepository;
     
-        public function __construct(AnnonceRepository $annonceRepository,  PictureController $pictureController, 
-        CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository)
+        public function __construct(AnnonceRepository $annonceRepository,  PictureController $pictureController,
+                                    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository,
+                                    PaiementRepository $paiementRepository)
         {
             $this->annonceRepository = $annonceRepository;
             $this->pictureController = $pictureController;
             $this->abonnementRepository = $abonnementRepository;
             $this->categorieRepository = $categorieRepository;
             $this->userRepository = $userRepository;
+            $this->paiementRepository = $paiementRepository;
         }
 
     /** Dashbord admin */
@@ -38,6 +42,8 @@ class DashboardAdminController extends Controller
             $totalUsers = $this->userRepository->getAllUsers();
 
             $totalAnnonce = $this->annonceRepository->countAnnonce();
+
+            $totalAccount = $this->paiementRepository->ChiffreAffaire();
 
             $progressAbonnement = $this->abonnementRepository->progressAbonnement();
 
@@ -51,6 +57,7 @@ class DashboardAdminController extends Controller
                 'success' => true,
                 'total_users' => $totalUsers,
                 'total_annonces' => $totalAnnonce,
+                'total_montant' => $totalAccount,
                 'progress_abonnement' => $progressAbonnement,
                 'progress_status' => $progressStatusAnnonce,
                 'tab_user_lock' => $userLock,
