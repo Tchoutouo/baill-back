@@ -94,7 +94,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
         
         /**Route liée aux abonnements */
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum'])
         ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
             Route::get('/show/{id}', 'show');
             Route::get('/status/{id}', 'statusAbonnement');
