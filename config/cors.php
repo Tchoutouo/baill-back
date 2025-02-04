@@ -15,13 +15,13 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['api/*','sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
     // 'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:4200')],
     // 'allowed_origins' => [env('FRONTEND_URL', 'https://bailleurnet.com/')],
-    'allowed_origins' => ['https://bailleurnet.com/','https://test.bailleurnet.com/', 'http://localhost:4200'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
