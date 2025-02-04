@@ -10,7 +10,7 @@ use App\Repositories\Backend\UserRepository;
 use Exception;
 use Illuminate\Http\Request;
 
-class DashboardAdminController extends Controller
+class DashboardController extends Controller
 {
         //
         protected $annonceRepository;

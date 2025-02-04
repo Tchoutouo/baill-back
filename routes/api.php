@@ -120,7 +120,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         /**Route dashboard advertiser */
         Route::middleware(['auth:sanctum','access.advertiser'])
             ->prefix('/dashboard_advertiser')
-            ->controller(DashboardController::class)
+            ->controller(App\Http\Controllers\API\Backend\DashboardController::class)
             ->group(function(){
             Route::get('/{id}', 'dashboard')->name('dashboard_advertiser');
         });
