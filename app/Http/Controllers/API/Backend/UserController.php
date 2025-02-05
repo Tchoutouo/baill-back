@@ -100,9 +100,13 @@ class UserController extends \App\Http\Controllers\Controller
             $user = $this->userRepository->getById($id);
     
             if($user){
-                return response()->json([]);
+                return response()->json([
+                    'success' => true,
+                    'data' => $user
+                ]);
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'identifiant non valide ',
                     ]
                 );

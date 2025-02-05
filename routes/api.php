@@ -130,9 +130,9 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
             Route::get('/{paginate}/{search?}', 'index');
             Route::post('store','store');
-            Route::post('/update/{id}', 'update');
-            Route::delete('/delete/{id}', 'destroy');
-            
+            Route::put('/update/{id}', 'update');
+            Route::get('/show/{id}', 'show');
+            Route::delete('/delete/{id}', 'destroy'); 
         });
 
         /**Route liée l'annonce*/

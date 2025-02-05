@@ -167,9 +167,8 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'identifiant non valide ',
-                    ]
-                );
+                    'message' => 'identifiant non valide '
+                ]);
             }
         }
         catch(Exception $e){
