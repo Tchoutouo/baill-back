@@ -143,7 +143,11 @@ class AbonnementRepository   extends ResourcesRepository
         /** Calcul des progressions et durée*/
         foreach ($abonnement as $abon) {
 
-            $abon->progress = ($abon->total_annonces * 100) / $abon->total_publier ;
+            if($abon->total_publier){
+                $abon->progress = ($abon->total_annonces * 100) / $abon->total_publier ;
+            }else{
+                $abon->progress = 0;
+            }
 
             $abon->type_time = $this->typeTime($abon->type_time,$abon->time) ;
 

@@ -22,6 +22,7 @@ class AbonnementController extends \App\Http\Controllers\Controller
     /** index */
     public function index($nbre_page, $search = null)
     {
+        
         try{
             $allAbonnement = $this->abonnementRepository->getAllAbonnement($nbre_page,$search);
             if(!empty($allAbonnement)){
