@@ -7,7 +7,7 @@ use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\Backend\AnnonceRepository;
-// use App\Notifications\SendLearnerRegistrationNotification;
+
 
 class AnnonceHandler  {
 

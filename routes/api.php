@@ -194,3 +194,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 // Route::get('/stripe', [StripeController::class, 'index'])->name('stripe.index');
 Route::post('/stripe/checkout', [StripeControllers::class, 'checkout'])->name('stripe.checkout');
 Route::get('/payment/confirm/{payment_intent_id}/{payment_method_id}/{number_whatsapp}/{user_id}/{annonce_id}/{abonnement_id}', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
+
+/** Route paiement mobile */
+Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
+Route::get('/check-payment-status', [PaymentController::class, 'checkPaymentStatus']);

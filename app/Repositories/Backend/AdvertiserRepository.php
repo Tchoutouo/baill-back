@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordForgetMail;
+use App\Mail\NewAdvertiserMail;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class AdvertiserRepository   extends ResourcesRepository
@@ -28,25 +30,44 @@ class AdvertiserRepository   extends ResourcesRepository
         return $user;
     }
 
-    /**created user */
+    /**created user et envoyé une notification à l'admin */
     public function created($data = array()) {
-        //defininir création de user
-        $advertiser = $this->model;
-        
-        $advertiser->name= $data['username'];
-        $advertiser->username= $data['username'];
-        $advertiser->last_name= $data['last_name'];
-        $advertiser->first_name= $data['first_name'];
-        $advertiser->email= $data['email'];
-        $advertiser->whatsapp_number= $data['whatsapp_number'];
-        $advertiser->country= $data['country'];
-        $advertiser->city= $data['city'];
-        $advertiser->neighborhood= $data['neighborhood'];
-        $advertiser->password= $data['password'];
-        $advertiser->profil_id= 3;
-        $advertiser->save();
+        try {
 
-        return $advertiser;
+            $storeAdv = DB::transaction(function () use($data) {
+                //defininir création de user
+                $advertiser = $this->model;
+                
+                $advertiser->name= $data['username'];
+                $advertiser->username= $data['username'];
+                $advertiser->last_name= $data['last_name'];
+                $advertiser->first_name= $data['first_name'];
+                $advertiser->email= $data['email'];
+                $advertiser->whatsapp_number= $data['whatsapp_number'];
+                $advertiser->country= $data['country'];
+                $advertiser->city= $data['city'];
+                $advertiser->neighborhood= $data['neighborhood'];
+                $advertiser->password= $data['password'];
+                $advertiser->profil_id= 3;
+                $advertiser->save();
+                
+                //Envoie du mail à l'admin
+                Mail::to(env('mail_username'))->send(new NewAdvertiserMail());
+                return $advertiser;
+            });
+            DB::commit();
+    
+        } catch (Exception $e) {
+            DB::rollBack();
+        }
+        
+        if(isset($storeAdv)){
+
+            return $storeAdv;
+
+        }else{
+
+        }
     }
 
     /**updated user */

@@ -147,7 +147,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'success' => false,
                 'message' => 'Erreur de validation',
                 'errors' => $errors
-            ], 422); 
+            ], 422);
 
         }
     }

@@ -49,12 +49,14 @@ class UserController extends \App\Http\Controllers\Controller
             if($inputs)
             {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Utilisateur enregistré avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Utilisateur non enregistré verifier vos donnée',
                     ]
                 );
@@ -78,11 +80,13 @@ class UserController extends \App\Http\Controllers\Controller
             $result = $this->userRepository->updated($request->all(),$user);
             if($result){
                 return response()->json([
+                    'success' => true,
                     'message' => 'Modification effectuée avec success',
                     ]
                 );
             }else{
                 return response()->json([
+                    'success' => false,
                     'message' => 'Echec de modification',
                     ]
                 );

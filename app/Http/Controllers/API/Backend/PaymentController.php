@@ -7,17 +7,20 @@ use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use App\Repositories\Backend\PaiementRepository;
 use App\Repositories\Backend\AnnonceRepository;
+use App\Services\MobileMoneyService;
 
 class PaymentController extends \App\Http\Controllers\Controller
 {
 
     protected $paiementRepository;
     protected $annonceRepository;
+    protected $mobileMoney;
 
-    public function __construct(PaiementRepository $paiementRepository, AnnonceRepository $annonceRepository)
+    public function __construct(PaiementRepository $paiementRepository, AnnonceRepository $annonceRepository, MobileMoneyService $mobileMoney)
     {
         $this->paiementRepository = $paiementRepository;
         $this->annonceRepository = $annonceRepository;
+        $this->mobileMoney = $mobileMoney;
     }
 
     // Confirmer le paiement le paiement.
@@ -80,5 +83,26 @@ class PaymentController extends \App\Http\Controllers\Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    
+    public function initiatePayment(Request $request)
+    {
+        $phoneNumber = $request->input('phone_number');
+        $amount = $request->input('amount');
+        $transactionId = uniqid('txn_', true); // Génere Id de transaction unique qui commence pas txn
+
+        $response = $this->mobileMoney->initiatePayment($phoneNumber, $amount, $transactionId);
+
+        return response()->json($response);
+    }
+
+    public function checkPaymentStatus(Request $request)
+    {
+        $transactionId = $request->input('transaction_id');
+        $response = $this->mobileMoney->checkPaymentStatus($transactionId);
+
+        return response()->json($response);
+    }
+
 }
 
