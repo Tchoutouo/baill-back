@@ -19,16 +19,19 @@ class ModePaiementSeed extends Seeder
 
         ModePaiement::create([
             "title"=>"Stripe",
+            "code"=>"stripe",
             "is_active"=> 1,
         ]);
 
         ModePaiement::create([
             "title"=>"Orange Money",
+            "code"=>"om",
             "is_active"=> 0,
         ]);
 
         ModePaiement::create([
             "title"=>"Mobile Money",
+            "code"=>"momo",
             "is_active"=> 0,
         ]);
 

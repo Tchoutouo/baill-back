@@ -108,7 +108,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         Route::middleware(['auth:sanctum','access.admin'])
             ->prefix('/mode_paiement_back')->controller(ModePaiementController::class)->group(function(){
                 Route::get('/', 'index');
-                Route::get('/changeStatus/{id}', 'status');
+                Route::get('/changeStatus/{arrayPayment}', 'status');
         });
 
 /**------------------- Fin des routes admin ------------------------------------- */

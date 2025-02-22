@@ -99,7 +99,7 @@ class PaymentController extends \App\Http\Controllers\Controller
     public function checkPaymentStatus(Request $request)
     {
         $transactionId = $request->input('transaction_id');
-        $response = $this->mobileMoney->checkPaymentStatus($transactionId);
+        $response = $this->mobileMoney->checkTransactionStatus($transactionId);
 
         return response()->json($response);
     }

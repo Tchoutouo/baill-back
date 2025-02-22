@@ -17,6 +17,9 @@ return new class extends Migration
                 if (!Schema::hasColumn('mode_paiements','title')) {
                     $table->string('title');
                 }
+                if (!Schema::hasColumn('mode_paiements','code')) {
+                    $table->string('code');
+                }
                 if (!Schema::hasColumn('mode_paiements','is_active')) {
                     $table->boolean('is_active')->default(true);
                 }

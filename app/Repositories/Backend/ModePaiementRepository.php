@@ -28,12 +28,23 @@ class ModePaiementRepository   extends ResourcesRepository
 
     
     //** Change status */
-    public function changeStatus($id){
-        $modepaiement = $this->model->find($id);
+    public function changeStatus($arrayModePayment){
 
+        $modepaiement = $this->model->get();
+
+        $check = false;
         if(isset($modepaiement)){
-            $modepaiement->is_active= !$modepaiement->is_active;
-            $modepaiement->save();
+            foreach ($modepaiement as $paiment) {
+                if(array_key_exists($paiment->code, $arrayModePayment))
+                {
+                    $paiment->is_active= $arrayModePayment[$paiment->code];
+                    $paiment->save();
+                    $check = true;
+                }
+            }
+        }
+        if($check)
+        {
             return true;
         }
     }

@@ -76,10 +76,12 @@ class ModePaiementController extends \App\Http\Controllers\Controller
 
 
     //** Change status */
-    public function status(Request $request, $id){
+    public function status($arrayModePayment){
+
+        $arrayModePayment = json_decode($arrayModePayment, true);
         
         try{
-            $result = $this->modepaiementRepository->changeStatus($id);
+            $result = $this->modepaiementRepository->changeStatus($arrayModePayment);
             
             if(isset($result) && !empty($result)){
                 return response()->json([
