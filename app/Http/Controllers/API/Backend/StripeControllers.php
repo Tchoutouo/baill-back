@@ -3,43 +3,69 @@
 namespace App\Http\Controllers\API\Backend;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
-// use App\Http\Controllers\Controller;
+// use Stripe\PaymentMethod;
+use App\Repositories\Backend\PaiementRepository;
+use App\Repositories\Backend\AnnonceRepository;
 use Illuminate\Http\Request;
+use Stripe\Exception\ApiErrorException;
+// use Illuminate\Support\Facades\Auth;
 
 class StripeControllers extends \App\Http\Controllers\Controller
 {
     //
+    protected $paiementRepository;
+    protected $annonceRepository;
 
-    public function checkout(Request $request)
+    public function __construct(AnnonceRepository $annonceRepository, PaiementRepository $paiementRepository)
     {
+        $this->paiementRepository = $paiementRepository;
+        $this->annonceRepository = $annonceRepository;
+    }
 
-        // Configurer la clé API Stripe
+    public function stripePayment(Request $request)
+    {
+        // Configurer la clé secrète Stripe
         Stripe::setApiKey(config('services.stripe.secret'));
-        
         try {
-            // Créer une intention de paiement
             $paymentIntent = PaymentIntent::create([
-                'amount' => $request->amount * 100, // Montant en cents
+                'amount' => $request->amount,
                 'currency' => 'usd',
-                // 'payment_method' => 'pm_card_visa',
-                // 'payment_method' => $request->payment_method,
-                // 'confirmation_method' => 'manual',
-                // 'confirm' => false,
-                // 'return_url' => route('payment.completed'),
+                'payment_method' => $request->payment_method,
+                'confirm' => true,
+                // 'return_url' => 'https://votre-site.com/success',
                 'automatic_payment_methods' => [
                     'enabled' => true,
-                    'allow_redirects' => 'never', // Empêche les redirections
+                    'allow_redirects' => 'never', // Désactive les paiements nécessitant une redirection
                 ],
             ]);
+            
+            if ($paymentIntent->status == 'succeeded') {
+                // Enregistrer le paiement
+
+                $data = [
+                    "mode_paiement"=>"stripe",
+                    "montant"=>$request->amount,
+                    "date_paiement"=>now(),
+                    "number"=>$request->whatsapp_number,
+                    "user_id"=> $request->user_id,
+                    "abonnement_id"=>$request->abonnement_id,
+                ];
+
+                $this->paiementRepository->created($data);
+            }
 
             return response()->json([
                 'success' => true,
-                'paymentIntent' => $paymentIntent->id,
+                'status' => $paymentIntent->status,
+                'client_secret' => $paymentIntent->client_secret,
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+
+        } catch (ApiErrorException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'stripe_error' => $e->getStripeCode(),
+            ], 500);
         }
     }
-
-
 }
