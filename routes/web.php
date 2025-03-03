@@ -17,4 +17,8 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
+Route::get('/stripe', function () {
+    return view('stripe');
+});
+
 require __DIR__.'/auth.php';

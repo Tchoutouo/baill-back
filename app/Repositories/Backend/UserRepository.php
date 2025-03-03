@@ -68,6 +68,16 @@ class UserRepository   extends ResourcesRepository
         return $user;
     }
 
+
+    
+    /**Decrementer le nombre free de cette utitilisateur */
+    public function decrementFree($id)
+    {
+        $user = $this->model->find($id);
+        $user->qte_free = $user->qte_free - 1 ;
+        $user->save();
+    }
+
     /**destroy user */
     public function destroy($id) {
         //defininir destroy de user

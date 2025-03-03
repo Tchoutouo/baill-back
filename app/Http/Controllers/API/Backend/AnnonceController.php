@@ -24,6 +24,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $abonnementRepository;
     protected $categorieRepository;
     protected $userRepository;
+    protected $stripeController;
 
     public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
     CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository)
@@ -34,6 +35,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $this->abonnementRepository = $abonnementRepository;
         $this->categorieRepository = $categorieRepository;
         $this->userRepository = $userRepository;
+        
     }
 
     /** Listing des annonces coté admin */
@@ -86,8 +88,16 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     //Change status annonces
-    public function changeStatus($user_id, $annonce_id, $new_status){
-        $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status);
+    public function changeStatus($user_id, $annonce_id, $new_status, $statusPayment = null){
+
+        if(isset($statusPayment) && $statusPayment == false){
+            return response()->json([
+                'success' => false,
+                'message' => 'Oups!!! Echec de paiement statut non changé',
+                'url' => route('dashboard',['id'=>$user_id])
+            ]);
+        }
+        $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment);
 
         if(isset($changeStatus)){
             return response()->json([
@@ -164,40 +174,50 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        
+        dd("bien");
         
         try{
             $request -> validate([
-                'title' => 'required|string|max:255', 
-                'description' => 'required|string',
-                'price' => 'required|numeric',
-                'country' => 'required|string|max:255',
-                'categorie' => 'required|array',
-                'abonnement_id' => 'required|string|max:255',
-                'user_id' => 'required|string|max:255',
-            ],
-            [
+                    'title' => 'required|string|max:255', 
+                    'description' => 'required|string',
+                    'price' => 'required|numeric',
+                    'country' => 'required|string|max:255',
+                    'categorie' => 'required|array',
+                    'abonnement_id' => 'required|string|max:255',
+                    'user_id' => 'required|string|max:255',
+                ],
+                [
                 'error' => 'Erreur...',
-            ]
-        );
+                ]
+            );
+
             $inputs = $this->annonceRepository->created($request->all());
            
-            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs);
+            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
 
-            $pictures = $this->pictureController->storePicture($request, $inputsAnnonce->id);
-
-            if($pictures)
+            
+            if($inputsAnnonce)
             {
+                // $pictures = $this->pictureController->storePicture($request, $inputsAnnonce->id);
+                if($request->abonnement_id == 1){
+                    $user = Auth::user();
+                    $this->userRepository->decrementFree($user->id);
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Annonce enregistré et paiement free',
+                        ]
+                    );
+                }
                 return response()->json([
                     'success' => true,
-                    'message' => 'Annonce enregistré avec success',
+                    'message' => 'Annonce enregistré et paiement réussi',
                     ]
                 );
     
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'Annonce non enregistré verifier vos donnée',
+                    'message' => 'Annonce enregistré mais echec de paiement',
                     ]
                 );
     

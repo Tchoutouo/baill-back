@@ -7,29 +7,37 @@ use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\Backend\AnnonceRepository;
+use App\Http\Controllers\API\Backend\StripeControllers;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class AnnonceHandler  {
 
     protected $annonceRepository;
+    protected $stripeController;
 
-    public  function __construct(AnnonceRepository $annonceRepository){
+    public  function __construct(AnnonceRepository $annonceRepository, StripeControllers $stripeController){
 
         $this->annonceRepository = $annonceRepository;
+        $this->stripeController = $stripeController;
 
     }
 
     public function storeAnnonce ($inputs){
         try {
-           
-
+            
             $result = DB::transaction( function() use ($inputs){
-                //dd($inputs['categorie']);
+                
+                // Attache avec les catégories
+
+
                 $categorie = $inputs['categorie'];
                 $annonce = $inputs['annonce'];
                 for ($i=0; $i < count($categorie); $i++) { 
                     $annonce->categories()->attach($categorie[$i]);
                 }
+
                 return $annonce;
             });
             DB::commit();

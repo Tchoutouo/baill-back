@@ -46,14 +46,29 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
         // $annonce->is_published= $data['is_published'];
-        if(isset($data['status'])){
-            $annonce->status = $data['status'];
-        }
+
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
-        if($this->abonnementRepository->check_account($data['abonnement_id']) > 0){
+        if($this->abonnementRepository->check_account($data['abonnement_id']) > 0 && $data['statutPayment'] === true){
             if(isset($data['is_forward'])){
                 $annonce->is_forward = $data['is_forward'];
+            }
+            if(isset($data['status'])){
+                $annonce->status = 3;
+            }
+        }
+
+        // if l'abonnement est free mettre en avant l'annonce
+        if($this->abonnementRepository->check_account($data['abonnement_id']) == 0 ){
+            if(isset($data['status'])){
+                $annonce->status = 3;
+            }
+        }
+
+        // if le paiement a échoué...
+        if($data['statutPayment'] === false){
+            if(isset($data['status'])){
+                $annonce->status = 1;
             }
         }
 
@@ -311,7 +326,8 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Change status annonces
-    function changeStatusAnnonce($user_id, $annonce_id, $new_status){
+    function changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment = null){
+        
         if ($user_id) {
             $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
         }
@@ -320,9 +336,16 @@ class AnnonceRepository   extends ResourcesRepository
         }
         if(isset($annonce))
         {
-            $annonce->update([
-                'status' => $new_status
-            ]);
+            if(!empty($statusPayment))
+            {
+                $annonce->update([
+                    'status' => '3'
+                ]);
+            }else{
+                $annonce->update([
+                    'status' => $new_status
+                ]);
+            }
             return true;
         }
     }
