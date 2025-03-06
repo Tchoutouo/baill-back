@@ -74,8 +74,13 @@ class UserRepository   extends ResourcesRepository
     public function decrementFree($id)
     {
         $user = $this->model->find($id);
-        $user->qte_free = $user->qte_free - 1 ;
-        $user->save();
+
+        if($user->qte_free > 0){
+            $user->qte_free = $user->qte_free - 1 ;
+            $user->save();
+            return $user->qte_free;
+        }
+        return null;
     }
 
     /**destroy user */

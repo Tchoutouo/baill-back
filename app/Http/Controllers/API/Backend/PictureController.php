@@ -15,7 +15,7 @@ class PictureController extends Controller
         /** Pour chaque image lié à l'annonce créer un enregistrement */
         if ($request->hasFile('images')) {
                 $images = $request->file('images');
-                // dd($images);
+                
                 $paths = [];
                 
                 foreach ($images as $image) {

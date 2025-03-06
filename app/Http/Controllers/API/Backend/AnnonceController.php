@@ -174,8 +174,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        dd("bien");
-        
+
+        $user = Auth::user();
         try{
             $request -> validate([
                     'title' => 'required|string|max:255', 
@@ -191,40 +191,58 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]
             );
 
-            $inputs = $this->annonceRepository->created($request->all());
-           
-            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
+            if($user->qte_free > 0){
 
+                $dataPaiement = $request->dataPaiement;
+    
+                $dataPaiement['user_id'] = $user->id;
+                $dataPaiement['abonnement_id'] = $request->abonnement_id;
+                $dataPaiement['number'] = $user->whatsapp_number;
+                $dataPaiement['customer'] = $user->username;
+    
+                $inputs = $this->annonceRepository->created($request->all());
+    
+                $this->pictureController->storePicture($request, $inputs['annonce']->id);
+    
+                $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
+    
+                if (isset($inputsAnnonce)) {
+                    if($inputsAnnonce['success'] === true)
+                    {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Annonce enregistré et paiement réussi',
+                            ]
+                        );
             
-            if($inputsAnnonce)
-            {
-                // $pictures = $this->pictureController->storePicture($request, $inputsAnnonce->id);
-                if($request->abonnement_id == 1){
-                    $user = Auth::user();
-                    $this->userRepository->decrementFree($user->id);
+                    }else{
+                        return response()->json([
+                                'success' => false,
+                                'message' => 'Annonce enregistré mais echec de paiement',
+                                'error-payment' => $inputsAnnonce,
+                            ]
+                        );
+            
+                    }
+                }else{
+                    $free = $this->userRepository->decrementFree($user->id);
                     return response()->json([
-                        'success' => true,
-                        'message' => 'Annonce enregistré et paiement free',
+                            'success' => true,
+                            'status_free' => $free,
+                            'message' => 'Annonce enregistré et paiement free, mais elle ne sera pas mise en avant',
                         ]
                     );
                 }
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Annonce enregistré et paiement réussi',
-                    ]
-                );
-    
             }else{
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Annonce enregistré mais echec de paiement',
+                        'success' => false,
+                        'message' => 'Echec d\'enregistrement, nombre d\'abonnement free atteint',
                     ]
                 );
-    
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // Récupérer les erreurs lié à la validation
             $errors = $e->validator->errors();
 
             // Retourner les erreurs en réponse JSON ou autre objet
