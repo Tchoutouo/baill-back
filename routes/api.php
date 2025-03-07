@@ -145,7 +145,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
             Route::put('/update_old/{id}', 'update');
             Route::delete('/delete/{id}/{array_categ}', 'destroy');
             // Route::get('/dashboard/{id}', 'dashboard')->name('dashboard')->middleware(['auth:sanctum, dashboard.advertiser']);
-            Route::get('/update_status/{id_user}/{id_annonce}/{new_status}', 'changeStatus')->name('changeStatus');
+            Route::get('/update_status/{id_user}/{id_annonce}/{new_status}/{info_paiement?}', 'changeStatus')->name('changeStatus');
             Route::get('/update_abonnement/{id_user}/{id_annonce}/{new_abonnement}', 'changeAbonnement')->name('changeAbonnement');
         });
 
