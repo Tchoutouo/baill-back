@@ -192,7 +192,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 );
             }
 
-            $dataPaiement = $request->dataPaiement;
+            $dataPaiement = json_decode($request->payment_datas, true);
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
@@ -317,7 +317,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
         }
         catch(Exception $e){
             return response()->json($e);
-
         }
     }
 
