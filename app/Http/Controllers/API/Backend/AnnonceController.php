@@ -88,15 +88,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     //Change status annonces
-    public function changeStatus($user_id, $annonce_id, $new_status, $statusPayment = null){
+    public function changeStatus($user_id, $annonce_id, $new_status){
 
-        if(isset($statusPayment) && $statusPayment == false){
-            return response()->json([
-                'success' => false,
-                'message' => 'Oups!!! Echec de paiement statut non changé',
-                'url' => route('dashboard',['id'=>$user_id])
-            ]);
-        }
         $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment);
 
         if(isset($changeStatus)){

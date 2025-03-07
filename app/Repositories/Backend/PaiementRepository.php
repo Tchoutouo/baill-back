@@ -5,6 +5,7 @@ use App\Models\Paiement;
 use App\Repositories\ResourcesRepository;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Exception;
 
 class PaiementRepository   extends ResourcesRepository
 {
@@ -30,11 +31,22 @@ class PaiementRepository   extends ResourcesRepository
 
 
     /**save paiement */
-    public function created($data = array()) {
-        
-        $paiement = $this->model->create($data);
+    public function created($data) {
+        try {
+            //code...
+            $paiement = $this->model;
+            $paiement->mode_paiement = $data["mode_paiement"];
+            $paiement->montant = $data["montant"];
+            $paiement->date_paiement = $data["date_paiement"];
+            $paiement->number = $data["number"];
+            $paiement->user_id = $data["user_id"];
+            $paiement->abonnement_id = $data["abonnement_id"];
+            $paiement->save();
 
-        return $paiement;
+            return true;
+        } catch (Exception $e) {
+            dd($e);
+        }
     }
 
     /** Chiffre d'affaires */
