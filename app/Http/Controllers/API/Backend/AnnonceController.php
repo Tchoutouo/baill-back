@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\API\Backend\StripeControllers;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class AnnonceController extends \App\Http\Controllers\Controller
@@ -27,7 +28,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $stripeController;
 
     public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
-    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository)
+    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository, StripeControllers $stripeController)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
@@ -35,6 +36,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $this->abonnementRepository = $abonnementRepository;
         $this->categorieRepository = $categorieRepository;
         $this->userRepository = $userRepository;
+        $this->stripeController = $stripeController;
         
     }
 
@@ -88,8 +90,16 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     //Change status annonces
-    public function changeStatus($user_id, $annonce_id, $new_status){
+    public function changeStatus($user_id, $annonce_id, $new_status, $dataPaiement = null){
 
+        $user = Auth::user();
+
+        if($new_status == 3){
+            $dataPaiement = json_decode($dataPaiement, true);
+            $dataPaiement['user_id'] = $user->id;
+            $dataPaiement['number'] = $user->whatsapp_number;
+            $this->stripeController->stripePayment($dataPaiement, $annonce_id);
+        }
         $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment);
 
         if(isset($changeStatus)){
