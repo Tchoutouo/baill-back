@@ -191,55 +191,55 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]
             );
 
-            if($user->qte_free > 0){
-
-                $dataPaiement = $request->dataPaiement;
-    
-                $dataPaiement['user_id'] = $user->id;
-                $dataPaiement['abonnement_id'] = $request->abonnement_id;
-                $dataPaiement['number'] = $user->whatsapp_number;
-                $dataPaiement['customer'] = $user->username;
-    
-                $inputs = $this->annonceRepository->created($request->all());
-    
-                $this->pictureController->storePicture($request, $inputs['annonce']->id);
-    
-                $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
-    
-                if (isset($inputsAnnonce)) {
-                    if($inputsAnnonce['success'] === true)
-                    {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Annonce enregistré et paiement réussi',
-                            ]
-                        );
-            
-                    }else{
-                        return response()->json([
-                                'success' => false,
-                                'message' => 'Annonce enregistré mais echec de paiement',
-                                'error-payment' => $inputsAnnonce,
-                            ]
-                        );
-            
-                    }
-                }else{
-                    $free = $this->userRepository->decrementFree($user->id);
-                    return response()->json([
-                            'success' => true,
-                            'status_free' => $free,
-                            'message' => 'Annonce enregistré et paiement free, mais elle ne sera pas mise en avant',
-                        ]
-                    );
-                }
-            }else{
+            if($user->qte_free == 0 && $request->abonnement_id === "1"){
                 return response()->json([
                         'success' => false,
                         'message' => 'Echec d\'enregistrement, nombre d\'abonnement free atteint',
                     ]
                 );
             }
+
+            $dataPaiement = $request->dataPaiement;
+
+            $dataPaiement['user_id'] = $user->id;
+            $dataPaiement['abonnement_id'] = $request->abonnement_id;
+            $dataPaiement['number'] = $user->whatsapp_number;
+            $dataPaiement['customer'] = $user->username;
+
+            $inputs = $this->annonceRepository->created($request->all());
+
+            $this->pictureController->storePicture($request, $inputs['annonce']->id);
+            
+            $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
+
+            if (isset($inputsAnnonce)) {
+                if($inputsAnnonce['success'] === true)
+                {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Annonce enregistré et paiement réussi',
+                        ]
+                    );
+        
+                }else{
+                    return response()->json([
+                            'success' => false,
+                            'message' => 'Annonce enregistré mais echec de paiement',
+                            'error-payment' => $inputsAnnonce,
+                        ]
+                    );
+        
+                }
+            }else{
+                $free = $this->userRepository->decrementFree($user->id);
+                return response()->json([
+                        'success' => true,
+                        'status_free' => $free,
+                        'message' => 'Annonce enregistré et paiement free, mais elle ne sera pas mise en avant',
+                    ]
+                );
+            }
+            
 
         }catch(ValidationException $e){
             // Récupérer les erreurs lié à la validation

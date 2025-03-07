@@ -26,21 +26,21 @@ class AnnonceHandler  {
 
     public function storeAnnonce ($inputs, $dataPaiement){
         try {
-            
             $result = DB::transaction( function() use ($inputs, $dataPaiement){
                 
                 // Attache avec les catégories
-
-
+                
+                
                 $categorie = $inputs['categorie'];
                 $annonce = $inputs['annonce'];
                 for ($i=0; $i < count($categorie); $i++) { 
                     $annonce->categories()->attach($categorie[$i]);
                 }
-
+                
                 $statusPaiement = null;
+                
                 if ($annonce['abonnement_id'] != '1') {
-                    if ($dataPaiement['mode_paiment'] == "Stripe") {
+                    if ($dataPaiement['mode_paiement'] === "Stripe") {
                         $statusPaiement = $this->stripeController->stripePayment($dataPaiement);
                     }
                 }
