@@ -5,6 +5,7 @@ use App\Models\Abonnement;
 use App\Repositories\ResourcesRepository;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AbonnementRepository   extends ResourcesRepository
 {
@@ -98,6 +99,7 @@ class AbonnementRepository   extends ResourcesRepository
     /**Get all abonnement */
     public function getAllAbonnement($nbre_page, $search) {
 
+        $user = Auth::user();
         //* Pour chaque abonnement compter le nombre d'utilisateur associer dans la table annonces
         $abonnement = $this->model->with('annonces')
                     ->select('abonnements.*', DB::raw('(
@@ -105,6 +107,12 @@ class AbonnementRepository   extends ResourcesRepository
                         FROM annonces
                         WHERE annonces.abonnement_id = abonnements.id
                     ) as total_users'));
+        
+        if($user->profil_id === 3){
+            if($user->qte_free == 0 ) {
+                $abonnement = $abonnement->where('id','<>',1);
+            }
+        }
 
         if($search){
             $abonnement = $abonnement->where(function ($q) use ($search) {

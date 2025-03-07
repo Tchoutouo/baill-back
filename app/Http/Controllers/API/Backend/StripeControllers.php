@@ -22,14 +22,14 @@ class StripeControllers extends \App\Http\Controllers\Controller
         $this->annonceRepository = $annonceRepository;
     }
 
-    public function stripePayment($dataPaiement)
+    public function stripePayment($dataPaiement, $annonce_id)
     {
         // Configurer la clé secrète Stripe
         Stripe::setApiKey(config('services.stripe.secret'));
         try {
             
             $paymentIntent = PaymentIntent::create([
-                'amount' => $dataPaiement['amount'],
+                'amount' => $dataPaiement['amount']*100,
                 'currency' => 'usd',
                 'payment_method' => $dataPaiement['payment_method'],
                 'confirm' => true,
@@ -40,19 +40,22 @@ class StripeControllers extends \App\Http\Controllers\Controller
             ]);
 
             if ($paymentIntent->status == 'succeeded') {
-                // Enregistrer le paiement
-                
+
                 $data = [
-                    "mode_paiement"=>$dataPaiement['mode_paiment'],
+                    "mode_paiement"=>$dataPaiement['mode_paiement'],
                     "montant"=>$dataPaiement['amount'],
                     "date_paiement"=>now(),
                     "number"=>$dataPaiement['number'],
-                    "customer"=>$dataPaiement['customer'],
+                    // "customer"=>$dataPaiement['customer'],
                     "user_id"=> $dataPaiement['user_id'],
                     "abonnement_id"=>$dataPaiement['abonnement_id'],
                 ];
+                $storePaiement = $this->paiementRepository->created($data);
 
-                $this->paiementRepository->created($data);
+                if ($storePaiement) {// Update statut de l'annonce
+                    $this->annonceRepository->changeStatusAnnonce($dataPaiement['user_id'], $annonce_id, 3);
+                }
+
             }
 
             return [

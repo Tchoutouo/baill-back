@@ -41,7 +41,7 @@ class AnnonceHandler  {
                 
                 if ($annonce['abonnement_id'] != '1') {
                     if ($dataPaiement['mode_paiement'] === "Stripe") {
-                        $statusPaiement = $this->stripeController->stripePayment($dataPaiement);
+                        $statusPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce->id);
                     }
                 }
 
