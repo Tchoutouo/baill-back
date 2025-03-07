@@ -49,12 +49,9 @@ class AnnonceRepository   extends ResourcesRepository
 
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
-        if($this->abonnementRepository->check_account($data['abonnement_id']) > 0 && $data['statutPayment'] === true){
+        if($this->abonnementRepository->check_account($data['abonnement_id'])){
             if(isset($data['is_forward'])){
                 $annonce->is_forward = $data['is_forward'];
-            }
-            if(isset($data['status'])){
-                $annonce->status = 3;
             }
         }
 
@@ -62,13 +59,6 @@ class AnnonceRepository   extends ResourcesRepository
         if($this->abonnementRepository->check_account($data['abonnement_id']) == 0 ){
             if(isset($data['status'])){
                 $annonce->status = 3;
-            }
-        }
-
-        // if le paiement a échoué...
-        if($data['statutPayment'] === false){
-            if(isset($data['status'])){
-                $annonce->status = 1;
             }
         }
 

@@ -10,8 +10,6 @@
     const elements = stripe.elements();
     const cardElement = elements.create('card');
     cardElement.mount('#card-element');
-    console.log("elements",elements);
-    console.log("cardelements",cardElement);
 
     const form = document.getElementById('payment-form');
     form.addEventListener('submit', async (event) => {
@@ -21,7 +19,8 @@
         type: 'card',
         card: cardElement,
     });
-
+    console.log("paiement",paymentMethod.id);
+    
     if (error) {
         document.getElementById('error-message').textContent = error.message;
     } else {
@@ -42,3 +41,7 @@
     }
     });
 </script>
+
+{{-- <script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
+
+<form action="" method="get" data-monetbil="form"><button class="" type="submit">Pay by Mobile Money</button></form> --}}

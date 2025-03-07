@@ -22,50 +22,51 @@ class StripeControllers extends \App\Http\Controllers\Controller
         $this->annonceRepository = $annonceRepository;
     }
 
-    public function stripePayment(Request $request)
+    public function stripePayment($dataPaiement)
     {
         // Configurer la clé secrète Stripe
         Stripe::setApiKey(config('services.stripe.secret'));
         try {
+            
             $paymentIntent = PaymentIntent::create([
-                'amount' => $request->amount,
+                'amount' => $dataPaiement['amount'],
                 'currency' => 'usd',
-                'payment_method' => $request->payment_method,
+                'payment_method' => $dataPaiement['payment_method'],
                 'confirm' => true,
-                // 'return_url' => 'https://votre-site.com/success',
                 'automatic_payment_methods' => [
                     'enabled' => true,
                     'allow_redirects' => 'never', // Désactive les paiements nécessitant une redirection
                 ],
             ]);
-            
+
             if ($paymentIntent->status == 'succeeded') {
                 // Enregistrer le paiement
-
+                
                 $data = [
-                    "mode_paiement"=>"stripe",
-                    "montant"=>$request->amount,
+                    "mode_paiement"=>$dataPaiement['mode_paiment'],
+                    "montant"=>$dataPaiement['amount'],
                     "date_paiement"=>now(),
-                    "number"=>$request->whatsapp_number,
-                    "user_id"=> $request->user_id,
-                    "abonnement_id"=>$request->abonnement_id,
+                    "number"=>$dataPaiement['number'],
+                    "customer"=>$dataPaiement['customer'],
+                    "user_id"=> $dataPaiement['user_id'],
+                    "abonnement_id"=>$dataPaiement['abonnement_id'],
                 ];
 
                 $this->paiementRepository->created($data);
             }
 
-            return response()->json([
+            return [
                 'success' => true,
                 'status' => $paymentIntent->status,
                 'client_secret' => $paymentIntent->client_secret,
-            ]);
+            ];
 
         } catch (ApiErrorException $e) {
-            return response()->json([
+            return [
                 'success' => false,
                 'error' => $e->getMessage(),
                 'stripe_error' => $e->getStripeCode(),
-            ], 500);
+            ];
         }
     }
 }
