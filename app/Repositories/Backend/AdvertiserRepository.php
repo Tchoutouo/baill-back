@@ -51,12 +51,12 @@ class AdvertiserRepository   extends ResourcesRepository
                 $advertiser->profil_id= 3;
                 $advertiser->save();
                 
-                $user_mail = "biocleanmoumbe@gmail.com";
+                // $user_mail = "biocleanmoumbe@gmail.com";
                 // $user_mail = "nomdecodeyvaltt@gmail.com";
 
                 //Envoie du mail à l'admin
                 // Mail::to(env('mail_username'))->send(new NewAdvertiserMail());
-                Mail::to($user_mail)->send(new NewAdvertiserMail());
+                // Mail::to($user_mail)->send(new NewAdvertiserMail());
 
                 return $advertiser;
             });
