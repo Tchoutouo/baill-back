@@ -316,7 +316,7 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Change status annonces
-    function changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment = null){
+    function changeStatusAnnonce($user_id, $annonce_id, $new_status){
         
         if ($user_id) {
             $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
@@ -326,16 +326,9 @@ class AnnonceRepository   extends ResourcesRepository
         }
         if(isset($annonce))
         {
-            if(!empty($statusPayment))
-            {
-                $annonce->update([
-                    'status' => '3'
-                ]);
-            }else{
-                $annonce->update([
-                    'status' => $new_status
-                ]);
-            }
+            $annonce->update([
+                'status' => $new_status
+            ]);
             return true;
         }
     }
