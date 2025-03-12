@@ -91,28 +91,53 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
     //Change status annonces
     public function changeStatus($user_id, $annonce_id, $new_status, $dataPaiement = null){
+        try {
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        if($new_status == 3){
-            $dataPaiement = json_decode($dataPaiement, true);
-            $dataPaiement['user_id'] = $user->id;
-            $dataPaiement['number'] = $user->whatsapp_number;
-            $this->stripeController->stripePayment($dataPaiement, $annonce_id);
-        }
-        $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status, $statusPayment);
+            if($new_status == 3){
+                $dataPaiement = json_decode($dataPaiement, true);
+                $dataPaiement['user_id'] = $user->id;
+                $dataPaiement['number'] = $user->whatsapp_number;
+                $dataPaiement['abonnement_id'] =  $this->annonceRepository->getById($annonce_id)->abonnement_id;
+                $statutPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce_id);
+                
+                if ($statutPaiement['success'] == false) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Echec paiement...',
+                        'error' => $statutPaiement,
+                        // 'url' => route('dashboard',['id'=>$user_id])
+                    ]);
+                }
+                else{
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Paiement réussi... Mise à jour effectuée avec success',
+                        // 'url' => route('dashboard',['id'=>$user_id]),
+                    ]);
+                }
+            }
+            
+            $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status);
 
-        if(isset($changeStatus)){
-            return response()->json([
-                'success' => true,
-                'message' => 'Status changé avec success',
-                'url' => route('dashboard',['id'=>$user_id])
-            ]);
-        }
-        else{
+            if(isset($changeStatus)){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Mise à jour effectuée avec success',
+                    // 'url' => route('dashboard',['id'=>$user_id]),
+                ]);
+            }
+            else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Echec lors de la mise à jour du status',
+                ]);
+            }
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Echec lors de la mise à jour du status',
+                'message' => $e,
             ]);
         }
     }
