@@ -8,6 +8,8 @@ use App\Repositories\ResourcesRepository;
 use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Support\Carbon;
 use \Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentValidateMail;
 use Illuminate\Http\Request;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
@@ -133,10 +135,6 @@ class AnnonceRepository   extends ResourcesRepository
                     $annonce->categories()->detach($categorie[$i]);
                 }
 
-                // foreach($categorie as $categ){
-                //     $annonce->categories()->detach($categ->id);
-                // }
-
                 // Supprimer ses images 
                 Picture::where('annonce_id', $annonce->id)->delete();
 
@@ -195,13 +193,6 @@ class AnnonceRepository   extends ResourcesRepository
 
                 if(isset($detail)){
                     $picture  = $this->pictureController->getImage($annonce->id);
-                    // $image = [];
-    
-                    // //Parcourir chaque image add à son annonce
-                    // foreach ($picture as $pict) {
-                    //     $image[] = $pict->location;
-                    // }
-                    // $annonce['url_image']= $image;
                     $annonce['url_image']= $picture;
 
                 }
@@ -356,16 +347,7 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as  $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                // $image = [];
-
-                // //Parcourir chaque image add à son annonce
-                // foreach ($picture as  $pict) {
-                //     if(isset($pict->location)){
-                //         $image[] = $pict->location;
-                //     }
-                // }
-                // $annonce['url_image']= $image;  
-                $annonce['url_image']= $picture;  
+                $annonce['url_image']= $picture;
 
             }
 
@@ -384,15 +366,6 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as $key => $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                // $image = [];
-
-                // //Parcourir chaque image add à son annonce
-                // foreach ($picture as $key => $pict) {
-                //     if(isset($pict->location)){
-                //         $image[] = $pict->location;
-                //     }
-                // }
-                // $annonce['url_image']= $image;
                 $annonce['url_image']= $picture;
 
             }
@@ -435,18 +408,24 @@ class AnnonceRepository   extends ResourcesRepository
         if ($arrayAnnonce->isNotEmpty()) {
             foreach ($arrayAnnonce as $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
-                // $image = [];
-
-                // //Parcourir chaque image add à son annonce
-                // foreach ($picture as $pict) {
-                //     $image[] = $pict->location;
-                // }
-                // $annonce['url_image']= $image;
                 $annonce['url_image']= $picture;
 
             }
 
             return $arrayAnnonce;
+        }
+    }
+
+    //Envoie du mail apre paiement
+    
+    public function mailPaiment($email,$intitule,$amount, $mode_paiement, $typeAbonnement){
+        try {
+            // Envoyer l'email
+            Mail::to($email)->send(new PaymentValidateMail($intitule,$amount,$mode_paiement, $typeAbonnement));
+            return true;
+        } catch (\Exception $e) {
+            dd($e);
+            return false;
         }
     }
 }

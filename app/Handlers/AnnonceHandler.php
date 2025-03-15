@@ -24,7 +24,7 @@ class AnnonceHandler  {
 
     }
 
-    public function storeAnnonce ($inputs, $dataPaiement){
+    public function storeAnnonce ($inputs, $dataPaiement = null){
         try {
             $result = DB::transaction( function() use ($inputs, $dataPaiement){
                 
@@ -37,15 +37,19 @@ class AnnonceHandler  {
                     $annonce->categories()->attach($categorie[$i]);
                 }
                 
-                $statusPaiement = null;
-                
-                if ($annonce['abonnement_id'] != '1') {
-                    if ($dataPaiement['mode_paiement'] === "Stripe") {
-                        $statusPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce->id);
+                if(isset($dataPaiement)){
+                    $statusPaiement = null;
+                    
+                    if ($annonce['abonnement_id'] != '1') {
+                        if ($dataPaiement['mode_paiement'] === "Stripe") {
+                            $statusPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce->id);
+                        }
                     }
+    
+                    return $statusPaiement;
+                }else{
+                    return $annonce;
                 }
-
-                return $statusPaiement;
             });
             DB::commit();
 

@@ -43,7 +43,7 @@ class PasswordForgetMail extends Mailable
             view: 'emails.password_forget',
             with: [
                 'email' => $this->email,
-                'email' => $this->newpassword,
+                'newpassword' => $this->newpassword,
             ],
         );
     }
