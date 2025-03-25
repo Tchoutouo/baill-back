@@ -242,7 +242,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 if (isset($inputsAnnonce)) {
                     return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistré avec statut en cours. Pensez à la publiée',
+                            'message' => 'Annonce enregistrée avec statut en cours. Pensez à la publiée',
                         ]
                     );
                 }else{
@@ -260,8 +260,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     ]
                 );
             }
-
-            $dataPaiement = json_decode($request->payment_datas, true);
+            // dd($request->payment_datas);
+            // $dataPaiement = json_decode($request->payment_datas, true);
+            $dataPaiement = $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
@@ -280,11 +281,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     $typeAbonnement = $this->abonnementRepository->getById($request->abonnement_id)->name;
                     $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$inputs['annonce']->title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
                     if ($mailPaiement) {
+
                         return response()->json([
                             'success' => true,
                             'message' => 'Annonce enregistré et paiement réussi. Votre administrateur a reçu un message de confirmation',
                             ]
                         );
+
                     }else{
                         return response()->json([
                             'success' => true,
@@ -294,6 +297,17 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     }
         
                 }else{
+
+                    if ($inputsAnnonce['status'] && $inputsAnnonce['status']==="PENDING") {
+                        return response()->json([
+                                'success' => false,
+                                'verify' => true,
+                                'message' => 'Annonce enregistré en attente de validation...',
+                                'data' => $inputsAnnonce,
+                            ]
+                        );
+                    }
+
                     return response()->json([
                             'success' => false,
                             'message' => 'Annonce enregistré mais echec de paiement',

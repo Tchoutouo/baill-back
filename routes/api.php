@@ -191,8 +191,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 
 Route::post('/stripe-payment', [StripeControllers::class, 'stripePayment'])->name('stripe.stripePaymentInitial');
-// Route::get('/stripe-resubscription/{annonce_id?}', [StripeControllers::class, 'confirmPayment'])->name('payment.confirm');
 
 /** Route paiement mobile */
 Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
-Route::get('/check-payment-status', [PaymentController::class, 'checkPaymentStatus']);
+Route::get('/check-payment-status/{dataPaiement}/', [PaymentController::class, 'checkPaymentStatus']);

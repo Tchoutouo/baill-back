@@ -10,7 +10,7 @@
         <img src="{{asset('images/bailleurnet.png')}}" alt="Bailleurnet" style="margin: 10px;">
         <p>Salut,</p>
         
-        <p>Vous avez un reçu un nouveau paiement sur votre compte {{ $mode_paiement }}</p>
+        <p>Vous avez reçu un nouveau paiement sur votre compte {{ $mode_paiement }}</p>
         <h3 style="font-weight: bold">Détails du paiement </h3>
         <p>- Intitulé de l'annonce : <strong>{{ $intitule }}</strong></p>
         <p>- Type d'abonnement : <strong>{{ $typeAbonnement }}</strong></p>
