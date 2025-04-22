@@ -169,6 +169,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
     Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
         Route::get('/', 'dashboard');
         Route::post('/trie', 'trie');
+        Route::post('/contact', 'contact');
     });
 
 /**------------------- Fin des routes des visiteurs ------------------------------------- */

@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\AnnonceRepository;
 use App\Http\Controllers\API\Backend\PictureController;
+use App\Mail\ContactFormMail;
 use Exception;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
@@ -63,6 +66,59 @@ class DashboardController extends \App\Http\Controllers\Controller
             }
         }catch(Exception $e){
             return response()->json($e);
+        }
+    }
+
+        /**Send email de contact */
+    public function contact(Request $request)
+    {
+        try{
+            $request -> validate([
+                'name' => 'required|string|max:255',
+                'phone' => 'required|string',
+                'email' => 'required|email|max:255',
+                'objet' => 'required|string|max:255',
+                'message' => 'required|string',
+            ],
+            [
+                'error' => 'Erreur...',
+            ]
+        );
+            // Envoyer l'email
+            try {
+                Mail::to(env('mail_username'))->send(new ContactFormMail($request->name,$request->email,$request->phone, $request->message, $request->objet));
+                $statutEmail = true;
+            } catch (\Exception $e) {
+                $statutEmail = false;
+            }
+            
+            if($statutEmail)
+            {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Mail envoyé avec success',
+                    ]
+                );
+    
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Echec d\'envoi du mail',
+                    ]
+                );
+    
+            }
+
+        }catch(ValidationException $e){
+            // Récupérer les erreurs
+            $errors = $e->validator->errors();
+
+            // Retourner les erreurs en réponse JSON ou autre objet
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $errors
+            ], 422);
         }
     }
 }
