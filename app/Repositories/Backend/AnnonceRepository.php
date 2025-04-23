@@ -82,7 +82,8 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     /**updated annonce */
-    public function updated($data = array(), $id) {
+    //public function updated($data = array(), $id) {
+    public function updated( $id, $data = []) {
         //defininir update de annonce                
         $annonce = $this->model->find($id);
         
@@ -146,7 +147,8 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Tous les annonces liées à un utilisateur
-    function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
+    //function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
+    function getAllAnnonce($nbr_annonce, $user_id = null, $search = null) {
 
         // Récupération des annonces pour un utilisateur
         $arrayAnnonce = $this->model

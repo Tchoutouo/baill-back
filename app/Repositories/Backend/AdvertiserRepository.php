@@ -55,14 +55,15 @@ class AdvertiserRepository   extends ResourcesRepository
                 // $user_mail = "nomdecodeyvaltt@gmail.com";
 
                 //Envoie du mail à l'admin
-                // Mail::to(env('mail_username'))->send(new NewAdvertiserMail());
-                // Mail::to($user_mail)->send(new NewAdvertiserMail());
+                Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail());
 
                 return $advertiser;
             });
             DB::commit();
     
         } catch (Exception $e) {
+            \Log::error('Erreur lors de la réaction d\'un utilisateur bailleur: ' . $e->getMessage());
+
             DB::rollBack();
         }
         
