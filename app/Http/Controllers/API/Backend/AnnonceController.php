@@ -44,7 +44,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
     public function getAllAnnonce($nbr_annonce, $search = null)
     {
         try{
-            $allAnnonce = $this->annonceRepository->getAllAnnonce(null, $nbr_annonce, $search);
+            //$allAnnonce = $this->annonceRepository->getAllAnnonce(null, $nbr_annonce, $search);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, null,  $search);
+
             
             if(isset($allAnnonce)){
                 return response()->json([
@@ -68,7 +70,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
         try{
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
+            //$allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, $user->id,  $search);
             
             if(isset($allAnnonce)){
                 return response()->json([
@@ -358,7 +361,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]);
 
-            $result = $this->annonceRepository->updated($request->all(),$annonce);
+            //$result = $this->annonceRepository->updated($request->all(),$annonce);
+            $result = $this->annonceRepository->updated($annonce, $request->all());
             $inputsAnnonce = $this->annonceHandler->updated($result);
 
             $pictures = $this->pictureController->updated($request, $inputsAnnonce->id);

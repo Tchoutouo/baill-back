@@ -70,12 +70,12 @@ class DashboardController extends \App\Http\Controllers\Controller
     }
 
         /**Send email de contact */
-    public function contact(Request $request)
+    /*public function contact(Request $request)
     {
         try{
             $request -> validate([
                 'name' => 'required|string|max:255',
-                'phone' => 'required|string',
+                // 'phone' => 'required|string',
                 'email' => 'required|email|max:255',
                 'objet' => 'required|string|max:255',
                 'message' => 'required|string',
@@ -119,6 +119,69 @@ class DashboardController extends \App\Http\Controllers\Controller
                 'message' => 'Erreur de validation',
                 'errors' => $errors
             ], 422);
+        }
+    }*/
+    public function contact(Request $request)
+    {
+        try {
+            // Validate request data
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'objet' => 'required|string|max:255',
+                'message' => 'required|string',
+                'phone' => 'nullable|string|max:20', // Added phone as nullable
+            ], [
+                'name.required' => 'Le nom est requis.',
+                'email.required' => 'L\'email est requis.',
+                'email.email' => 'L\'email doit être valide.',
+                'objet.required' => 'L\'objet est requis.',
+                'message.required' => 'Le message est requis.',
+                'phone.max' => 'Le numéro de téléphone ne doit pas dépasser 20 caractères.',
+            ]);
+
+            // Send email
+            try {
+                Mail::to(config('mail.from.address'))->send(new ContactFormMail(
+                    $validated['name'],
+                    $validated['email'],
+                    $validated['phone'] ?? '', // Handle nullable phone
+                    $validated['message'],
+                    $validated['objet']
+                ));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Message envoyé avec succès.',
+                ], 200);
+            } catch (\Exception $e) {
+                // Log the error for debugging
+                \Log::error('Échec de l\'envoi de l\'email: ' . $e->getMessage(), [
+                    'email' => $validated['email'],
+                    'objet' => $validated['objet'],
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Échec de l\'envoi du message. Veuillez réessayer plus tard.',
+                ], 500);
+            }
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation des données.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Catch any other unexpected errors
+            \Log::critical('Erreur inattendue dans contact: ' . $e->getMessage(), [
+                'request' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue. Veuillez réessayer.',
+            ], 500);
         }
     }
 }
