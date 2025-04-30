@@ -9,18 +9,18 @@ use Illuminate\Support\Facades\Log;
 
 class MobileMoneyService
 {
-    protected $username;
-    protected $password;
+    protected $appKey;
+    protected $secretKey;
     protected $baseUrl;
     protected $token;
     protected $client;
 
     public function __construct()
     {
-        $this->username = env('USERNAMEMOMO_CAMPAY');
-        $this->password = env('PASSWORDMOMO_CAMPAY');
-        $this->token = env('TOKENMOMO_CAMPAY');
-        $this->baseUrl = env('CAMPAY_BASE_URL');
+        $this->appKey = env('APPKEY_FREEMOPAY');
+        $this->secretKey = env('SECRETKEY_FREEMOPAY');
+        $this->token = env('TOKENMOMO_FREEMOPAY');
+        $this->baseUrl = env('FREEMOPAY_BASE_URL');
         $this->client = new Client();
     }
 
@@ -36,14 +36,14 @@ class MobileMoneyService
      public function authCampay(): ?string
      {
          try {
-             $response = $this->client->post("{$this->baseUrl}token/", [
+             $response = $this->client->post("{$this->baseUrl}/api/v2/payment/token", [
                  'headers' => [
                      'Content-Type' => 'application/json',
-                     'Authorization' => 'Bearer ' . $this->token,
+                    //  'Authorization' => 'Bearer ' . $this->token,
                  ],
                  'json' => [
-                     'username' => $this->username,
-                     'password' => $this->password,
+                     'appKey' => $this->appKey,
+                     'secretKey' => $this->secretKey,
                  ],
                  'http_errors' => false
              ]);
@@ -55,17 +55,21 @@ class MobileMoneyService
      
              $token_data = json_decode($response->getBody(), true);
      
-             if (!isset($token_data['token'])) {
+             if (!isset($token_data['access_token'])) {
                  return null;
              }
      
-             return $token_data['token'];
+             return $token_data['access_token'];
      
          } catch (RequestException $e) {
-            dd($e);
-         } catch (\Exception $e) {
-             dd($e);
-         }
+            Log::error('Erreur de connexion API de paiement', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Impossible de se connecter à l\'API distante.'
+            ], 503);
+         } 
      }
 
 public function initiatePayment($data)
@@ -86,14 +90,15 @@ public function initiatePayment($data)
         $paymentData = [
             "amount" => $data['amount'],
             "currency" => "XAF",
-            "from" => $data['from'],
+            "payer" => $data['payer'],
+            "externalId" => $data['externalId'],
             "description" => "Annonce paiement"
         ];
 
-        $response = $this->client->post("{$this->baseUrl}collect/", [
+        $response = $this->client->post("{$this->baseUrl}/api/v2/payment/", [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Token ' . $token,
+                'Authorization' => 'Bearer ' . $token,
             ],
             'json' => $paymentData,
             'http_errors' => false // Pour gérer manuellement les erreurs
@@ -118,19 +123,14 @@ public function initiatePayment($data)
         return $checkpayment;
 
     } catch (RequestException $e) {
-        // Erreur réseau ou serveur
-        // return response()->json([
-        //     'error' => 'Erreur de connexion au service de paiement',
-        //     'details' => $e->getMessage()
-        // ], 500);
-        dd($e);
+        Log::error('Echec initialisation du paiement', [
+            'message' => $e->getMessage(),
+        ]);
+
+        return response()->json([
+            'error' => 'Echec initialisation du paiement'
+        ], 503);
         
-    } catch (\Exception $e) {
-        // Erreurs métier
-        // return response()->json([
-        //     'error' => $e->getMessage()
-        // ], 400);
-        dd($e);
     }
 }
 
@@ -143,10 +143,10 @@ public function initiatePayment($data)
     public function checkTransactionStatus($token, $reference)
     {
         try {
-            $response = $this->client->get("{$this->baseUrl}transaction/{$reference}", [ // Utilisez une propriété pour l'URL de paiement
+            $response = $this->client->get("{$this->baseUrl}api/v2/payment/{$reference}", [ // Utilisez une propriété pour l'URL de paiement
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Token ' . $token,
+                    'Authorization' => 'Bearer ' . $token,
                 ],
                 'http_errors' => false // Pour gérer manuellement les erreurs
             ]);
@@ -161,12 +161,10 @@ public function initiatePayment($data)
             $response = $e->getResponse();
             $errorDetails = json_decode($response->getBody(), true);
 
-            // return [
-            //     'error' => false,
-            //     'message' => $errorDetails,
-            //     'status_code' => $response->getStatusCode(),
-            // ];
-            dd($e);
+            return response()->json([
+                'error' => $errorDetails,
+                'message' => 'Echec initialisation du paiement'
+            ]);
         }
     }
 }
