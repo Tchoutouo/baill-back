@@ -44,7 +44,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
     public function getAllAnnonce($nbr_annonce, $search = null)
     {
         try{
-            $allAnnonce = $this->annonceRepository->getAllAnnonce(null, $nbr_annonce, $search);
+            //$allAnnonce = $this->annonceRepository->getAllAnnonce(null, $nbr_annonce, $search);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, null,  $search);
+
             
             if(isset($allAnnonce)){
                 return response()->json([
@@ -68,7 +70,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
         try{
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
+            //$allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, $user->id,  $search);
             
             if(isset($allAnnonce)){
                 return response()->json([
@@ -111,11 +114,23 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     ]);
                 }
                 else{
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Paiement réussi... Mise à jour effectuée avec success',
-                        // 'url' => route('dashboard',['id'=>$user_id]),
-                    ]);
+                    $idAbonnement = $this->annonceRepository->getById($annonce_id)->abonnement_id;
+                    $title = $this->annonceRepository->getById($annonce_id)->title;
+                    $typeAbonnement = $this->abonnementRepository->getById($idAbonnement)->name;
+                    $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
+                    if($mailPaiement){
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Paiement réussi... Mise à jour effectuée avec success. Mail de confirmation envoyé à l\'administrateur',
+                            // 'url' => route('dashboard',['id'=>$user_id]),
+                        ]);
+                    }else{
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Paiement réussi... Mise à jour effectuée avec success. Erreur lors de l\'envoi du mail de confirmation',
+                            // 'url' => route('dashboard',['id'=>$user_id]),
+                        ]);
+                    }
                 }
             }
             
@@ -219,6 +234,28 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]
             );
 
+            if(!isset($request->payment_datas)){
+                
+                $inputs = $this->annonceRepository->created($request->all());
+
+                $this->pictureController->storePicture($request, $inputs['annonce']->id);
+
+                $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,null);
+
+                if (isset($inputsAnnonce)) {
+                    return response()->json([
+                            'success' => true,
+                            'message' => 'Annonce enregistrée avec statut en cours. Pensez à la publiée',
+                        ]
+                    );
+                }else{
+                    return response()->json([
+                            'success' => false,
+                            'message' => 'Annonce enregistré avec statut encours. Mais attaché à aucune catégorie',
+                        ]
+                    );
+                }
+            }
             if($user->qte_free == 0 && $request->abonnement_id === "1"){
                 return response()->json([
                         'success' => false,
@@ -226,8 +263,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     ]
                 );
             }
-
-            $dataPaiement = json_decode($request->payment_datas, true);
+            // dd($request->payment_datas);
+            // $dataPaiement = json_decode($request->payment_datas, true);
+            $dataPaiement = $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
@@ -243,13 +281,36 @@ class AnnonceController extends \App\Http\Controllers\Controller
             if (isset($inputsAnnonce)) {
                 if($inputsAnnonce['success'] === true)
                 {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Annonce enregistré et paiement réussi',
-                        ]
-                    );
+                    $typeAbonnement = $this->abonnementRepository->getById($request->abonnement_id)->name;
+                    $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$inputs['annonce']->title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
+                    if ($mailPaiement) {
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Annonce enregistré et paiement réussi. Votre administrateur a reçu un message de confirmation',
+                            ]
+                        );
+
+                    }else{
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Annonce enregistré et paiement réussi. Votre administrateur n\'a pas reçu un message de confirmation',
+                            ]
+                        );
+                    }
         
                 }else{
+
+                    if ($inputsAnnonce['status'] && $inputsAnnonce['status']==="PENDING") {
+                        return response()->json([
+                                'success' => false,
+                                'verify' => true,
+                                'message' => 'Annonce enregistré en attente de validation...',
+                                'data' => $inputsAnnonce,
+                            ]
+                        );
+                    }
+
                     return response()->json([
                             'success' => false,
                             'message' => 'Annonce enregistré mais echec de paiement',
@@ -300,7 +361,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'error' => 'Erreur...',
             ]);
 
-            $result = $this->annonceRepository->updated($request->all(),$annonce);
+            //$result = $this->annonceRepository->updated($request->all(),$annonce);
+            $result = $this->annonceRepository->updated($annonce, $request->all());
             $inputsAnnonce = $this->annonceHandler->updated($result);
 
             $pictures = $this->pictureController->updated($request, $inputsAnnonce->id);

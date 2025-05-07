@@ -169,6 +169,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
     Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
         Route::get('/', 'dashboard');
         Route::post('/trie', 'trie');
+        Route::post('/contact', 'contact');
     });
 
 /**------------------- Fin des routes des visiteurs ------------------------------------- */
@@ -191,8 +192,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 
 Route::post('/stripe-payment', [StripeControllers::class, 'stripePayment'])->name('stripe.stripePaymentInitial');
-// Route::get('/stripe-resubscription/{annonce_id?}', [StripeControllers::class, 'confirmPayment'])->name('payment.confirm');
 
 /** Route paiement mobile */
 Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
-Route::get('/check-payment-status', [PaymentController::class, 'checkPaymentStatus']);
+Route::get('/check-payment-status/{dataPaiement}/', [PaymentController::class, 'checkPaymentStatus']);

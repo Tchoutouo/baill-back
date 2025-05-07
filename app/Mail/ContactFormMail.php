@@ -9,47 +9,56 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordForgetMail extends Mailable
+class ContactFormMail extends Mailable
 {
     use Queueable, SerializesModels;
-   
+
+    public string $name;
     public string $email;
-    public string $newpassword;
+    public string $phone;
+    public string $objet;
+    public string $message;
     /**
      * Create a new message instance.
      */
-    public function __construct(string $email,string $newpassword)
+    public function __construct(string $name, string $email, string $phone, string $message, string $objet)
     {
+        //
+        $this->name = $name;
         $this->email = $email;
-        $this->newpassword = $newpassword;
+        $this->phone = $phone;
+        $this->message = $message;
+        $this->objet = $objet;
     }
 
     /**
-     * Définit l'enveloppe du message.
+     * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Réinitialisation de votre mot de passe',
+            subject: $this->objet,
         );
     }
 
     /**
-     * Définit le contenu du message.
+     * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
-            view: 'emails.password_forget',
-            with: [
+            view: 'emails.contact_form',
+            with:[
+                'name' => $this->name,
                 'email' => $this->email,
-                'newpassword' => $this->newpassword,
-            ],
+                'phone' => $this->phone,
+                'msg' => $this->message,
+            ]
         );
     }
 
     /**
-     * Définit les pièces jointes du message.
+     * Get the attachments for the message.
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
