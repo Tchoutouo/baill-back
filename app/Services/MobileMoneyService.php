@@ -91,8 +91,8 @@ public function initiatePayment($data)
             "amount" => $data['amount'],
             "currency" => "XAF",
             "payer" => $data['payer'],
-            "externalId" => $data['externalId'],
-            "description" => "Annonce paiement"
+            "externalId" => 'f20fbf94-ed37-472b-bc45-6e3c621f4039',
+            "description" => "Annonce paiement",
         ];
 
         $response = $this->client->post("{$this->baseUrl}/api/v2/payment/", [

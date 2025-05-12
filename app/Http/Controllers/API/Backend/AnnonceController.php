@@ -219,6 +219,12 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
 
         $user = Auth::user();
+        // return response()->json([
+        //         'success' => false,
+        //         'message' => $request->all(),
+        //     ]
+        // );
+
         try{
             $request -> validate([
                     'title' => 'required|string|max:255', 
@@ -265,11 +271,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
             }
             // dd($request->payment_datas);
             // $dataPaiement = json_decode($request->payment_datas, true);
-            $dataPaiement = $request->payment_datas;
+            // $dataPaiement = $request->payment_datas;
+            $dataPaiement = is_string($request->payment_datas) ? json_decode($request->payment_datas, true) : $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
-            $dataPaiement['number'] = $user->whatsapp_number;
+            $dataPaiement['payer'] = $user->username;
+            $dataPaiement['number'] = $dataPaiement['phone_number'];
             $dataPaiement['customer'] = $user->username;
 
             $inputs = $this->annonceRepository->created($request->all());
