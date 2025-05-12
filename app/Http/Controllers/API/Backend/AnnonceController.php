@@ -270,13 +270,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 );
             }
             // dd($request->payment_datas);
-            $dataPaiement = json_decode($request->payment_datas, true);
+            // $dataPaiement = json_decode($request->payment_datas, true);
+            $dataPaiement = is_string($request->payment_datas) ? json_decode($request->payment_datas, true) : $request->payment_datas;
             // $dataPaiement = $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
-            $dataPaiement['payer'] = $user->username;
-            $dataPaiement['number'] = $dataPaiement['phone_number'];
+            $dataPaiement['number'] = $user->whatsapp_number;
             $dataPaiement['customer'] = $user->username;
 
             $inputs = $this->annonceRepository->created($request->all());

@@ -50,7 +50,7 @@ class MobileMoneyService
      
              // Vérification de la réponse
              if ($response->getStatusCode() !== 200) {
-                 return null;
+                return null;
              }
      
              $token_data = json_decode($response->getBody(), true);
