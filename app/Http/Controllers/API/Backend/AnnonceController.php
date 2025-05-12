@@ -263,9 +263,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     ]
                 );
             }
-            // dd($request->payment_datas);
-            // $dataPaiement = json_decode($request->payment_datas, true);
-            $dataPaiement = $request->payment_datas;
+            dd($request->payment_datas);
+            $dataPaiement = json_decode($request->payment_datas, true);
+            // $dataPaiement = $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
