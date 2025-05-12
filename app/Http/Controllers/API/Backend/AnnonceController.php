@@ -303,7 +303,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
                     if ($inputsAnnonce['status'] && $inputsAnnonce['status']==="PENDING") {
                         return response()->json([
-                                'success' => false,
+                                'success' => true,
                                 'verify' => true,
                                 'message' => 'Annonce enregistré en attente de validation...',
                                 'data' => $inputsAnnonce,
