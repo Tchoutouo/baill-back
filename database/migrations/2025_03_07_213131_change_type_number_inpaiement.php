@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if(Schema::hasTable('paiements')){
             Schema::table('paiements', function (Blueprint $table) {
-                $table->string('number')->change();
+                $table->float('number')->change();
             });
         }
     }

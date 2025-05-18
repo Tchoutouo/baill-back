@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\Backend\StripeControllers;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class AnnonceController extends \App\Http\Controllers\Controller
@@ -264,13 +265,14 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 );
             }
             // dd($request->payment_datas);
-            $dataPaiement = json_decode($request->payment_datas, true);
-            // $dataPaiement = $request->payment_datas;
+            // $dataPaiement = json_decode($request->payment_datas, true);
+            $dataPaiement = $request->payment_datas;
 
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
             $dataPaiement['number'] = $user->whatsapp_number;
             $dataPaiement['customer'] = $user->username;
+            $dataPaiement['date_paiement'] = Carbon::now()->format('Y-m-d');
 
             $inputs = $this->annonceRepository->created($request->all());
 

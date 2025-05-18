@@ -33,7 +33,7 @@ class MobileMoneyService
      * @return array
      */
 
-     public function authCampay(): ?string
+     public function authFreemopay(): ?string
      {
          try {
              $response = $this->client->post("{$this->baseUrl}/api/v2/payment/token", [
@@ -72,11 +72,11 @@ class MobileMoneyService
          } 
      }
 
-public function initiatePayment($data)
+public function initiatePayment($data,$annonce_id,$userId,$paiementId)
 {
     try {
         // Authentification
-        $token = $this->authCampay();
+        $token = $this->authFreemopay();
         
         if (!$token) {
             return response()->json([
@@ -92,7 +92,8 @@ public function initiatePayment($data)
             "currency" => "XAF",
             "payer" => $data['payer'],
             "externalId" => $data['externalId'],
-            "description" => "Annonce paiement"
+            "description" => "Annonce paiement",
+            "callback" => "https://24f3-41-202-207-11.ngrok-free.app/api/webhook/freemopay/{$data['abonnement_id']}/{$annonce_id}/{$userId}/{$paiementId}",
         ];
 
         $response = $this->client->post("{$this->baseUrl}/api/v2/payment/", [
@@ -109,12 +110,6 @@ public function initiatePayment($data)
         $responseBody = json_decode($response->getBody(), true);
 
         if ($statusCode !== 200) {
-            // return response()->json([
-            //     'success' => false,
-            //     'error' => $responseBody,
-            //     'message' => 'Erreur lors de l\'initialisation du paiement',
-            //     ]
-            // );
             return null;
         }
 
