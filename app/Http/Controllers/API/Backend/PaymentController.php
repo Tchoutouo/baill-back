@@ -9,6 +9,7 @@ use App\Services\MobileMoneyService;
 use App\Repositories\Backend\AbonnementRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Events\CheckPaymentMobile;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends \App\Http\Controllers\Controller
 {
@@ -46,6 +47,8 @@ class PaymentController extends \App\Http\Controllers\Controller
 
         } catch (\Exception $th) {
             dd("bien",$th);
+            Log::info('error when initiate mobile money payement');
+            // return $th;
         }
     }
 
@@ -137,6 +140,7 @@ class PaymentController extends \App\Http\Controllers\Controller
     public function callbackPayment(Request $request,$abonnementId, $annonceId,$userId,$paiementId)
     {
         try {
+            Log::info('debut de la mise à jour apres le paiement');
             /** Déclancher l'evenement si statut du paiement a changé */
             $data = $request->all();
             // event(new CheckPaymentMobile($data));
@@ -150,7 +154,10 @@ class PaymentController extends \App\Http\Controllers\Controller
                 $this->paiementRepository->updated($paiementId,$data['reference'],1);//Statut echec
             }
 
+            Log::info('fin de la mise à jour apres le paiement');
+
         } catch (\Exception $th) {
+            Log::info('Erreur lors du paiement'. $th);
             return response()->json(['error' => $th]);
         }
     }
