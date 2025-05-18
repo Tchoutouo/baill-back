@@ -358,6 +358,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
             
 
         }catch(ValidationException $e){
+
+            \Log::error('Erreur lors de la création d\'une annonce: ' . $e->getMessage(), [
+                'erreur_validation' => $e->validator->errors(),
+            ]);
             // Récupérer les erreurs lié à la validation
             $errors = $e->validator->errors();
 
@@ -408,6 +412,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 );
             }
         }catch(ValidationException $e){
+            \Log::error('Erreur lors de la mise a jour d\'une annonce: ' . $e->getMessage(), [
+                'erreur_validation' => $e->validator->errors(),
+            ]);
             // Récupérer les erreurs
             $errors = $e->validator->errors();
 
@@ -440,6 +447,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
+            \Log::error('Erreur lors de l\'affichage d\'une annonce: ' . $e->getMessage());
+
             return response()->json($e);
         }
     }
@@ -470,6 +479,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
          
         }
         catch(Exception $e){
+
+            \Log::error('Erreur lors de la suppression d\'une annonce: ' . $e->getMessage());
+
             return response()->json($e);
         }
     }

@@ -70,6 +70,8 @@ class ModePaiementController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
+            \Log::error('Erreur lors du changement des modes de paiement: ' . $e->getMessage());
+            
             return response()->json($e);
         }
     }
@@ -96,6 +98,10 @@ class ModePaiementController extends \App\Http\Controllers\Controller
             }
 
         }catch(Exception $e){
+            \Log::error('Erreur lors du changement des status des modes de paiement: ' . $e->getMessage(), [
+                'data_paiement' => $arrayModePayment,
+            ]);
+
             return response()->json($e);
         }
     }
