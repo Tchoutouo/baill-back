@@ -5,6 +5,7 @@ use App\Models\Paiement;
 use App\Repositories\ResourcesRepository;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Exception;
 
 class PaiementRepository   extends ResourcesRepository
@@ -36,14 +37,17 @@ class PaiementRepository   extends ResourcesRepository
             //code...
             $paiement = $this->model;
             $paiement->mode_paiement = $data["mode_paiement"];
-            $paiement->montant = $data["montant"];
-            $paiement->date_paiement = $data["date_paiement"];
+            $paiement->montant = $data["amount"];
+            $paiement->date_paiement = Carbon::now()->format('Y-m-d');
             $paiement->number = $data["number"];
             $paiement->user_id = $data["user_id"];
             $paiement->abonnement_id = $data["abonnement_id"];
+            if (isset($data["reference"])) {
+                $paiement->reference = $data["reference"];
+            }
             $paiement->save();
             
-            return true;
+            return $paiement;
         } catch (Exception $e) {
             dd($e);
         }
@@ -51,7 +55,17 @@ class PaiementRepository   extends ResourcesRepository
 
     /** Chiffre d'affaires */
     public function ChiffreAffaire(){
-        return $this->model->sum('montant');
+        return $this->model->where('statut', 2)->sum('montant');
+    }
+
+    public function updated($id,$reference,$statut){
+        $paiement = $this->model->where('id', $id)->first();
+        $paiement->statut = $statut;
+        if($reference){
+            $paiement->reference = $reference;
+        }
+        $paiement->save();
+        return true;
     }
 
 }

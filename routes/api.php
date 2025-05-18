@@ -196,3 +196,4 @@ Route::post('/stripe-payment', [StripeControllers::class, 'stripePayment'])->nam
 /** Route paiement mobile */
 Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
 Route::get('/check-payment-status/{dataPaiement}/', [PaymentController::class, 'checkPaymentStatus']);
+Route::post('/webhook/freemopay/{abonnement_id}/{annonce_id}/{userId}/{paiementId}', [PaymentController::class, 'callbackPayment'])->name('payment.callback');

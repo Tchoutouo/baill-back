@@ -43,7 +43,7 @@ class StripeControllers extends \App\Http\Controllers\Controller
 
                 $data = [
                     "mode_paiement"=>$dataPaiement['mode_paiement'],
-                    "montant"=>$dataPaiement['amount'],
+                    "amount"=>$dataPaiement['amount'],
                     "date_paiement"=>now(),
                     "number"=>$dataPaiement['number'],
                     // "customer"=>$dataPaiement['customer'],
@@ -54,6 +54,7 @@ class StripeControllers extends \App\Http\Controllers\Controller
 
                 if ($storePaiement) {// Update statut de l'annonce
                     $this->annonceRepository->changeStatusAnnonce($dataPaiement['user_id'], $annonce_id, 3);
+                    $this->paiementRepository->updated($storePaiement->id,null,2);
                 }
 
             }
