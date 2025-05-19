@@ -220,6 +220,12 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
 
         $user = Auth::user();
+        // return response()->json([
+        //         'success' => false,
+        //         'message' => [$request->all(),$user],
+        //     ]
+        // );
+
         try{
             $request -> validate([
                     'title' => 'required|string|max:255', 
@@ -266,8 +272,14 @@ class AnnonceController extends \App\Http\Controllers\Controller
             }
             // dd($request->payment_datas);
             // $dataPaiement = json_decode($request->payment_datas, true);
-            $dataPaiement = $request->payment_datas;
+            $dataPaiement = is_string($request->payment_datas) ? json_decode($request->payment_datas, true) : $request->payment_datas;
+            // $dataPaiement = $request->payment_datas;
 
+            // return response()->json([
+            //         'success' => false,
+            //         'message' => [$dataPaiement,$user],
+            //     ]
+            // );
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
             $dataPaiement['number'] = $user->whatsapp_number;
@@ -279,6 +291,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             $this->pictureController->storePicture($request, $inputs['annonce']->id);
             
             $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
+
 
             if (isset($inputsAnnonce)) {
                 if($inputsAnnonce['success'] === true)
@@ -416,7 +429,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
         }
         catch(Exception $e){
             return response()->json($e);
-
         }
     }
 

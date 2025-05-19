@@ -49,6 +49,7 @@ class AnnonceHandler  {
                         }
                         if ($dataPaiement['mode_paiement'] === "Mobile money") {
                             $statusPaiement = $this->paymentController->initiatePayment($dataPaiement, $annonce->id);
+                            // dd($statusPaiement);
                         }
                     }
     
