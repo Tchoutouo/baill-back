@@ -274,12 +274,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             // $dataPaiement = json_decode($request->payment_datas, true);
             $dataPaiement = is_string($request->payment_datas) ? json_decode($request->payment_datas, true) : $request->payment_datas;
             // $dataPaiement = $request->payment_datas;
-
-            // return response()->json([
-            //         'success' => false,
-            //         'message' => [$dataPaiement,$user],
-            //     ]
-            // );
+            
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
             $dataPaiement['number'] = $user->whatsapp_number;
