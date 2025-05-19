@@ -150,57 +150,62 @@ class AnnonceRepository   extends ResourcesRepository
     //function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
     function getAllAnnonce($nbr_annonce, $user_id = null, $search = null) {
 
-        // Récupération des annonces pour un utilisateur
-        $arrayAnnonce = $this->model
-                    ->with('categories')
-                    ->with('abonnements');
-
-                // Si user_id existe
-                if($user_id){
-                    $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
-                }
-
-                // Si $search existe
-                if ($search) {
-                $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
-                        $q->where('title', 'LIKE', "%$search%")
-                        ->orWhereHas('categories', function ($q) use ($search) {
-                            $q->where('title', 'LIKE', "%$search%");
+        try {            
+            // Récupération des annonces pour un utilisateur
+            $arrayAnnonce = $this->model
+                        ->with('categories')
+                        ->with('abonnements');
+    
+                    // Si user_id existe
+                    if($user_id){
+                        $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
+                    }
+    
+                    // Si $search existe
+                    if ($search) {
+                    $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
+                            $q->where('title', 'LIKE', "%$search%")
+                            ->orWhereHas('categories', function ($q) use ($search) {
+                                $q->where('title', 'LIKE', "%$search%");
+                            });
                         });
-                    });
-                }
-
-                $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-                ->paginate($nbr_annonce);
-
-        // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $annonce) {
-                
-                if ($annonce->status === '1') {
-                    $annonce['next_expiration_date'] = '...';
-                }else {
-                    // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                    $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
+                    }
+    
+                    $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
+                    ->paginate($nbr_annonce);
+            // Vérifiez si la collection est vide
+            if ($arrayAnnonce->isNotEmpty()) {
+                foreach ($arrayAnnonce as $annonce) {
                     
-                    // Vérifier si cette date est dépassée
-                    if (Carbon::now()->greaterThan($nextExpirationDate)) {
-                        // Si la date est dépassée, on met "expiré"
-                        $annonce['next_expiration_date'] = 'expiré';
-                    } else {
-                        // Sinon, on retourne la date au format AAAA-MM-JJ
-                        $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                    if ($annonce->status === '1') {
+                        $annonce['next_expiration_date'] = '...';
+                    }else {
+                        // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
+                        $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
+                        
+                        // Vérifier si cette date est dépassée
+                        if (Carbon::now()->greaterThan($nextExpirationDate)) {
+                            // Si la date est dépassée, on met "expiré"
+                            $annonce['next_expiration_date'] = 'expiré';
+                        } else {
+                            // Sinon, on retourne la date au format AAAA-MM-JJ
+                            $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                        }
+                    }
+    
+                    if(isset($detail)){
+                        $picture  = $this->pictureController->getImage($annonce->id);
+                        $annonce['url_image']= $picture;
+    
                     }
                 }
-
-                if(isset($detail)){
-                    $picture  = $this->pictureController->getImage($annonce->id);
-                    $annonce['url_image']= $picture;
-
-                }
+    
+                return $arrayAnnonce;
             }
-
-            return $arrayAnnonce;
+        } catch (\Exception $th) {
+            return response()->json([
+                'error'=>$th
+            ]);
         }
     }
 

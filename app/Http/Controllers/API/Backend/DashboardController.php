@@ -34,8 +34,9 @@ class DashboardController extends Controller
     public function dashboard($user_id)
     {
         try{
+
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, 5);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce(5,$user->id);
             $annoncePublisher = $this->annonceRepository->getAnnoncePublisher($user->id);
             $annonceExpired = $this->annonceRepository->getAnnonceExpired($user->id);
             $annonceInProgress = $this->annonceRepository->getAnnonceInProgress($user->id);
