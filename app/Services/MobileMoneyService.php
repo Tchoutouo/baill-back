@@ -93,7 +93,8 @@ public function initiatePayment($data,$annonce_id,$userId,$paiementId)
             "payer" => $data['payer'],
             "externalId" => '771457c5-87d3-439e-8261-6dc600314905',
             "description" => "Annonce paiement",
-            "callback" => "https://8fb8-154-72-161-162.ngrok-free.app/api/webhook/freemopay/{$data['abonnement_id']}/{$annonce_id}/{$userId}/{$paiementId}",
+            "callback" => route('payment.callback', [$data['abonnement_id'], $annonce_id, $userId, $paiementId])
+            // "callback" => "https://214c-129-0-205-243.ngrok-free.app/api/webhook/freemopay/{$data['abonnement_id']}/{$annonce_id}/{$userId}/{$paiementId}",
             // "callback" => "https://24f3-41-202-207-11.ngrok-free.app/api/webhook/freemopay/{$data['abonnement_id']}/{$annonce_id}/{$userId}/{$paiementId}",
         ];
 
