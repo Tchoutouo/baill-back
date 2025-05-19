@@ -35,7 +35,8 @@ class PaymentController extends \App\Http\Controllers\Controller
             $userId = Auth::user()->id;
             // dd($dataPayment);
             $storePaiement = $this->paiementRepository->created($dataPayment);
-            $response = $this->mobileMoney->initiatePayment($dataPayment, $annonce_id,$userId,$storePaiement->id);
+            $nameAnnonce = $this->annonceRepository->getById($annonce_id)->title;
+            $response = $this->mobileMoney->initiatePayment($dataPayment, $annonce_id,$userId,$storePaiement->id,$nameAnnonce);
             
             if ($response) {
                 $dataPayment["annonce_id"] = $annonce_id;
