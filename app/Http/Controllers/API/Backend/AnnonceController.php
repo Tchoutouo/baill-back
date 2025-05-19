@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\Backend\StripeControllers;
+use App\Http\Controllers\API\Backend\PaymentController;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
@@ -27,9 +28,11 @@ class AnnonceController extends \App\Http\Controllers\Controller
     protected $categorieRepository;
     protected $userRepository;
     protected $stripeController;
+    protected $paymentController;
 
     public function __construct(AnnonceRepository $annonceRepository, AnnonceHandler $annonceHandler, PictureController $pictureController, 
-    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository, StripeControllers $stripeController)
+    CategorieRepository $categorieRepository, AbonnementRepository $abonnementRepository, UserRepository $userRepository, 
+    StripeControllers $stripeController, PaymentController $paymentMobile)
     {
         $this->annonceRepository = $annonceRepository;
         $this->annonceHandler = $annonceHandler;
@@ -38,6 +41,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $this->categorieRepository = $categorieRepository;
         $this->userRepository = $userRepository;
         $this->stripeController = $stripeController;
+        $this->paymentController = $paymentMobile;
         
     }
 
@@ -103,9 +107,22 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 $dataPaiement = json_decode($dataPaiement, true);
                 $dataPaiement['user_id'] = $user->id;
                 $dataPaiement['number'] = $user->whatsapp_number;
+                $dataPaiement['customer'] = $user->username;
+                $dataPaiement['date_paiement'] = Carbon::now()->format('Y-m-d');
                 $dataPaiement['abonnement_id'] =  $this->annonceRepository->getById($annonce_id)->abonnement_id;
-                $statutPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce_id);
+                if ($dataPaiement['mode_paiement'] === 'Stripe') {
+                    $statutPaiement = $this->stripeController->stripePayment($dataPaiement, $annonce_id);
+                }else{
+                    $statutPaiement = $this->paymentController->initiatePayment($dataPaiement, $annonce_id);
+                }
                 
+                if (isset($statutPaiement['reference'])) {//Cas paiement mobile
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'En attente de paiement...',
+                    ]);
+                }
+
                 if ($statutPaiement['success'] == false) {
                     return response()->json([
                         'success' => false,
@@ -274,7 +291,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             // $dataPaiement = json_decode($request->payment_datas, true);
             $dataPaiement = is_string($request->payment_datas) ? json_decode($request->payment_datas, true) : $request->payment_datas;
             // $dataPaiement = $request->payment_datas;
-            
+
             $dataPaiement['user_id'] = $user->id;
             $dataPaiement['abonnement_id'] = $request->abonnement_id;
             $dataPaiement['number'] = $user->whatsapp_number;

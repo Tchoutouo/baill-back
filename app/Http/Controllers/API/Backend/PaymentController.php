@@ -46,9 +46,8 @@ class PaymentController extends \App\Http\Controllers\Controller
             }
 
         } catch (\Exception $th) {
+            Log::info('erreur initialisation de paiement');
             dd("bien",$th);
-            Log::info('error when initiate mobile money payement');
-            // return $th;
         }
     }
 
