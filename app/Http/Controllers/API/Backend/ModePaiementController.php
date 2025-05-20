@@ -78,10 +78,14 @@ class ModePaiementController extends \App\Http\Controllers\Controller
 
 
     //** Change status */
-    public function status($arrayModePayment){
+    public function status(Request $request){
 
-        $arrayModePayment = json_decode($arrayModePayment, true);
-        
+        $om = filter_var($request->input('om'), FILTER_VALIDATE_BOOLEAN);
+        $momo = filter_var($request->input('momo'), FILTER_VALIDATE_BOOLEAN);
+        $stripe = filter_var($request->input('stripe'), FILTER_VALIDATE_BOOLEAN);
+
+        $arrayModePayment = ['om' => $om, 'momo' => $momo, 'stripe' => $stripe];
+
         try{
             $result = $this->modepaiementRepository->changeStatus($arrayModePayment);
             
