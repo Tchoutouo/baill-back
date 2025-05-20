@@ -32,15 +32,16 @@ class PaymentController extends \App\Http\Controllers\Controller
     public function initiatePayment($dataPay, $annonce_id)
     {
         Log::info('Entrer donnée dataPayment',$dataPay);
-        $dataPayment = json_decode($dataPay, true);
+        $dataPayment = is_string($dataPay) ? json_decode($dataPay, true) : $dataPay;
 
         try {
             $userId = Auth::user()->id;
             // dd($dataPayment);
             $storePaiement = $this->paiementRepository->created($dataPayment);
             $nameAnnonce = $this->annonceRepository->getById($annonce_id)->title;
-            $response = $this->mobileMoney->initiatePayment($dataPayment, $annonce_id,$userId,$storePaiement->id,$nameAnnonce);
-            
+            $paymentResponse = $this->mobileMoney->initiatePayment($dataPayment, $annonce_id,$userId,$storePaiement->id,$nameAnnonce);
+            $response = $paymentResponse->getData(true);
+
             if ($response) {
                 $dataPayment["annonce_id"] = $annonce_id;
                 $response["dataPayment"] = $dataPayment;
