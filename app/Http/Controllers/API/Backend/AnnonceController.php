@@ -309,7 +309,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 if($inputsAnnonce['success'] === true)
                 {
                     $typeAbonnement = $this->abonnementRepository->getById($request->abonnement_id)->name;
-                    $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$inputs['annonce']->title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
+                    $mailPaiement = $this->annonceRepository->mailPaiment(env('MAIL_USERNAME'),$inputs['annonce']->title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
                     if ($mailPaiement) {
 
                         return response()->json([
