@@ -135,7 +135,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     $idAbonnement = $this->annonceRepository->getById($annonce_id)->abonnement_id;
                     $title = $this->annonceRepository->getById($annonce_id)->title;
                     $typeAbonnement = $this->abonnementRepository->getById($idAbonnement)->name;
-                    $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
+                    $mailPaiement = $this->annonceRepository->mailPaiment(env('MAIL_USERNAME'),$title, $dataPaiement['amount'], $dataPaiement['mode_paiement'], $typeAbonnement);
                     if($mailPaiement){
                         return response()->json([
                             'success' => true,

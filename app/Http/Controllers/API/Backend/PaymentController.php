@@ -29,8 +29,11 @@ class PaymentController extends \App\Http\Controllers\Controller
 
 
     
-    public function initiatePayment($dataPayment, $annonce_id)
+    public function initiatePayment($dataPay, $annonce_id)
     {
+        Log::info('Entrer donnée dataPayment',$dataPay);
+        $dataPayment = json_decode($dataPay, true);
+
         try {
             $userId = Auth::user()->id;
             // dd($dataPayment);

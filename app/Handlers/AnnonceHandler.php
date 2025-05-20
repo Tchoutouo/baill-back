@@ -61,6 +61,7 @@ class AnnonceHandler  {
             DB::commit();
 
         }catch(Exception $e) {
+            Log::error('Erreur lors de l\'initialisation du paiement methode storeAnnonce handle: ' . $e->getMessage());
 
             DB::rollBack();
             
