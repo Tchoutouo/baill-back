@@ -47,8 +47,9 @@ class PaymentController extends \App\Http\Controllers\Controller
             }
 
         } catch (\Exception $th) {
+            Log::error('Erreur lors de l\'initialisation du paiement methode initiatePayment: ' . $th->getMessage());
+            
             Log::info('erreur initialisation de paiement');
-            dd("bien",$th);
         }
     }
 
@@ -157,6 +158,8 @@ class PaymentController extends \App\Http\Controllers\Controller
             Log::info('fin de la mise à jour apres le paiement');
 
         } catch (\Exception $th) {
+            Log::error('Erreur lors du paiement methode callbackPayment: ' . $th->getMessage());
+            
             Log::info('Erreur lors du paiement'. $th);
             return response()->json(['error' => $th]);
         }

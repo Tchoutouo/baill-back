@@ -203,6 +203,8 @@ class AnnonceRepository   extends ResourcesRepository
                 return $arrayAnnonce;
             }
         } catch (\Exception $th) {
+            \Log::error('Erreur lors de l\'affichage des annonces: ' . $th->getMessage());
+
             return response()->json([
                 'error'=>$th
             ]);
@@ -431,7 +433,8 @@ class AnnonceRepository   extends ResourcesRepository
             Mail::to($email)->send(new PaymentValidateMail($intitule,$amount,$mode_paiement, $typeAbonnement));
             return true;
         } catch (\Exception $e) {
-            dd($e);
+            \Log::error('Erreur lors de l\'envoi du mail après paiement: ' . $e->getMessage());
+            
             return false;
         }
     }
