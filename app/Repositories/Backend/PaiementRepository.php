@@ -49,7 +49,7 @@ class PaiementRepository   extends ResourcesRepository
             
             return $paiement;
         } catch (Exception $e) {
-            dd($e);
+            \Log::error('Erreur lors de la création du paiement methode created: ' . $e->getMessage());
         }
     }
 

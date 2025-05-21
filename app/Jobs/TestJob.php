@@ -69,7 +69,7 @@ class TestJob implements ShouldQueue
         if ($responseBody['status'] && $responseBody['status']==="SUCCESSFULL") {
             $typeAbonnement = $this->abonnementRepository->getById($response['abonnement_id'])->name;
             $nameAnnonce = $this->annonceRepository->getById($response['annonce_id'])->title;
-            $this->annonceRepository->mailPaiment(env('mail_username'),$nameAnnonce, $response['amount'], $response['mode_paiement'], $typeAbonnement);
+            $this->annonceRepository->mailPaiment(env('MAIL_USERNAME'),$nameAnnonce, $response['amount'], $response['mode_paiement'], $typeAbonnement);
         }
     }
 }
