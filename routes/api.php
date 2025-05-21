@@ -111,7 +111,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
                 Route::get('/changeStatus/{arrayPayment}', 'status');
         });
 
-/**------------------- Fin des routes admin -   ------------------------------------ */
+/**------------------- Fin des routes admin ------------------------------------- */
 
 
 

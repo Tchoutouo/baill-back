@@ -230,13 +230,7 @@ class AnnonceRepository   extends ResourcesRepository
                 }
 
                 $picture  = $this->pictureController->getImage($annonce->id);
-                // $image = [];
-
-                // //Parcourir chaque image add à son annonce
-                // foreach ($picture as $pict) {
-                //     $image[] = $pict->location;
-                // }
-                // $annonce['url_image']= $image;
+                
                 $annonce['url_image']= $picture;
 
             return $annonce;
