@@ -258,7 +258,28 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]
             );
 
-            if(!isset($request->payment_datas)){
+            if($user->qte_free == 0 && $request->abonnement_id === "1"){
+
+                $inputs = $this->annonceRepository->created($request->all());
+
+                $this->pictureController->storePicture($request, $inputs['annonce']->id);
+
+                if ($inputs) {
+                    return response()->json([
+                            'success' => true,
+                            'message' => 'Annonce enregistrée mais pas publiée, quota d\' annonce free atteint.',
+                        ]
+                    );
+                }else{
+                    return response()->json([
+                            'success' => false,
+                            'message' => 'Echec d\'enregistrement, nombre d\'abonnement free atteint',
+                        ]
+                    );
+                }
+            }
+
+            if($request->abonnement_id === "1"){
                 
                 $inputs = $this->annonceRepository->created($request->all());
 
@@ -267,9 +288,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,null);
 
                 if (isset($inputsAnnonce)) {
+                    $free = $this->userRepository->decrementFree($user->id);
                     return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistrée avec statut en cours. Pensez à la publiée',
+                            'message' => 'Annonce enregistrée et publiée',
                         ]
                     );
                 }else{
@@ -279,13 +301,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                         ]
                     );
                 }
-            }
-            if($user->qte_free == 0 && $request->abonnement_id === "1"){
-                return response()->json([
-                        'success' => false,
-                        'message' => 'Echec d\'enregistrement, nombre d\'abonnement free atteint',
-                    ]
-                );
             }
             // dd($request->payment_datas);
             // $dataPaiement = json_decode($request->payment_datas, true);

@@ -64,6 +64,11 @@ class AnnonceRepository   extends ResourcesRepository
             }
         }
 
+        // if l'abonnement est free
+        if($data['abonnement_id'] === '1' ){
+                $annonce->status = 3;
+        }
+
         $annonce->location= $data['location'];
         $annonce->user_id= $data['user_id'];
 
@@ -344,7 +349,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones homepage
     function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->paginate(12); //les annonces publiées
+        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->orderBy('created_at', 'desc')->paginate(12); //les annonces publiées
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
