@@ -186,7 +186,23 @@ class AnnonceRepository   extends ResourcesRepository
                         $annonce['next_expiration_date'] = '...';
                     }else {
                         // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                        $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
+                        $timeBase = $annonce->abonnements->time;
+                        $timeType= $annonce->abonnements->type_time;
+
+                        if($timeType === "S"){
+                            $timeBase = $timeBase / 7;
+                        }
+                        if($timeType === "A"){
+                            $timeBase = $timeBase / 365;
+                        }
+                        if($timeType === "H"){
+                            $timeBase = $timeBase / 24;
+                        }
+                        if($timeType === "M"){
+                            $timeBase = $timeBase / 30;
+                        }
+                        
+                        $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($timeBase);
                         
                         // Vérifier si cette date est dépassée
                         if (Carbon::now()->greaterThan($nextExpirationDate)) {

@@ -166,6 +166,10 @@ class AbonnementRepository   extends ResourcesRepository
 
     public function typeTime($timeType, $time){
 
+        if($timeType == "H"){
+            $timeType  = $time / 24 ." Heure(s)";
+        }
+
         if($timeType == "S"){
             $timeType  = $time / 7 ." Semaine(s)";
         }

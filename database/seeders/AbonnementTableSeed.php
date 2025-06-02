@@ -20,8 +20,8 @@ class AbonnementTableSeed extends Seeder
         Abonnement::create([
             "name"=>"Free",
             // "description"=>"L'annonce à une durée d'un mois",
-            "time"=> 30*30,
-            "type_time"=> "M",
+            "time"=> 24,
+            "type_time"=> "H",
             "price"=> 0,
             "type"=> "Free",
             "is_actived"=> 1,
