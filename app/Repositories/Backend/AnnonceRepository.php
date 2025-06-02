@@ -349,7 +349,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones homepage
     function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->orderBy('created_at', 'desc')->paginate(12); //les annonces publiées
+        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->orderBy('created_at', 'desc')->get(); //les annonces publiées
 
         // Vérifiez si la collection est vide
         if ($arrayAnnonce->isNotEmpty()) {
@@ -365,7 +365,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     // Tous les annones à la une homepage
     function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->with('abonnements')->where('status','3')
+        $arrayAnnonce = $this->model->with('users')->with('categories')->with('abonnements')->where('status','3')->orderBy('created_at', 'desc')
                                     ->whereHas('abonnements', function($query){
                                         $query->where('hight_lite',1);
                                     })->get();
