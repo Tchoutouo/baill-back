@@ -30,20 +30,31 @@ class DashboardController extends \App\Http\Controllers\Controller
     }
 
     function dashboard(){
-        $allAnnonce = $this->annonceRepository->getAllAnnonceFront();
-        $annonceUne = $this->annonceRepository->getAnnonceUne();
-        $allCategorie = $this->categorieRepository->getAll();
-        if(isset($allCategorie)){
+        try{
+            $allAnnonce = $this->annonceRepository->getAllAnnonceFront();
+            $annonceUne = $this->annonceRepository->getAnnonceUne();
+            $allCategorie = $this->categorieRepository->getAll();
+
+            if(isset($allCategorie)){
+                return response()->json([
+                    'success'=> true,
+                    'data_annonce'=> $allAnnonce,
+                    'data_annonce_une'=> $annonceUne,
+                    'data_categorie'=> $allCategorie,
+                ]);
+            }else{
+                return response()->json([
+                    'success'=> false,
+                ]);
+            }
+            
+        }catch(Exception $e){
+            \Log::error('Une erreur est survenue lors de la récupération des données de la page d\'accueil: ' . $e->getMessage());
             return response()->json([
-                'success'=> true,
-                'data_annonce'=> $allAnnonce,
-                'data_annonce_une'=> $annonceUne,
-                'data_categorie'=> $allCategorie,
-            ]);
-        }else{
-            return response()->json([
-                'success'=> false,
-            ]);
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de la récupération des données de la page d\'accueil.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -65,7 +76,12 @@ class DashboardController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            \Log::error('Une erreur est survenue lors du tri des annonces: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors du tri des annonces.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
