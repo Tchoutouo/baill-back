@@ -25,7 +25,7 @@ class AbonnementTableSeed extends Seeder
             "price"=> 0,
             "type"=> "Free",
             "is_actived"=> 1,
-            "hight_lite"=> true,
+            "hight_lite"=> false,
         ]);
 
         Abonnement::create([
@@ -33,10 +33,10 @@ class AbonnementTableSeed extends Seeder
             // "description"=>"L'annonce est standard",
             "time"=> 30*7,
             "type_time"=> "S",
-            "price"=> 20,
+            "price"=> 500,
             "type"=> "Standard",
             "is_actived"=> 1,
-            "hight_lite"=> true,
+            "hight_lite"=> false,
         ]);
 
         Abonnement::create([
@@ -44,7 +44,7 @@ class AbonnementTableSeed extends Seeder
             // "description"=>"L'annonce est premium",
             "time"=> 30*30,
             "type_time"=> "M",
-            "price"=> 10,
+            "price"=> 1000,
             "type"=> "Premium",
             "is_actived"=> 1,
             "hight_lite"=> "1",
