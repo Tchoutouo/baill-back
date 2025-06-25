@@ -18,7 +18,7 @@ class CategorieTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         // Vider la table
-        DB::table('abonnements')->truncate();
+        DB::table('categories')->truncate();
 
         // Réactiver les contraintes
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
