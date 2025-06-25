@@ -17,6 +17,12 @@ class AbonnementTableSeed extends Seeder
         //
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         
+        // Vider la table
+        DB::table('abonnements')->truncate();
+
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         Abonnement::create([
             "name"=>"Free",
             // "description"=>"L'annonce à une durée d'un mois",
@@ -29,23 +35,23 @@ class AbonnementTableSeed extends Seeder
         ]);
 
         Abonnement::create([
-            "name"=>"Standard",
+            "name"=>"MENSUEL",
             // "description"=>"L'annonce est standard",
-            "time"=> 30*7,
+            "time"=> 30,
             "type_time"=> "S",
             "price"=> 20,
-            "type"=> "Standard",
+            "type"=> "Mensuel",
             "is_actived"=> 1,
             "hight_lite"=> true,
         ]);
 
         Abonnement::create([
-            "name"=>"Premium",
+            "name"=>"ANNUEL",
             // "description"=>"L'annonce est premium",
-            "time"=> 30*30,
+            "time"=> 12,
             "type_time"=> "M",
             "price"=> 10,
-            "type"=> "Premium",
+            "type"=> "Annuel",
             "is_actived"=> 1,
             "hight_lite"=> "1",
         ]);

@@ -16,6 +16,15 @@ class AbonnementRepository   extends ResourcesRepository
 
     public function getAll() {
         $abonnement = $this->model->all();
+
+        /** Calcul des tarfis des abonnement en fonction des remise */
+        // foreach ($abonnement as $forfait) {
+        //     if ($forfait->id !== 1) 
+        //     {
+                
+        //     }
+        // }
+        // dd($abonnement);
         return $abonnement;
     }
 

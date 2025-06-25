@@ -67,6 +67,11 @@ class CategorieTableSeeder extends Seeder
             "description"=>"Travaux",
         ]);
 
+        Categorie::create([
+            "title"=>"Site touristique",
+            "description"=>"Espace de loisir etc...",
+        ]);
+
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     }

@@ -11,6 +11,7 @@ use \Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PaymentValidateMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
 
@@ -158,26 +159,26 @@ class AnnonceRepository   extends ResourcesRepository
         try {            
             // Récupération des annonces pour un utilisateur
             $arrayAnnonce = $this->model
-                        ->with('categories')
-                        ->with('abonnements');
-    
-                    // Si user_id existe
-                    if($user_id){
-                        $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
-                    }
-    
-                    // Si $search existe
-                    if ($search) {
-                    $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
-                            $q->where('title', 'LIKE', "%$search%")
-                            ->orWhereHas('categories', function ($q) use ($search) {
-                                $q->where('title', 'LIKE', "%$search%");
-                            });
-                        });
-                    }
-    
-                    $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-                    ->paginate($nbr_annonce);
+                ->with('categories')
+                ->with('abonnements');
+
+            // Si user_id existe
+            if($user_id){
+                $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
+            }
+
+            // Si $search existe
+            if ($search) {
+            $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', "%$search%")
+                    ->orWhereHas('categories', function ($q) use ($search) {
+                        $q->where('title', 'LIKE', "%$search%");
+                    });
+                });
+            }
+
+            $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
+            ->paginate($nbr_annonce);
             // Vérifiez si la collection est vide
             if ($arrayAnnonce->isNotEmpty()) {
                 foreach ($arrayAnnonce as $annonce) {
@@ -202,7 +203,7 @@ class AnnonceRepository   extends ResourcesRepository
                             $timeBase = $timeBase / 30;
                         }
                         
-                        $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($timeBase);
+                        $nextExpirationDate = Carbon::parse($annonce->updated_at)->addDays($timeBase);
                         
                         // Vérifier si cette date est dépassée
                         if (Carbon::now()->greaterThan($nextExpirationDate)) {
@@ -342,7 +343,8 @@ class AnnonceRepository   extends ResourcesRepository
         if(isset($annonce))
         {
             $annonce->update([
-                'status' => $new_status
+                'status' => $new_status,
+                'updated_at' => now()
             ]);
             return true;
         }
@@ -363,38 +365,75 @@ class AnnonceRepository   extends ResourcesRepository
 
     //** Fonction côté visiteur */
 
-    // Tous les annones homepage
-    function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->orderBy('created_at', 'desc')->get(); //les annonces publiées
+    function getAllAnnonceFront($user_id = null)
+    {
+        $ordreExpr = "CASE 
+            WHEN user_id = ? THEN 0 
+            WHEN abonnement_id = 3 THEN 1 
+            WHEN abonnement_id = 2 THEN 2 
+            ELSE 3 
+        END as ordre";
 
-        // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as  $annonce) {
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $annonce['url_image']= $picture;
+        $annonces = $this->model
+            ->with(['users', 'categories', 'abonnements'])
+            ->where('status', 3)
+            ->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                    ->orWhereHas('abonnements', function ($q) {
+                        $q->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [2, 3]);
+                    });
+            })
+            ->select('*')
+            ->selectRaw($ordreExpr, [$user_id])
+            ->orderBy('ordre')
+            ->orderByDesc('created_at')
+            ->get();
 
-            }
-
-            return $arrayAnnonce;
+    
+        foreach ($annonces as $annonce) {
+            $annonce->url_image = $this->pictureController->getImage($annonce->id);
         }
+    
+        return $annonces;
     }
+    
+    
 
     // Tous les annones à la une homepage
     function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->with('abonnements')->where('status','3')->orderBy('created_at', 'desc')
-                                    ->whereHas('abonnements', function($query){
-                                        $query->where('hight_lite',1);
-                                    })->get();
+        // $user_id = Auth::user()->id;
+        $user_id = 3;
+        $ordreExpr = "CASE 
+            WHEN user_id = ? THEN 0 
+            WHEN abonnement_id = 3 THEN 1 
+            ELSE 3 
+        END as ordre";
 
+        $annonces = $this->model
+            ->with(['users', 'categories', 'abonnements'])
+            ->where('status', 3)
+            ->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                    ->orWhereHas('abonnements', function ($q) {
+                        $q->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [3]);
+                    });
+            })
+            ->select('*')
+            ->selectRaw($ordreExpr, [$user_id])
+            ->orderByDesc('created_at')
+            ->get();
+                                   
         // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $key => $annonce) {
+        if ($annonces->isNotEmpty()) {
+            foreach ($annonces as $key => $annonce) {
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $annonce['url_image']= $picture;
 
             }
 
-            return $arrayAnnonce;
+            return $annonces;
         }
     }
 
