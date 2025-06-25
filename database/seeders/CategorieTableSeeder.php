@@ -17,6 +17,12 @@ class CategorieTableSeeder extends Seeder
         //
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
+        // Vider la table
+        DB::table('abonnements')->truncate();
+
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         Categorie::create([
             "title"=>"Consultation",
             "description"=>"Médecine",
