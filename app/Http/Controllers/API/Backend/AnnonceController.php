@@ -100,10 +100,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
     //Change status annonces
     public function changeStatus($user_id, $annonce_id, $new_status, $dataPaiement = null){
         try {
-
+            
             $user = Auth::user();
 
-            if($new_status == 3){
+            if($new_status == 3 && $dataPaiement){
                 $dataPaiement = json_decode($dataPaiement, true);
                 $dataPaiement['user_id'] = $user->id;
                 $dataPaiement['number'] = $user->whatsapp_number;

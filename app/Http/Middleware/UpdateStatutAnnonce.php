@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\Annonce;
+use Illuminate\Support\Carbon;
 
 class UpdateStatutAnnonce
 {
@@ -19,10 +20,13 @@ class UpdateStatutAnnonce
         $annonces = Annonce::get();
 
         foreach ($annonces as $annonce) {
-            if( $annonce->updated_at )
+            if( $annonce->expiration_date)
             {
-                $annonce->status = 1;
-                $annonce->save();
+                if(now()->gt($annonce->expiration_date))
+                {
+                    $annonce->status = 1;
+                    $annonce->save();
+                }
             }
         }
         return $next($request);

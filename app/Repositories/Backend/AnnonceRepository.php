@@ -159,8 +159,7 @@ class AnnonceRepository   extends ResourcesRepository
         try {            
             // Récupération des annonces pour un utilisateur
             $arrayAnnonce = $this->model
-                ->with('categories')
-                ->with('abonnements');
+                ->with('categories','abonnements');
 
             // Si user_id existe
             if($user_id){
@@ -169,7 +168,7 @@ class AnnonceRepository   extends ResourcesRepository
 
             // Si $search existe
             if ($search) {
-            $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
+                $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%$search%")
                     ->orWhereHas('categories', function ($q) use ($search) {
                         $q->where('title', 'LIKE', "%$search%");
@@ -183,39 +182,20 @@ class AnnonceRepository   extends ResourcesRepository
             if ($arrayAnnonce->isNotEmpty()) {
                 foreach ($arrayAnnonce as $annonce) {
                     
-                    if ($annonce->status === '1') {
+                    if ($annonce->status === '1' || $annonce->expiration_date === null) {
                         $annonce['next_expiration_date'] = '...';
                     }else {
-                        // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                        $timeBase = $annonce->abonnements->time;
-                        $timeType= $annonce->abonnements->type_time;
 
-                        if($timeType === "S"){
-                            $timeBase = $timeBase / 7;
-                        }
-                        if($timeType === "A"){
-                            $timeBase = $timeBase / 365;
-                        }
-                        if($timeType === "H"){
-                            $timeBase = $timeBase / 24;
-                        }
-                        if($timeType === "M"){
-                            $timeBase = $timeBase / 30;
-                        }
-                        
-                        $nextExpirationDate = Carbon::parse($annonce->updated_at)->addDays($timeBase);
-                        
-                        // Vérifier si cette date est dépassée
-                        if (Carbon::now()->greaterThan($nextExpirationDate)) {
-                            // Si la date est dépassée, on met "expiré"
+                        if(now()->gt($annonce->expiration_date))
+                        {
                             $annonce['next_expiration_date'] = 'expiré';
-                        } else {
-                            // Sinon, on retourne la date au format AAAA-MM-JJ
-                            $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                        }else{
+                            $annonce['next_expiration_date'] = $annonce->expiration_date;
                         }
                     }
     
-                    if(isset($detail)){
+                    if(isset($annonce)){
+                        $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
                         $picture  = $this->pictureController->getImage($annonce->id);
                         $annonce['url_image']= $picture;
     
@@ -236,21 +216,19 @@ class AnnonceRepository   extends ResourcesRepository
 
     function getAnnonce($annonce_id) {
         // Récupération des annonces pour un utilisateur
-        $annonce = $this->model->with('users')->with('categories')->with('abonnements')->where('id', $annonce_id)->first();
+        $annonce = $this->model->with('users','categories','abonnements')->where('id', $annonce_id)->first();
         
         
         // Vérifiez si la collection est vide
         if (!empty($annonce)) {
-                // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
                 
                 // Vérifier si cette date est dépassée
-                if (Carbon::now()->greaterThan($nextExpirationDate)) {
+                if (Carbon::now()->greaterThan($annonce->expiration_date)) {
                     // Si la date est dépassée, on met "expiré"
                     $annonce['next_expiration_date'] = 'expiré';
                 } else {
                     // Sinon, on retourne la date au format AAAA-MM-JJ
-                    $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                    $annonce['next_expiration_date'] = $annonce->expiration_date;
                 }
 
                 $picture  = $this->pictureController->getImage($annonce->id);
@@ -335,17 +313,35 @@ class AnnonceRepository   extends ResourcesRepository
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
         
         if ($user_id) {
-            $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
+            $annonce = $this->model->with('abonnements')->where('user_id', $user_id)->where('id', $annonce_id)->first();
         }
         else{
             $annonce = $this->model->where('id', $annonce_id)->first();
         }
         if(isset($annonce))
         {
+            $type = $annonce->abonnements->type_time;
+            $time = $annonce->abonnements->time;
+            if($type === 'M')
+            {
+                $time = $time * 30;
+            }
+            elseif($type === 'A'){
+                $time = $time * 365;
+            }
+            
+            if($new_status === '3' && $annonce->status === '1'){// Si c'est en cours et statut actuel est à 1:en_cours
+                $annonce->update([
+                    'expiration_date' => now()->addDays($time)->format('Y-m-d'),
+                ]);
+            }
+
             $annonce->update([
                 'status' => $new_status,
-                'updated_at' => now()
+                'updated_at' => now(),
             ]);
+
+
             return true;
         }
     }
@@ -371,6 +367,7 @@ class AnnonceRepository   extends ResourcesRepository
             WHEN user_id = ? THEN 0 
             WHEN abonnement_id = 3 THEN 1 
             WHEN abonnement_id = 2 THEN 2 
+            WHEN abonnement_id = 1 THEN 3 
             ELSE 3 
         END as ordre";
 
@@ -381,7 +378,7 @@ class AnnonceRepository   extends ResourcesRepository
                 $query->where('user_id', $user_id)
                     ->orWhereHas('abonnements', function ($q) {
                         $q->where('hight_lite', 1)
-                            ->whereIn('abonnements.id', [2, 3]);
+                            ->whereIn('abonnements.id', [1, 2, 3]);
                     });
             })
             ->select('*')
@@ -392,6 +389,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     
         foreach ($annonces as $annonce) {
+            $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
             $annonce->url_image = $this->pictureController->getImage($annonce->id);
         }
     
@@ -401,12 +399,12 @@ class AnnonceRepository   extends ResourcesRepository
     
 
     // Tous les annones à la une homepage
-    function getAnnonceUne(){
-        // $user_id = Auth::user()->id;
-        $user_id = 3;
+    function getAnnonceUne( $user_id = null ){
+
         $ordreExpr = "CASE 
             WHEN user_id = ? THEN 0 
             WHEN abonnement_id = 3 THEN 1 
+            WHEN abonnement_id = 2 THEN 2 
             ELSE 3 
         END as ordre";
 
@@ -417,7 +415,7 @@ class AnnonceRepository   extends ResourcesRepository
                 $query->where('user_id', $user_id)
                     ->orWhereHas('abonnements', function ($q) {
                         $q->where('hight_lite', 1)
-                            ->whereIn('abonnements.id', [3]);
+                            ->whereIn('abonnements.id', [2,3]);
                     });
             })
             ->select('*')
@@ -428,9 +426,9 @@ class AnnonceRepository   extends ResourcesRepository
         // Vérifiez si la collection est vide
         if ($annonces->isNotEmpty()) {
             foreach ($annonces as $key => $annonce) {
+                $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $annonce['url_image']= $picture;
-
             }
 
             return $annonces;
@@ -439,43 +437,60 @@ class AnnonceRepository   extends ResourcesRepository
 
     
     // Trie en fonction des categories/country/city
-    function getTrieAnnonce($categ = null, $country = null, $city = null) {
+    function getTrieAnnonce($categ = null, $country = null, $city = null, $user_id = null) {
         // Récupération des annonces pour un utilisateur
-        $arrayAnnonce = $this->model
-                    ->with('users')
-                    ->with('categories')
-                    ->with('abonnements')
-                    ->where('status','3');
-                    
-                // Si $categorie existe
-                if ($categ){
-                    $arrayAnnonce = $arrayAnnonce->whereHas('categories', function ($q) use ($categ) {
-                        $q->where('title', 'LIKE', "%$categ%");
-                    });
-                }
+        dd($country,$categ,$city);
+        $ordreExpr = "CASE 
+            WHEN user_id = ? THEN 0 
+            WHEN abonnement_id = 3 THEN 1 
+            WHEN abonnement_id = 2 THEN 2 
+            WHEN abonnement_id = 1 THEN 3 
+            ELSE 3 
+        END as ordre";
 
-                // Si $country existe
-                if ($country) {
-                    $arrayAnnonce->where('country', 'LIKE', "%$country%");
-                }
-                
-                // Si $city existe
-                if ($city) {
-                    $arrayAnnonce->where('location', 'LIKE', "%$city%");
-                }
-                
-                $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-                ->paginate(12);
+        $annonces = $this->model
+            ->with(['users', 'categories', 'abonnements'])
+            ->where('status', 3);
+            // Si $categorie existe
+            if ($categ){
+                $annonces = $annonces->whereHas('categories', function ($q) use ($categ) {
+                    $q->where('title', 'LIKE', "%$categ%");
+                });
+            }
+
+            // Si $country existe
+            if ($country) {
+                $annonces->where('country', 'LIKE', "%$country%");
+            }
+            
+            // Si $city existe
+            if ($city) {
+                $annonces->where('location', 'LIKE', "%$city%");
+            }
+
+            $annonces->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                    ->orWhereHas('abonnements', function ($q) {
+                        $q->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [1, 2, 3]);
+                    });
+            })
+            ->select('*')
+            ->selectRaw($ordreExpr, [$user_id])
+            ->orderBy('ordre')
+            ->orderByDesc('created_at')
+            ->get();
 
         // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $annonce) {
+        if ($annonces) {
+            foreach ($annonces as $annonce) {
+                $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $annonce['url_image']= $picture;
 
             }
 
-            return $arrayAnnonce;
+            return $annonces;
         }
     }
 
