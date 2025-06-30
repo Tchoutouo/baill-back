@@ -81,7 +81,7 @@ class AbonnementRepository   extends ResourcesRepository
         }
 
         if(isset($data['remise'])){
-            $abonnement->type= $data['remise'];
+            $abonnement->remise= $data['remise'];
         }
         $abonnement->save();
 
@@ -104,7 +104,7 @@ class AbonnementRepository   extends ResourcesRepository
             $abonnement->hight_lite= $data['hight_lite'];
         }
         if(isset($data['remise'])){
-            $abonnement->type= $data['remise'];
+            $abonnement->remise= $data['remise'];
         }
         $abonnement->save();
 
