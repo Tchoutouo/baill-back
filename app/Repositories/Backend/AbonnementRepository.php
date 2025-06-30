@@ -95,7 +95,8 @@ class AbonnementRepository   extends ResourcesRepository
         $abonnement = $this->model->find($id);
         
         $abonnement->name= $data['name'];
-        $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        // $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        $abonnement->time= $data['time'];
         $abonnement->type_time= $data['type_time'];
         $abonnement->price= $data['price'];
         $abonnement->type= $data['type'];
