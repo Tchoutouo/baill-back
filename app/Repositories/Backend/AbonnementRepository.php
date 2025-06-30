@@ -25,6 +25,7 @@ class AbonnementRepository   extends ResourcesRepository
             }else{
                 $forfait->price_after_remise = 0;
             }
+            $forfait->type_value = $this->typeTime($forfait->type_time,$forfait->time);
         }
 
         return $abonnement;
@@ -181,7 +182,7 @@ class AbonnementRepository   extends ResourcesRepository
     public function typeTime($timeType, $time){
 
         if($timeType == "D"){
-            $timeType  = $time ." Jour(s)";
+            $timeType  = $time ." HEURE(s)";
         }
 
         // if($timeType == "S"){
