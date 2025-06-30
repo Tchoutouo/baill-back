@@ -140,7 +140,13 @@ class AbonnementRepository   extends ResourcesRepository
         else{
             $abonnement = $abonnement->orderBy('created_at', 'desc')->get();
         }
-
+        
+        if($abonnement)
+        {
+            foreach ($abonnement as $abon) {
+               $abon->type_value = $this->typeTime($abon->type_time,$abon->time);
+            }
+        }
         return $abonnement;
     }
 
