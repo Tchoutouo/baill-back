@@ -79,6 +79,10 @@ class AbonnementRepository   extends ResourcesRepository
         if (isset($data['hight_lite'])) {
             $abonnement->hight_lite= $data['hight_lite'];
         }
+
+        if(isset($data['remise'])){
+            $abonnement->type= $data['remise'];
+        }
         $abonnement->save();
 
         return $abonnement;
@@ -98,6 +102,9 @@ class AbonnementRepository   extends ResourcesRepository
         $abonnement->is_actived= $data['is_actived'];
         if (isset($data['hight_lite'])) {
             $abonnement->hight_lite= $data['hight_lite'];
+        }
+        if(isset($data['remise'])){
+            $abonnement->type= $data['remise'];
         }
         $abonnement->save();
 
