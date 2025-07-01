@@ -37,7 +37,7 @@ class AnnonceRepository   extends ResourcesRepository
     /**created annonce */
     public function created($data = array()) {
         //defininir création de annonce
-        
+        $user_qty_free = Auth::user()->qte_free;
         $annonce = $this->model;
         
         $annonce->title= $data['title'];
@@ -58,16 +58,13 @@ class AnnonceRepository   extends ResourcesRepository
             }
         }
 
-        // if l'abonnement est free mettre en avant l'annonce
-        if($this->abonnementRepository->check_account($data['abonnement_id']) == 0 ){
-            if(isset($data['status'])){
-                $annonce->status = 3;
-            }
-        }
-
         // if l'abonnement est free
-        if($data['abonnement_id'] === '1' ){
+        if($data['abonnement_id'] === '1' && $user_qty_free > 0){
                 $annonce->status = 3;
+                $time = $this->abonnementRepository->getById($data['abonnement_id']);
+                $annonce->expiration_date = now()->addDays($time->time)->format('Y-m-d');
+        }else{
+            $annonce->status = 1;
         }
 
         $annonce->location= $data['location'];
@@ -90,7 +87,8 @@ class AnnonceRepository   extends ResourcesRepository
     /**updated annonce */
     //public function updated($data = array(), $id) {
     public function updated( $id, $data = []) {
-        //defininir update de annonce                
+        //defininir update de annonce 
+        $user_qty_free = Auth::user()->qte_free;               
         $annonce = $this->model->find($id);
         
         $annonce->title= $data['title'];
@@ -101,8 +99,13 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
         // $annonce->is_published= $data['is_published'];
-        if(isset($data['status'])){
-            $annonce->status = $data['status'];
+        // if l'abonnement est free
+        if($data['abonnement_id'] === '1' && $user_qty_free > 0){
+                $annonce->status = 3;
+                $time = $this->abonnementRepository->getById($data['abonnement_id']);
+                $annonce->expiration_date = now()->addDays($time->time)->format('Y-m-d');
+        }else{
+            $annonce->status = 1;
         }
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
