@@ -104,6 +104,12 @@ class AnnonceController extends \App\Http\Controllers\Controller
             $user = Auth::user();
 
             if($new_status == 3 && $dataPaiement){
+                $donnee = [
+                    'validity_period' => $dataPaiement['validity_period']
+                ];
+
+                $this->annonceRepository->update($annonce_id,$donnee);
+                
                 $dataPaiement = json_decode($dataPaiement, true);
                 $dataPaiement['user_id'] = $user->id;
                 $dataPaiement['number'] = $user->whatsapp_number;
@@ -117,11 +123,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 }
                 
                 if (isset($statutPaiement['reference'])) {//Cas paiement mobile
-                    $donnee = [
-                        'validity_period' => $dataPaiement['validity_period']
-                    ];
-
-                    $this->annonceRepository->update($annonce_id,$donnee);
                     
                     return response()->json([
                         'success' => true,

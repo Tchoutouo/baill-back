@@ -187,16 +187,10 @@ class AnnonceRepository   extends ResourcesRepository
             if ($arrayAnnonce->isNotEmpty()) {
                 foreach ($arrayAnnonce as $annonce) {
                     
-                    if ($annonce->status === '1' || $annonce->expiration_date === null) {
+                    if ($annonce->status === '0' ) {
                         $annonce['next_expiration_date'] = '...';
                     }else {
-
-                        if(now()->gt($annonce->expiration_date))
-                        {
-                            $annonce['next_expiration_date'] = 'expiré';
-                        }else{
-                            $annonce['next_expiration_date'] = $annonce->expiration_date;
-                        }
+                        $annonce['next_expiration_date'] = $annonce->expiration_date;
                     }
     
                     if(isset($annonce)){
@@ -228,9 +222,9 @@ class AnnonceRepository   extends ResourcesRepository
         if (!empty($annonce)) {
                 
                 // Vérifier si cette date est dépassée
-                if (Carbon::now()->greaterThan($annonce->expiration_date)) {
+                if ($annonce->expiration_date === '0') {
                     // Si la date est dépassée, on met "expiré"
-                    $annonce['next_expiration_date'] = 'expiré';
+                    $annonce['next_expiration_date'] = 'expiré...';
                 } else {
                     // Sinon, on retourne la date au format AAAA-MM-JJ
                     $annonce['next_expiration_date'] = $annonce->expiration_date;
@@ -336,7 +330,7 @@ class AnnonceRepository   extends ResourcesRepository
                     $time = $annonce->validity_period * 365;
                 }
                 
-                if($new_status === '3' && $annonce->status === '1'){// Si c'est en cours et statut actuel est à 1:en_cours
+                if($new_status === '3' && $annonce->status === '1' || $annonce->status === '0'){// Si c'est en cours et statut actuel est à 1:en_cours
                     $annonce->update([
                         'expiration_date' => now()->addDays($time)->format('Y-m-d'),
                     ]);
