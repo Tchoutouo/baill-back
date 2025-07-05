@@ -117,6 +117,12 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 }
                 
                 if (isset($statutPaiement['reference'])) {//Cas paiement mobile
+                    $donnee = [
+                        'validity_period' => $dataPaiement['validity_period']
+                    ];
+
+                    $this->annonceRepository->update($annonce_id,$donnee);
+                    
                     return response()->json([
                         'success' => true,
                         'message' => 'En attente de paiement...',

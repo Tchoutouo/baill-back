@@ -24,7 +24,7 @@ class UpdateStatutAnnonce
             {
                 if(now()->gt($annonce->expiration_date))
                 {
-                    $annonce->status = 1;
+                    $annonce->status = 0;
                     $annonce->save();
                 }
             }
