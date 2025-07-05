@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\PaymentValidateMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
 
@@ -36,19 +37,16 @@ class AnnonceRepository   extends ResourcesRepository
 
     /**created annonce */
     public function created($data = array()) {
-        //defininir création de annonce
+
         $user_qty_free = Auth::user()->qte_free;
         $annonce = $this->model;
         
         $annonce->title= $data['title'];
-        // $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
         $annonce->price= $data['price'];
         $annonce->reference = "ANNONCE_" . date('Y_His');
-        // $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
-        // $annonce->is_published= $data['is_published'];
 
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
@@ -85,7 +83,6 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     /**updated annonce */
-    //public function updated($data = array(), $id) {
     public function updated( $id, $data = []) {
         //defininir update de annonce 
         $user_qty_free = Auth::user()->qte_free;               
@@ -98,8 +95,6 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
-        // $annonce->is_published= $data['is_published'];
-        // if l'abonnement est free
         if($data['abonnement_id'] === '1' && $user_qty_free > 0){
                 $annonce->status = 3;
                 $time = $this->abonnementRepository->getById($data['abonnement_id']);
@@ -156,7 +151,6 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Tous les annonces liées à un utilisateur
-    //function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
     function getAllAnnonce($nbr_annonce, $user_id = null, $search = null) {
 
         try {            
@@ -315,37 +309,42 @@ class AnnonceRepository   extends ResourcesRepository
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
         
-        if ($user_id) {
-            $annonce = $this->model->with('abonnements')->where('user_id', $user_id)->where('id', $annonce_id)->first();
-        }
-        else{
-            $annonce = $this->model->where('id', $annonce_id)->first();
-        }
-        if(isset($annonce))
-        {
-            $type = $annonce->abonnements->type_time;
-            $time = $annonce->abonnements->time;
-            if($type === 'M')
+        try {
+            if ($user_id) {
+                $annonce = $this->model->with('abonnements')->where('user_id', $user_id)->where('id', $annonce_id)->first();
+            }
+            else{
+                $annonce = $this->model->where('id', $annonce_id)->first();
+            }
+            if(isset($annonce))
             {
-                $time = $time * 30;
-            }
-            elseif($type === 'A'){
-                $time = $time * 365;
-            }
-            
-            if($new_status === '3' && $annonce->status === '1'){// Si c'est en cours et statut actuel est à 1:en_cours
+                $type = $annonce->abonnements->type_time;
+                $time = $annonce->abonnements->time;
+                if($type === 'M')
+                {
+                    $time = $annonce->validity_period * 30;
+                }
+                elseif($type === 'A'){
+                    $time = $annonce->validity_period * 365;
+                }
+                
+                if($new_status === '3' && $annonce->status === '1'){// Si c'est en cours et statut actuel est à 1:en_cours
+                    $annonce->update([
+                        'expiration_date' => now()->addDays($time)->format('Y-m-d'),
+                    ]);
+                }
+    
                 $annonce->update([
-                    'expiration_date' => now()->addDays($time)->format('Y-m-d'),
+                    'status' => $new_status,
+                    'updated_at' => now(),
                 ]);
+    
+    
+                return true;
             }
-
-            $annonce->update([
-                'status' => $new_status,
-                'updated_at' => now(),
-            ]);
-
-
-            return true;
+        } catch (\Exception $th) {
+            \Log::error('Erreur lors de la mise à jour du status : ' . $th->getMessage());
+            return null;
         }
     }
 
@@ -438,64 +437,58 @@ class AnnonceRepository   extends ResourcesRepository
         }
     }
 
+        
+    function getTrieAnnonce($categ = null, $country = null, $city = null, $user_id = null)
+    {
+        try {            
+            $ordreExpr = "CASE
+                WHEN user_id = ?        THEN 0         
+                WHEN abonnement_id = 3  THEN 1
+                WHEN abonnement_id = 2  THEN 2
+                WHEN abonnement_id = 1  THEN 3
+                ELSE 4
+            END AS ordre";
     
-    // Trie en fonction des categories/country/city
-    function getTrieAnnonce($categ = null, $country = null, $city = null, $user_id = null) {
-        // Récupération des annonces pour un utilisateur
-        dd($country,$categ,$city);
-        $ordreExpr = "CASE 
-            WHEN user_id = ? THEN 0 
-            WHEN abonnement_id = 3 THEN 1 
-            WHEN abonnement_id = 2 THEN 2 
-            WHEN abonnement_id = 1 THEN 3 
-            ELSE 3 
-        END as ordre";
-
-        $annonces = $this->model
-            ->with(['users', 'categories', 'abonnements'])
-            ->where('status', 3);
-            // Si $categorie existe
-            if ($categ){
-                $annonces = $annonces->whereHas('categories', function ($q) use ($categ) {
-                    $q->where('title', 'LIKE', "%$categ%");
-                });
-            }
-
-            // Si $country existe
-            if ($country) {
-                $annonces->where('country', 'LIKE', "%$country%");
-            }
-            
-            // Si $city existe
-            if ($city) {
-                $annonces->where('location', 'LIKE', "%$city%");
-            }
-
-            $annonces->where(function ($query) use ($user_id) {
-                $query->where('user_id', $user_id)
-                    ->orWhereHas('abonnements', function ($q) {
-                        $q->where('hight_lite', 1)
-                            ->whereIn('abonnements.id', [1, 2, 3]);
-                    });
-            })
-            ->select('*')
-            ->selectRaw($ordreExpr, [$user_id])
-            ->orderBy('ordre')
-            ->orderByDesc('created_at')
-            ->get();
-
-        // Vérifiez si la collection est vide
-        if ($annonces) {
+            $annonces = $this->model
+                ->with(['users', 'categories', 'abonnements'])
+                ->where('status', 3)
+    
+                ->when($categ,   fn ($q) =>
+                    $q->whereHas('categories',
+                        fn ($c) => $c->where('title', 'LIKE', "%$categ%")))
+                ->when($country, fn ($q) =>
+                    $q->where('country', 'LIKE', "%$country%"))
+                ->when($city,    fn ($q) =>
+                    $q->where('location', 'LIKE', "%$city%"))
+    
+                ->when($user_id,
+                    fn ($q) => $q->where('user_id', $user_id),
+                    fn ($q) =>
+                        $q->whereHas('abonnements', fn ($qa) =>
+                            $qa->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [1, 2, 3])))
+    
+                ->select('*')
+                ->selectRaw($ordreExpr, [$user_id])
+                ->orderBy('ordre')
+                ->orderByDesc('created_at')
+                ->get();
+    
             foreach ($annonces as $annonce) {
-                $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $annonce['url_image']= $picture;
-
+                if ($ab = $annonce->abonnements) {
+                    $ab->price_after_remise = $ab->price
+                                            - ($ab->price * $ab->remise / 100);
+                }
+                $annonce->url_image = $this->pictureController->getImage($annonce->id);
             }
-
-            return $annonces;
+        } catch (\Exception $th) {
+            \Log::error('Erreur lors du tri des annonces : ' . $th->getMessage());
+            return null;
         }
+
+        return $annonces;
     }
+
 
     //Envoie du mail apre paiement
     
