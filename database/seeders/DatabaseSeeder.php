@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(ProfilsTableSeeder::class);
         // $this->call(UsersTableSeeder::class);
-        $this->call(CategorieTableSeeder::class);
+        // $this->call(CategorieTableSeeder::class);
         $this->call(AbonnementTableSeed::class);
         // $this->call(AnnonceTableSeeder::class);
         // $this->call(ModePaiementSeed::class);
