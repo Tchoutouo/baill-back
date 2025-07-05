@@ -71,6 +71,9 @@ class AnnonceRepository   extends ResourcesRepository
         if (isset($data['abonnement_id'])) {
             $annonce->abonnement_id= $data['abonnement_id'];
         }
+        if (isset($data['validity_period'])) {
+            $annonce->validity_period= (int) $data['validity_period'];
+        }
 
         $annonceTable = [
             'annonce'=> $annonce,
@@ -116,6 +119,11 @@ class AnnonceRepository   extends ResourcesRepository
         if (isset($data['abonnement_id'])) {
             $annonce->abonnement_id= $data['abonnement_id'];
         }
+
+        if (isset($data['validity_period'])) {
+            $annonce->validity_period= (int) $data['validity_period'];
+        }
+
 
         $annonceTable = [
             'annonce'=> $annonce,
