@@ -16,11 +16,24 @@ class AbonnementRepository   extends ResourcesRepository
 
     public function getAll() {
         $abonnement = $this->model->all();
+
+        /** Calcul des tarfis des abonnement en fonction des remise */
+        foreach ($abonnement as $forfait) {
+            if ($forfait->id !== 1) 
+            {
+                $forfait->price_after_remise = $forfait->price - ( $forfait->price * ($forfait->remise/100) );
+            }else{
+                $forfait->price_after_remise = 0;
+            }
+            $forfait->type_value = $this->typeTime($forfait->type_time,$forfait->time);
+        }
+
         return $abonnement;
     }
 
     public function getById($id) {
         $abonnement = $this->model->where('id', $id)->first();
+        $abonnement->price = $abonnement->price - ( $abonnement->price * ($abonnement->remise/100) );
         $abonnement->type_time = $this->typeTime($abonnement->type_time,$abonnement->time);
         return $abonnement;
     }
@@ -34,7 +47,7 @@ class AbonnementRepository   extends ResourcesRepository
     public function totalDay(string $type_time){
 
         //Si c'est semaine
-        if($type_time == "S"){
+        if($type_time == "D"){
             return 7;
         }
 
@@ -57,13 +70,18 @@ class AbonnementRepository   extends ResourcesRepository
         $abonnement = $this->model;
         
         $abonnement->name= $data['name'];
-        $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        // $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        $abonnement->time= $data['time'] ;
         $abonnement->type_time= $data['type_time'];
         $abonnement->price= $data['price'];
         $abonnement->type= $data['type'];
         $abonnement->is_actived= $data['is_actived'];
         if (isset($data['hight_lite'])) {
             $abonnement->hight_lite= $data['hight_lite'];
+        }
+
+        if(isset($data['remise'])){
+            $abonnement->remise= $data['remise'];
         }
         $abonnement->save();
 
@@ -77,13 +95,17 @@ class AbonnementRepository   extends ResourcesRepository
         $abonnement = $this->model->find($id);
         
         $abonnement->name= $data['name'];
-        $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        // $abonnement->time= $data['time'] * $this->totalDay($data['type_time']);
+        $abonnement->time= $data['time'];
         $abonnement->type_time= $data['type_time'];
         $abonnement->price= $data['price'];
         $abonnement->type= $data['type'];
         $abonnement->is_actived= $data['is_actived'];
         if (isset($data['hight_lite'])) {
             $abonnement->hight_lite= $data['hight_lite'];
+        }
+        if(isset($data['remise'])){
+            $abonnement->remise= $data['remise'];
         }
         $abonnement->save();
 
@@ -126,7 +148,13 @@ class AbonnementRepository   extends ResourcesRepository
         else{
             $abonnement = $abonnement->orderBy('created_at', 'desc')->get();
         }
-
+        
+        if($abonnement)
+        {
+            foreach ($abonnement as $abon) {
+               $abon->type_value = $this->typeTime($abon->type_time,$abon->time);
+            }
+        }
         return $abonnement;
     }
 
@@ -157,6 +185,7 @@ class AbonnementRepository   extends ResourcesRepository
                 $abon->progress = 0;
             }
 
+            // $abon->type_time = $this->typeTime($abon->type_time,$abon->time) ;
             $abon->type_time = $this->typeTime($abon->type_time,$abon->time) ;
 
         }
@@ -166,20 +195,20 @@ class AbonnementRepository   extends ResourcesRepository
 
     public function typeTime($timeType, $time){
 
-        if($timeType == "H"){
-            $timeType  = $time / 24 ." Heure(s)";
+        if($timeType == "D"){
+            $timeType  = $time ." HEURE(s)";
         }
 
-        if($timeType == "S"){
-            $timeType  = $time / 7 ." Semaine(s)";
-        }
+        // if($timeType == "S"){
+        //     $timeType  = $time / 7 ." Semaine(s)";
+        // }
 
         if($timeType  == "M"){
-            $timeType  = $time / 30 ." Mois";
+            $timeType  = $time ." Mois";
         }
 
         if($timeType  == "A"){
-            $timeType  = $time / 365 ." Année(s)";
+            $timeType  = $time ." Année(s)";
         }
 
         return $timeType;

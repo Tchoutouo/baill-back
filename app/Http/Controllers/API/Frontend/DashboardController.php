@@ -29,10 +29,10 @@ class DashboardController extends \App\Http\Controllers\Controller
         $this->categorieRepository = $categorieRepository;
     }
 
-    function dashboard(){
+    function dashboard($user_id = null){
         try{
-            $allAnnonce = $this->annonceRepository->getAllAnnonceFront();
-            $annonceUne = $this->annonceRepository->getAnnonceUne();
+            $allAnnonce = $this->annonceRepository->getAllAnnonceFront($user_id);
+            $annonceUne = $this->annonceRepository->getAnnonceUne($user_id);
             $allCategorie = $this->categorieRepository->getAll();
 
             if(isset($allCategorie)){
@@ -62,7 +62,8 @@ class DashboardController extends \App\Http\Controllers\Controller
     public function trie(Request $request)
     {
         try{
-            $allAnnonce = $this->annonceRepository->getTrieAnnonce($request->categ, $request->country, $request->city);
+            // dd($request->all());
+            $allAnnonce = $this->annonceRepository->getTrieAnnonce($request->categ, $request->country, $request->city, $request->user_id);
             if(isset($allAnnonce)){
                 return response()->json([
                     'success' => true,

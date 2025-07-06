@@ -40,24 +40,25 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['cors'])->group(function () {
+Route::middleware(['cors','updated_statut.annonce'])->group(function () {
     Route::match(['post', 'options'], '/login',[LoginControleurAuth::class, 'login']);
 });
 
 
-Route::prefix('/users_back')->controller(UserController::class)->group(function(){
-    Route::get('/', 'index');
-    Route::post('store','store');
-    Route::get('/show/{id}', 'show');
-    Route::put('/update/{id}', 'update');
-    Route::delete('/delete/{id}', 'destroy');
+Route::middleware(['updated_statut.annonce'])
+    ->prefix('/users_back')->controller(UserController::class)->group(function(){
+        Route::get('/', 'index');
+        Route::post('store','store');
+        Route::get('/show/{id}', 'show');
+        Route::put('/update/{id}', 'update');
+        Route::delete('/delete/{id}', 'destroy');
 });
 
 /**--------------       Listing des routes Admin         ------------*/
 
 
         /**Route dashboard admin */
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum','access.admin','updated_statut.annonce'])
             ->prefix('/dashboard_admin')
             ->controller(DashboardAdminController::class)
             ->group(function(){
@@ -66,14 +67,14 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 
         /**Route pour changer le status d'un annonceur */
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum','access.admin','updated_statut.annonce'])
         ->prefix('/advertiser_bac')->controller(AdvertiserController::class)->group(function(){
         Route::get('/change/{id}', 'status');
         });
 
 
         /**Route liée à la categorie */
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum','access.admin','updated_statut.annonce'])
             ->prefix('/categorie_back')->controller(CategorieController::class)->group(function(){
             Route::get('/{nbr_categ}/{search?}', 'index');
             Route::post('store','store');
@@ -86,7 +87,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
         
         /**Route des annonces admin*/
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum','access.admin','updated_statut.annonce'])
         ->prefix('/annonce_back_admin')->controller(AnnonceController::class)->group(function(){
             Route::get('/{nbr_annonce}/{search?}', 'getAllAnnonce');
             Route::get('/update_status/{id_annonce}/{new_status}', 'changeStatusAdmin')->name('changeStatusAdmin');
@@ -94,7 +95,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
         
         /**Route liée aux abonnements */
-        Route::middleware(['auth:sanctum'])
+        Route::middleware(['auth:sanctum','updated_statut.annonce'])
         ->prefix('/abonnement_back')->controller(AbonnementController::class)->group(function(){
             Route::get('/show/{id}', 'show');
             Route::get('/status/{id}', 'statusAbonnement');
@@ -105,7 +106,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         });
         
         /**Route liée aux modes de paiement */
-        Route::middleware(['auth:sanctum','access.admin'])
+        Route::middleware(['auth:sanctum','access.admin','updated_statut.annonce'])
             ->prefix('/mode_paiement_back')->controller(ModePaiementController::class)->group(function(){
                 Route::get('/', 'index');
                 Route::post('/changeStatus', 'status');
@@ -119,7 +120,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 /**------------------- Listing des routes Advertiser/Bailleur ------------------- */
 
         /**Route dashboard advertiser */
-        Route::middleware(['auth:sanctum','access.advertiser'])
+        Route::middleware(['auth:sanctum','access.advertiser','updated_statut.annonce'])
             ->prefix('/dashboard_advertiser')
             ->controller(App\Http\Controllers\API\Backend\DashboardController::class)
             ->group(function(){
@@ -128,16 +129,17 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 
         /**Route des users ayant pour status annonceur */
-        Route::prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
-            Route::get('/{paginate}/{search?}', 'index');
-            Route::post('store','store');
-            Route::put('/update/{id}', 'update');
-            Route::get('/show/{id}', 'show');
-            Route::delete('/delete/{id}', 'destroy'); 
+        Route::middleware(['updated_statut.annonce'])
+            ->prefix('/advertiser_back')->controller(AdvertiserController::class)->group(function(){
+                Route::get('/{paginate}/{search?}', 'index');
+                Route::post('store','store');
+                Route::put('/update/{id}', 'update');
+                Route::get('/show/{id}', 'show');
+                Route::delete('/delete/{id}', 'destroy'); 
         });
 
         /**Route liée l'annonce*/
-        Route::middleware(['auth:sanctum'])
+        Route::middleware(['auth:sanctum','updated_statut.annonce'])
         ->prefix('/annonce_back')->controller(AnnonceController::class)->group(function(){
             Route::get('/{user_id}/{nbr_annonce}/{search?}', 'index');
             Route::get('/create', 'create');
@@ -151,7 +153,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
         });
 
         /**Route liée aux modes de paiement */
-            Route::middleware(['auth:sanctum','access.advertiser'])
+            Route::middleware(['auth:sanctum','access.advertiser','updated_statut.annonce'])
             ->prefix('/mode_paiement_advert')->controller(ModePaiementController::class)->group(function(){
                 Route::get('/', 'indexAdvert');
                 // Route::get('/changeStatus/{id}', 'status');
@@ -167,10 +169,11 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
     Route::get('/categorie_back_public',[CategorieController::class,'ListingCategorie']);
 
     /**Route index visiteur */
-    Route::prefix('/home_back')->controller(DashboardController::class)->group(function(){
-        Route::get('/', 'dashboard');
-        Route::post('/trie', 'trie');
-        Route::post('/contact', 'contact');
+    Route::middleware(['updated_statut.annonce'])
+        ->prefix('/home_back')->controller(DashboardController::class)->group(function(){
+            Route::get('/{user?}', 'dashboard');
+            Route::post('/trie', 'trie');
+            Route::post('/contact', 'contact');
     });
 
 /**------------------- Fin des routes des visiteurs ------------------------------------- */
@@ -179,7 +182,7 @@ Route::prefix('/users_back')->controller(UserController::class)->group(function(
 
 /**------------------- Routes partagées Admin et Advertiser ------------------------------------- */
     /**Route update password */
-    Route::middleware('auth:sanctum')
+    Route::middleware(['auth:sanctum','updated_statut.annonce'])
         ->controller(AdvertiserController::class)
         ->group(function(){
         Route::put('/updatePassword/{id}', 'updatePassword');

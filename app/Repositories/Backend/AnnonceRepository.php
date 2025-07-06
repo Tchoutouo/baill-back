@@ -11,6 +11,8 @@ use \Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PaymentValidateMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
 
@@ -35,19 +37,16 @@ class AnnonceRepository   extends ResourcesRepository
 
     /**created annonce */
     public function created($data = array()) {
-        //defininir création de annonce
-        
+
+        $user_qty_free = Auth::user()->qte_free;
         $annonce = $this->model;
         
         $annonce->title= $data['title'];
-        // $annonce->subtitle= $data['subtitle'];
         $annonce->description= $data['description'];
         $annonce->price= $data['price'];
         $annonce->reference = "ANNONCE_" . date('Y_His');
-        // $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
-        // $annonce->is_published= $data['is_published'];
 
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
@@ -57,16 +56,13 @@ class AnnonceRepository   extends ResourcesRepository
             }
         }
 
-        // if l'abonnement est free mettre en avant l'annonce
-        if($this->abonnementRepository->check_account($data['abonnement_id']) == 0 ){
-            if(isset($data['status'])){
-                $annonce->status = 3;
-            }
-        }
-
         // if l'abonnement est free
-        if($data['abonnement_id'] === '1' ){
+        if($data['abonnement_id'] === '1' && $user_qty_free > 0){
                 $annonce->status = 3;
+                $time = $this->abonnementRepository->getById($data['abonnement_id']);
+                $annonce->expiration_date = now()->addDays($time->time)->format('Y-m-d');
+        }else{
+            $annonce->status = 1;
         }
 
         $annonce->location= $data['location'];
@@ -74,6 +70,9 @@ class AnnonceRepository   extends ResourcesRepository
 
         if (isset($data['abonnement_id'])) {
             $annonce->abonnement_id= $data['abonnement_id'];
+        }
+        if (isset($data['validity_period'])) {
+            $annonce->validity_period= (int) $data['validity_period'];
         }
 
         $annonceTable = [
@@ -87,9 +86,9 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     /**updated annonce */
-    //public function updated($data = array(), $id) {
     public function updated( $id, $data = []) {
-        //defininir update de annonce                
+        //defininir update de annonce 
+        $user_qty_free = Auth::user()->qte_free;               
         $annonce = $this->model->find($id);
         
         $annonce->title= $data['title'];
@@ -99,9 +98,12 @@ class AnnonceRepository   extends ResourcesRepository
         $annonce->contact= $data['contact'];
         $annonce->country= $data['country'];
         $annonce->neighborhood= $data['neighborhood'];
-        // $annonce->is_published= $data['is_published'];
-        if(isset($data['status'])){
-            $annonce->status = $data['status'];
+        if($data['abonnement_id'] === '1' && $user_qty_free > 0){
+                $annonce->status = 3;
+                $time = $this->abonnementRepository->getById($data['abonnement_id']);
+                $annonce->expiration_date = now()->addDays($time->time)->format('Y-m-d');
+        }else{
+            $annonce->status = 1;
         }
 
         // if l'abonnement n'est pas free mettre en avant l'annonce
@@ -117,6 +119,11 @@ class AnnonceRepository   extends ResourcesRepository
         if (isset($data['abonnement_id'])) {
             $annonce->abonnement_id= $data['abonnement_id'];
         }
+
+        if (isset($data['validity_period'])) {
+            $annonce->validity_period= (int) $data['validity_period'];
+        }
+
 
         $annonceTable = [
             'annonce'=> $annonce,
@@ -152,69 +159,42 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
     // Tous les annonces liées à un utilisateur
-    //function getAllAnnonce($user_id = null, $nbr_annonce, $search = null) {
     function getAllAnnonce($nbr_annonce, $user_id = null, $search = null) {
 
         try {            
             // Récupération des annonces pour un utilisateur
             $arrayAnnonce = $this->model
-                        ->with('categories')
-                        ->with('abonnements');
-    
-                    // Si user_id existe
-                    if($user_id){
-                        $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
-                    }
-    
-                    // Si $search existe
-                    if ($search) {
-                    $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
-                            $q->where('title', 'LIKE', "%$search%")
-                            ->orWhereHas('categories', function ($q) use ($search) {
-                                $q->where('title', 'LIKE', "%$search%");
-                            });
-                        });
-                    }
-    
-                    $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-                    ->paginate($nbr_annonce);
+                ->with('categories','abonnements');
+
+            // Si user_id existe
+            if($user_id){
+                $arrayAnnonce = $arrayAnnonce->where('user_id', $user_id);
+            }
+
+            // Si $search existe
+            if ($search) {
+                $arrayAnnonce = $arrayAnnonce->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', "%$search%")
+                    ->orWhereHas('categories', function ($q) use ($search) {
+                        $q->where('title', 'LIKE', "%$search%");
+                    });
+                });
+            }
+
+            $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
+            ->paginate($nbr_annonce);
             // Vérifiez si la collection est vide
             if ($arrayAnnonce->isNotEmpty()) {
                 foreach ($arrayAnnonce as $annonce) {
                     
-                    if ($annonce->status === '1') {
+                    if ($annonce->status === '0' ) {
                         $annonce['next_expiration_date'] = '...';
                     }else {
-                        // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                        $timeBase = $annonce->abonnements->time;
-                        $timeType= $annonce->abonnements->type_time;
-
-                        if($timeType === "S"){
-                            $timeBase = $timeBase / 7;
-                        }
-                        if($timeType === "A"){
-                            $timeBase = $timeBase / 365;
-                        }
-                        if($timeType === "H"){
-                            $timeBase = $timeBase / 24;
-                        }
-                        if($timeType === "M"){
-                            $timeBase = $timeBase / 30;
-                        }
-                        
-                        $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($timeBase);
-                        
-                        // Vérifier si cette date est dépassée
-                        if (Carbon::now()->greaterThan($nextExpirationDate)) {
-                            // Si la date est dépassée, on met "expiré"
-                            $annonce['next_expiration_date'] = 'expiré';
-                        } else {
-                            // Sinon, on retourne la date au format AAAA-MM-JJ
-                            $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
-                        }
+                        $annonce['next_expiration_date'] = $annonce->expiration_date;
                     }
     
-                    if(isset($detail)){
+                    if(isset($annonce)){
+                        $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
                         $picture  = $this->pictureController->getImage($annonce->id);
                         $annonce['url_image']= $picture;
     
@@ -235,21 +215,19 @@ class AnnonceRepository   extends ResourcesRepository
 
     function getAnnonce($annonce_id) {
         // Récupération des annonces pour un utilisateur
-        $annonce = $this->model->with('users')->with('categories')->with('abonnements')->where('id', $annonce_id)->first();
+        $annonce = $this->model->with('users','categories','abonnements')->where('id', $annonce_id)->first();
         
         
         // Vérifiez si la collection est vide
         if (!empty($annonce)) {
-                // Calculer la prochaine date d'expiration en fonction de la durée d'une annonce
-                $nextExpirationDate = Carbon::parse($annonce->created_at)->addDays($annonce->abonnements->time);
                 
                 // Vérifier si cette date est dépassée
-                if (Carbon::now()->greaterThan($nextExpirationDate)) {
+                if ($annonce->expiration_date === '0') {
                     // Si la date est dépassée, on met "expiré"
-                    $annonce['next_expiration_date'] = 'expiré';
+                    $annonce['next_expiration_date'] = 'expiré...';
                 } else {
                     // Sinon, on retourne la date au format AAAA-MM-JJ
-                    $annonce['next_expiration_date'] = $nextExpirationDate->toDateString();
+                    $annonce['next_expiration_date'] = $annonce->expiration_date;
                 }
 
                 $picture  = $this->pictureController->getImage($annonce->id);
@@ -333,18 +311,42 @@ class AnnonceRepository   extends ResourcesRepository
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
         
-        if ($user_id) {
-            $annonce = $this->model->where('user_id', $user_id)->where('id', $annonce_id)->first();
-        }
-        else{
-            $annonce = $this->model->where('id', $annonce_id)->first();
-        }
-        if(isset($annonce))
-        {
-            $annonce->update([
-                'status' => $new_status
-            ]);
-            return true;
+        try {
+            if ($user_id) {
+                $annonce = $this->model->with('abonnements')->where('user_id', $user_id)->where('id', $annonce_id)->first();
+            }
+            else{
+                $annonce = $this->model->where('id', $annonce_id)->first();
+            }
+            if(isset($annonce))
+            {
+                $type = $annonce->abonnements->type_time;
+                $time = $annonce->abonnements->time;
+                if($type === 'M')
+                {
+                    $time = $annonce->validity_period * 30;
+                }
+                elseif($type === 'A'){
+                    $time = $annonce->validity_period * 365;
+                }
+                
+                if($new_status === '3' && $annonce->status === '1' || $annonce->status === '0'){// Si c'est en cours et statut actuel est à 1:en_cours
+                    $annonce->update([
+                        'expiration_date' => now()->addDays($time)->format('Y-m-d'),
+                    ]);
+                }
+    
+                $annonce->update([
+                    'status' => $new_status,
+                    'updated_at' => now(),
+                ]);
+    
+    
+                return true;
+            }
+        } catch (\Exception $th) {
+            \Log::error('Erreur lors de la mise à jour du status : ' . $th->getMessage());
+            return null;
         }
     }
 
@@ -363,82 +365,132 @@ class AnnonceRepository   extends ResourcesRepository
 
     //** Fonction côté visiteur */
 
-    // Tous les annones homepage
-    function getAllAnnonceFront(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->where('status','3')->orderBy('created_at', 'desc')->get(); //les annonces publiées
+    function getAllAnnonceFront($user_id = null)
+    {
+        $ordreExpr = "CASE 
+            WHEN user_id = ? THEN 0 
+            WHEN abonnement_id = 3 THEN 1 
+            WHEN abonnement_id = 2 THEN 2 
+            WHEN abonnement_id = 1 THEN 3 
+            ELSE 3 
+        END as ordre";
 
-        // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as  $annonce) {
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $annonce['url_image']= $picture;
-
-            }
-
-            return $arrayAnnonce;
-        }
-    }
-
-    // Tous les annones à la une homepage
-    function getAnnonceUne(){
-        $arrayAnnonce = $this->model->with('users')->with('categories')->with('abonnements')->where('status','3')->orderBy('created_at', 'desc')
-                                    ->whereHas('abonnements', function($query){
-                                        $query->where('hight_lite',1);
-                                    })->get();
-
-        // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $key => $annonce) {
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $annonce['url_image']= $picture;
-
-            }
-
-            return $arrayAnnonce;
-        }
-    }
+        $annonces = $this->model
+            ->with(['users', 'categories', 'abonnements'])
+            ->where('status', 3)
+            ->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                    ->orWhereHas('abonnements', function ($q) {
+                        $q->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [1, 2, 3]);
+                    });
+            })
+            ->select('*')
+            ->selectRaw($ordreExpr, [$user_id])
+            ->orderBy('ordre')
+            ->orderByDesc('created_at')
+            ->get();
 
     
-    // Trie en fonction des categories/country/city
-    function getTrieAnnonce($categ = null, $country = null, $city = null) {
-        // Récupération des annonces pour un utilisateur
-        $arrayAnnonce = $this->model
-                    ->with('users')
-                    ->with('categories')
-                    ->with('abonnements')
-                    ->where('status','3');
-                    
-                // Si $categorie existe
-                if ($categ){
-                    $arrayAnnonce = $arrayAnnonce->whereHas('categories', function ($q) use ($categ) {
-                        $q->where('title', 'LIKE', "%$categ%");
+        foreach ($annonces as $annonce) {
+            $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
+            $annonce->url_image = $this->pictureController->getImage($annonce->id);
+        }
+    
+        return $annonces;
+    }
+    
+    
+
+    // Tous les annones à la une homepage
+    function getAnnonceUne( $user_id = null ){
+
+        $ordreExpr = "CASE 
+            WHEN user_id = ? THEN 0 
+            WHEN abonnement_id = 3 THEN 1 
+            WHEN abonnement_id = 2 THEN 2 
+            ELSE 3 
+        END as ordre";
+
+        $annonces = $this->model
+            ->with(['users', 'categories', 'abonnements'])
+            ->where('status', 3)
+            ->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                    ->orWhereHas('abonnements', function ($q) {
+                        $q->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [2,3]);
                     });
-                }
-
-                // Si $country existe
-                if ($country) {
-                    $arrayAnnonce->where('country', 'LIKE', "%$country%");
-                }
-                
-                // Si $city existe
-                if ($city) {
-                    $arrayAnnonce->where('location', 'LIKE', "%$city%");
-                }
-                
-                $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-                ->paginate(12);
-
+            })
+            ->select('*')
+            ->selectRaw($ordreExpr, [$user_id])
+            ->orderByDesc('created_at')
+            ->get();
+                                   
         // Vérifiez si la collection est vide
-        if ($arrayAnnonce->isNotEmpty()) {
-            foreach ($arrayAnnonce as $annonce) {
+        if ($annonces->isNotEmpty()) {
+            foreach ($annonces as $key => $annonce) {
+                $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
                 $picture  = $this->pictureController->getImage($annonce->id);
                 $annonce['url_image']= $picture;
-
             }
 
-            return $arrayAnnonce;
+            return $annonces;
         }
     }
+
+        
+    function getTrieAnnonce($categ = null, $country = null, $city = null, $user_id = null)
+    {
+        try {            
+            $ordreExpr = "CASE
+                WHEN user_id = ?        THEN 0         
+                WHEN abonnement_id = 3  THEN 1
+                WHEN abonnement_id = 2  THEN 2
+                WHEN abonnement_id = 1  THEN 3
+                ELSE 4
+            END AS ordre";
+    
+            $annonces = $this->model
+                ->with(['users', 'categories', 'abonnements'])
+                ->where('status', 3)
+    
+                ->when($categ,   fn ($q) =>
+                    $q->whereHas('categories',
+                        fn ($c) => $c->where('title', 'LIKE', "%$categ%")))
+                ->when($country, fn ($q) =>
+                    $q->where('country', 'LIKE', "%$country%"))
+                ->when($city,    fn ($q) =>
+                    $q->where('location', 'LIKE', "%$city%"))
+    
+                ->when($user_id,
+                    fn ($q) => $q->where('user_id', $user_id),
+                    fn ($q) =>
+                        $q->whereHas('abonnements', fn ($qa) =>
+                            $qa->where('hight_lite', 1)
+                            ->whereIn('abonnements.id', [1, 2, 3])))
+    
+                ->select('*')
+                ->selectRaw($ordreExpr, [$user_id])
+                ->orderBy('ordre')
+                ->orderByDesc('created_at')
+                ->get();
+    
+            foreach ($annonces as $annonce) {
+                if ($ab = $annonce->abonnements) {
+                    $ab->price_after_remise = $ab->price
+                                            - ($ab->price * $ab->remise / 100);
+                }
+                $annonce->url_image = $this->pictureController->getImage($annonce->id);
+            }
+        } catch (\Exception $th) {
+            \Log::error('Erreur lors du tri des annonces : ' . $th->getMessage());
+            return null;
+        }
+
+        return $annonces;
+    }
+
 
     //Envoie du mail apre paiement
     

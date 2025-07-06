@@ -59,57 +59,6 @@ class PaymentController extends \App\Http\Controllers\Controller
         }
     }
 
-    // public function checkPaymentStatus($dataPayment)
-    // {
-    //     try {
-    //         $dataPayment = json_decode($dataPayment,true);
-
-    //         $response = $this->mobileMoney->checkTransactionStatus($dataPayment['token'], $dataPayment['reference']);
-    
-    //         $response = $this->checkPaiement($response, $dataPayment, $dataPayment["annonce_id"]);
-    
-    //         if ($response['status'] && $response['status']==="FAILED") {
-    //             return response()->json([
-    //                     'success' => false,
-    //                     'message' => 'Annonce enregistré mais echec de paiement',
-    //                 ]
-    //             );
-    //         }
-    
-    //         if ($response['status'] && $response['status']==="PENDING") {
-    //             return response()->json([
-    //                     'success' => false,
-    //                     'verify' => true,
-    //                     'message' => 'Annonce enregistré en attente de validation...',
-    //                     'data' => $response,
-    //                 ]
-    //             );
-    //         }
-    
-    //         $typeAbonnement = $this->abonnementRepository->getById($response['abonnement_id'])->name;
-    //         $nameAnnonce = $this->annonceRepository->getById($response['annonce_id'])->title;
-    //         $mailPaiement = $this->annonceRepository->mailPaiment(env('mail_username'),$nameAnnonce, $response['amount'], $response['mode_paiement'], $typeAbonnement);
-    
-    //         if ($mailPaiement) {
-    
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'message' => 'Annonce enregistré et paiement réussi. Votre administrateur a reçu un message de confirmation',
-    //                 ]
-    //             );
-    //         }
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Erreur de connexion...',
-    //             ]);
-
-    //     } catch (\Exception $e) {
-    //         dd("error",$e);
-    //     }
-    // }
-
-
     public function checkPaiement($response, $dataPayment, $annonce_id){
         if ($response["status"]) {
             if ($response["status"] === "SUCCESSFULL") {

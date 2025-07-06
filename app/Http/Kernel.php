@@ -81,6 +81,7 @@ class Kernel extends HttpKernel
         'cors' => \App\Http\Middleware\Cors::class,
         "access.admin"=>\App\Http\Middleware\DashboardAdmin::class,
         "access.advertiser"=>\App\Http\Middleware\DashboardAdvertiser::class,
+        "updated_statut.annonce"=>\App\Http\Middleware\UpdateStatutAnnonce::class,
     ];
 
 }
