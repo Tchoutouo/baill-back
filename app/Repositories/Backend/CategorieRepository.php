@@ -104,14 +104,14 @@ class CategorieRepository   extends ResourcesRepository
                 $arrayCa[]= $categorie->title;
                 
                 $picture  = $this->pictureController->getImage($annonce->id);
-                $image = [];
+                //$image = [];
                 
                 //Parcourir chaque image add à son annonce
-                foreach ($picture as $pictu) {
-                    $image[] = $pictu->location;
-                }
+                // foreach ($picture as $pictu) {
+                //    $image[] = $pictu->location;
+                // }
                 
-                $annonce['url_image']= $image;
+                $annonce['url_image']= $picture;
                 $annonce['users'] = User::find($annonce->user_id);
                 $annonce['categorie'] = $arrayCa;
             }
