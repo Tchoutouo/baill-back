@@ -14,6 +14,7 @@ use App\Mail\PasswordForgetMail;
 use App\Mail\NewAdvertiserMail;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AdvertiserRepository   extends ResourcesRepository
 {
@@ -62,7 +63,7 @@ class AdvertiserRepository   extends ResourcesRepository
             DB::commit();
     
         } catch (Exception $e) {
-            \Log::error('Erreur lors de la réaction d\'un utilisateur bailleur: ' . $e->getMessage());
+            Log::error('Erreur lors de la réaction d\'un utilisateur bailleur: ' . $e->getMessage());
 
             DB::rollBack();
         }
@@ -183,7 +184,7 @@ class AdvertiserRepository   extends ResourcesRepository
         if(isset($advertiser)){
             if (Hash::check($data['password'],$advertiser->password)) {
                 
-                $advertiser->password = Hash::make($data['newpassword']);
+                $advertiser->password = Hash::make($data['new_password']);
                 $advertiser->save();
                 return true;
             }

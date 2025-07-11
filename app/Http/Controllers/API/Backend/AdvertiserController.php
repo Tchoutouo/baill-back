@@ -245,10 +245,19 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         try{
             $request -> validate([
                 'password' => 'required|string|min:8',
-                'newpassword' => 'required|string|min:8'
+                'new_password' => 'required|string|min:8',
+                'confirm_password' => 'required|string|min:8',
             ]);
 
             $datas = $request->all();
+
+            if($datas['new_password'] !== $datas['confirm_password']){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'le nouveau de passe est different de la confirmation',
+                        ]
+                    );
+            }
 
             $updatePass = $this->advertiserRepository->updatePassword($advertiser, $datas);
             if(isset($updatePass)){

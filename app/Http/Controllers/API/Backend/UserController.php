@@ -6,6 +6,10 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules;
 
 class UserController extends \App\Http\Controllers\Controller
 {
@@ -160,5 +164,63 @@ class UserController extends \App\Http\Controllers\Controller
             return response()->json($e);
         }
     }
+
+    public function forgetPassword(Request $request)
+    {
+        try {
+
+            // dd('status', $request->all());
+            $request -> validate([
+                'email' => 'required|email|exists:users,email',
+            ]);
+    
+            $status = Password::sendResetLink($request->only('email'));
+
+            if($status === Password::RESET_LINK_SENT){
+                return response()->json([
+                        'success' => true,
+                        'message' => 'Lien de réinitialisation envoyé avec success',
+                    ]
+                );
+            }else{
+                return response()->json([
+                        'success' => false,
+                        'message' => "Email inexistant dans le système...",
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            dd($e);
+            \Log::error('Error lors mise à jour du password : ' . $e->getMessage());
+        }
+
+    }
+
+
+    public function newPassword(Request $request)
+    {
+        try {
+            $request -> validate([
+                'token' => 'required',
+                'email' => 'required|email',
+                'password' => ['required','confirmed', Rules\Password::defaults()], //Verifier si password === password_confirm
+            ]);
+
+            $status = Password::reset(
+                $request->only('email, password, password_confirmation, token'),
+                function($user, $password){
+                    $user->forceFill([
+                        'password' => Hash::make($password)
+                    ])->save();
+                }
+            );
+
+
+        } catch (\Exception $e) {
+            \Log::error('Error lors mise à jour du nouveau password : ' . $e->getMessage());
+        }
+
+    }
+
 
 }
