@@ -190,8 +190,8 @@ class UserController extends \App\Http\Controllers\Controller
                 );
             }
         } catch (\Exception $e) {
+            Log::error('Error lors mise à jour du password : ' . $e->getMessage());
             dd($e);
-            \Log::error('Error lors mise à jour du password : ' . $e->getMessage());
         }
 
     }
@@ -217,7 +217,7 @@ class UserController extends \App\Http\Controllers\Controller
 
 
         } catch (\Exception $e) {
-            \Log::error('Error lors mise à jour du nouveau password : ' . $e->getMessage());
+            Log::error('Error lors mise à jour du nouveau password : ' . $e->getMessage());
         }
 
     }

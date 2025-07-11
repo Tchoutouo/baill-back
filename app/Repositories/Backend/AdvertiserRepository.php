@@ -50,13 +50,21 @@ class AdvertiserRepository   extends ResourcesRepository
                 $advertiser->neighborhood= $data['neighborhood'];
                 $advertiser->password= $data['password'];
                 $advertiser->profil_id= 3;
+                $advertiser->email_verified_at = null;
                 $advertiser->save();
                 
                 // $user_mail = "biocleanmoumbe@gmail.com";
                 // $user_mail = "nomdecodeyvaltt@gmail.com";
 
                 //Envoie du mail à l'admin
-                Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail());
+                try {
+                    //  Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail($advertiser));
+                    Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail());
+                    
+                } catch (\Exception $e) {
+                    \Log::warning('Erreur lors de l\'envoi de l\'email a l\'admin: ' . $e->getMessage());
+                    // Ne pas faire échouer l'inscription si l'email ne peut pas être envoyé
+                }
 
                 return $advertiser;
             });

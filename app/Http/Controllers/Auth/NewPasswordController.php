@@ -63,7 +63,7 @@ class NewPasswordController extends Controller
             Log::error('Erreur lors de la mise à jour de forget password : ' . $e->getMessage());
             return response()->json([
                     'success' => false,
-                    'message' => "Erreur lors de la verification",
+                    'message' => "Erreur subvenue...",
                 ]
             );
         }
@@ -94,7 +94,7 @@ class NewPasswordController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            
+
             Log::error('Erreur lors de la verification : ' . $e->getMessage());
             return response()->json([
                     'success' => false,

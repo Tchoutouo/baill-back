@@ -45,53 +45,80 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     /**store */
     public function store(Request $request)
     {
-        try{
-            $request -> validate([
-                'username' => 'required|string|max:255',
+        try {
+            // Validation avec messages personnalisés
+            $validatedData = $request->validate([
+                'username' => 'required|string|max:255|unique:users,username',
                 'last_name' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email', // unique dans la table users
-                'whatsapp_number' => 'required|min:9|max:15|unique:users,whatsapp_number', // 9-15
+                'email' => 'required|email|unique:users,email',
+                'whatsapp_number' => 'required|string|min:9|max:20|unique:users,whatsapp_number',
                 'country' => 'required|string|max:255',
                 'city' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',
-                'password' => 'required|string|min:8'
-            ],
-            [
-                'error' => 'Erreur...',
-            ]
-        );
-            
-            $inputs = $this->advertiserRepository->created($request->all());
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
+                ]
+            ], [
+                'username.required' => 'Le nom d\'utilisateur est requis.',
+                'username.unique' => 'Ce nom d\'utilisateur est déjà utilisé.',
+                'last_name.required' => 'Le nom de famille est requis.',
+                'first_name.required' => 'Le prénom est requis.',
+                'email.required' => 'L\'adresse email est requise.',
+                'email.email' => 'L\'adresse email doit être valide.',
+                'email.unique' => 'Cette adresse email est déjà utilisée.',
+                'whatsapp_number.required' => 'Le numéro WhatsApp est requis.',
+                'whatsapp_number.unique' => 'Ce numéro WhatsApp est déjà utilisé.',
+                'whatsapp_number.min' => 'Le numéro WhatsApp doit contenir au moins 9 chiffres.',
+                'whatsapp_number.max' => 'Le numéro WhatsApp ne peut pas dépasser 20 chiffres.',
+                'country.required' => 'Le pays est requis.',
+                'city.required' => 'La ville est requise.',
+                'neighborhood.required' => 'Le quartier est requis.',
+                'password.required' => 'Le mot de passe est requis.',
+                'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+                'password.regex' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
+            ]);
 
-            if($inputs)
-            {
+            // Hasher le mot de passe
+            $validatedData['password'] = \Hash::make($validatedData['password']);
+
+            // Créer l'utilisateur
+            $user = $this->advertiserRepository->created($validatedData);
+
+            if ($user) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Utilisateur enregistré avec success',
+                    'message' => 'Utilisateur enregistré avec succès.',
+                    'data' => [
+                        'user_id' => $user->id,
+                        'username' => $user->username,
+                        'email' => $user->email
                     ]
-                );
-    
-            }else{
+                ], 201);
+            } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Utilisateur non enregistré verifier vos donnée',
-                    ]
-                );
-    
+                    'message' => 'Erreur lors de l\'enregistrement de l\'utilisateur.',
+                ], 500);
             }
 
-        }catch(ValidationException $e){
-            // Récupérer les erreurs
-            $errors = $e->validator->errors();
-
-            // Retourner les erreurs en réponse JSON ou autre objet
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur de validation',
-                'errors' => $errors
+                'message' => 'Erreur de validation.',
+                'errors' => $e->validator->errors()
             ], 422);
 
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de l\'enregistrement d\'un utilisateur: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur inattendue est survenue.',
+            ], 500);
         }
     }
 
@@ -342,5 +369,26 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             ], 422);
 
         }
+    }
+
+    public function checkEmailExists(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $exists = User::where('email', $request->email)->exists();
+        return response()->json(['exists' => $exists], 200);
+    }
+
+    public function checkPhoneExists(Request $request)
+    {
+        $request->validate(['whatsapp_number' => 'required']);
+        $exists = User::where('whatsapp_number', $request->whatsapp_number)->exists();
+        return response()->json(['exists' => $exists], 200);
+    }
+
+    public function checkUsernameExists(Request $request)
+    {
+        $username = $request->input('username');
+        $exists = User::where('username', $username)->exists();
+        return response()->json(['exists' => $exists], 200);
     }
 }
