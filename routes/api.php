@@ -13,6 +13,8 @@ use App\Http\Controllers\API\Backend\DashboardAdminController;
 use App\Http\Controllers\API\Backend\ModePaiementController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -183,10 +185,23 @@ Route::middleware(['updated_statut.annonce'])
 /**------------------- Routes partagées Admin et Advertiser ------------------------------------- */
     /**Route update password */
     Route::middleware(['auth:sanctum','updated_statut.annonce'])
-        ->controller(AdvertiserController::class)
-        ->group(function(){
+        ->controller(AdvertiserController::class)->group(function(){
         Route::put('/updatePassword/{id}', 'updatePassword');
-        Route::put('/forgetPassword/{id}', 'forgetPassword');
+        // Route::put('/forgetPassword/{id}', 'forgetPassword');
+    });
+
+
+/**------------------- Routes forget password ------------------------------------- */
+    /**Route update password */
+    Route::middleware(['updated_statut.annonce'])
+        ->controller(PasswordResetLinkController::class)->group(function(){
+        Route::post('/forget-password', 'store');
+    });
+
+    Route::middleware(['updated_statut.annonce'])
+        ->controller(NewPasswordController::class)->group(function(){
+        Route::post('/reset-password', 'store');
+        Route::get('/reset-password/{token}/{email?}', 'verifyToken')->name('password.reset');
     });
 
     Route::post('check-email', [AdvertiserController::class, 'checkEmailExists']);

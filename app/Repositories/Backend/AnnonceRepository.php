@@ -204,7 +204,7 @@ class AnnonceRepository   extends ResourcesRepository
                 return $arrayAnnonce;
             }
         } catch (\Exception $th) {
-            \Log::error('Erreur lors de l\'affichage des annonces: ' . $th->getMessage());
+            Log::error('Erreur lors de l\'affichage des annonces: ' . $th->getMessage());
 
             return response()->json([
                 'error'=>$th
@@ -345,7 +345,7 @@ class AnnonceRepository   extends ResourcesRepository
                 return true;
             }
         } catch (\Exception $th) {
-            \Log::error('Erreur lors de la mise à jour du status : ' . $th->getMessage());
+            Log::error('Erreur lors de la mise à jour du status : ' . $th->getMessage());
             return null;
         }
     }
