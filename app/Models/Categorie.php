@@ -3,9 +3,12 @@
 namespace App\Models;
 use App\Models\Annonce;
 use App\Models\SousCategorie;
+use App\Models\TranslateCategorie;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Categorie extends Model
 {
@@ -30,4 +33,9 @@ class Categorie extends Model
         return $this->belongsToMany(SousCategorie::class,'categorie_sous_categories','categorie_id', 'sous_categorie_id');
     }
 
+    /** La version anglaise de chaque categories */
+    public function translate():HasMany
+    {
+        return $this->hasMany(TranslateCategorie::class,'categorie_id');
+    }
 }

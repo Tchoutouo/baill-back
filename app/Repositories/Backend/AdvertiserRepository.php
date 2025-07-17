@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordForgetMail;
 use App\Mail\NewAdvertiserMail;
+use App\Mail\PasswordAdvertiser;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -48,30 +49,37 @@ class AdvertiserRepository   extends ResourcesRepository
                 $advertiser->country= $data['country'];
                 $advertiser->city= $data['city'];
                 $advertiser->neighborhood= $data['neighborhood'];
-                $advertiser->password= $data['password'];
                 $advertiser->profil_id= 3;
                 $advertiser->email_verified_at = null;
-                $advertiser->save();
+                
                 
                 // $user_mail = "biocleanmoumbe@gmail.com";
                 // $user_mail = "nomdecodeyvaltt@gmail.com";
 
-                //Envoie du mail à l'admin
+                //Envoie du mail à l'admin et annonceur
                 try {
-                    //  Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail($advertiser));
+
+                    $newpassword = $this->PasswordRandom(8);
+                    Mail::to($data['email'])->send(new PasswordAdvertiser($data['email'], $newpassword, $data['username']));
+
                     Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail());
                     
                 } catch (\Exception $e) {
-                    \Log::warning('Erreur lors de l\'envoi de l\'email a l\'admin: ' . $e->getMessage());
-                    // Ne pas faire échouer l'inscription si l'email ne peut pas être envoyé
+                    Log::warning('Erreur lors de l\'envoi de l\'email a l\'admin ou annonceur: ' . $e->getMessage());
+                    // Faire échouer l'inscription si l'email ne peut pas être envoyé
+                    DB::rollBack();
+                    return 1;
                 }
+
+                $advertiser->password = $newpassword;
+                $advertiser->save();
 
                 return $advertiser;
             });
             DB::commit();
     
         } catch (Exception $e) {
-            Log::error('Erreur lors de la réaction d\'un utilisateur bailleur: ' . $e->getMessage());
+            Log::error('Erreur lors de la créaction d\'un utilisateur bailleur: ' . $e->getMessage());
 
             DB::rollBack();
         }
