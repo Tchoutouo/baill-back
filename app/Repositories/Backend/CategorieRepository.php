@@ -20,9 +20,19 @@ class CategorieRepository   extends ResourcesRepository
         $this->pictureController = $pictureController;
     }
 
-    public function getAll() {
-        $categorie = $this->model->get();
-        return $categorie;
+    public function getAll($lang = null) {
+        if ($lang) {
+            $categories = $this->model->with('translate')->get();
+            foreach ($categories as $categorie) {
+                foreach ($categorie->translate as $translate) {
+                    $categorie->title = $translate->title;
+                }
+            }
+        }else{
+            $categories = $this->model->get();
+        }
+        
+        return $categories;
     }
 
     public function getById($id) {
