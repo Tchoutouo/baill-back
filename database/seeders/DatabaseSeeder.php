@@ -12,6 +12,7 @@ use Database\Seeders\CategorieTableSeeder;
 use Database\Seeders\AbonnementTableSeed;
 use Database\Seeders\AnnonceTableSeeder;
 use Database\Seeders\ModePaiementSeed;
+use Database\Seeders\TranslateCategoriesSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,5 +27,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AbonnementTableSeed::class);
         // $this->call(AnnonceTableSeeder::class);
         // $this->call(ModePaiementSeed::class);
+        $this->call(TranslateCategoriesSeeder::class);
     }
 }

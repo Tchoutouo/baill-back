@@ -207,6 +207,7 @@ Route::middleware(['updated_statut.annonce'])
     Route::post('check-email', [AdvertiserController::class, 'checkEmailExists']);
     Route::post('check-username', [AdvertiserController::class, 'checkUsernameExists']);
     Route::post('check-phone', [AdvertiserController::class, 'checkPhoneExists']);
+    Route::post('check-password', [AdvertiserController::class, 'checkPasswordExists']);
 
 // Route pour traiter la soumission du formulaire de connexion
 // Route::post('/login', [LoginControleurAuth::class, 'login'])->name('login');

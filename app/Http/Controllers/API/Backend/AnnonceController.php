@@ -244,12 +244,6 @@ class AnnonceController extends \App\Http\Controllers\Controller
     {
 
         $user = Auth::user();
-        // return response()->json([
-        //         'success' => false,
-        //         'message' => [$request->all(),$user],
-        //     ]
-        // );
-
         try{
             $request -> validate([
                     'title' => 'required|string|max:255', 

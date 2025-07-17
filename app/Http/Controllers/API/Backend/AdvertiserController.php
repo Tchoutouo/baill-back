@@ -6,7 +6,8 @@ use Exception;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AdvertiserController extends \App\Http\Controllers\Controller
@@ -56,12 +57,12 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'country' => 'required|string|max:255',
                 'city' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',
-                'password' => [
-                    'required',
-                    'string',
-                    'min:8',
-                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
-                ]
+                // 'password' => [
+                //     'required',
+                //     'string',
+                //     'min:8',
+                //     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
+                // ]
             ], [
                 'username.required' => 'Le nom d\'utilisateur est requis.',
                 'username.unique' => 'Ce nom d\'utilisateur est déjà utilisé.',
@@ -77,27 +78,34 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'country.required' => 'Le pays est requis.',
                 'city.required' => 'La ville est requise.',
                 'neighborhood.required' => 'Le quartier est requis.',
-                'password.required' => 'Le mot de passe est requis.',
-                'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
-                'password.regex' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
+                // 'password.required' => 'Le mot de passe est requis.',
+                // 'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+                // 'password.regex' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
             ]);
 
             // Hasher le mot de passe
-            $validatedData['password'] = \Hash::make($validatedData['password']);
+            // $validatedData['password'] = Hash::make($validatedData['password']);
 
             // Créer l'utilisateur
             $user = $this->advertiserRepository->created($validatedData);
 
             if ($user) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Utilisateur enregistré avec succès.',
-                    'data' => [
-                        'user_id' => $user->id,
-                        'username' => $user->username,
-                        'email' => $user->email
-                    ]
-                ], 201);
+                if($user !== 1){
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Utilisateur enregistré avec succès.',
+                        'data' => [
+                            'user_id' => $user->id,
+                            'username' => $user->username,
+                            'email' => $user->email
+                        ]
+                    ], 201);
+                }else{
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de l\'enregistrement de l\'utilisateur echec d\'envoi email.',
+                    ], 500);
+                }
             } else {
                 return response()->json([
                     'success' => false,
@@ -113,10 +121,10 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             ], 422);
 
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de l\'enregistrement d\'un utilisateur: ' . $e->getMessage());
+            Log::error('Erreur lors de l\'enregistrement d\'un utilisateur: ' . $e->getMessage());
             
             return response()->json([
-                'success' => false,
+                'success' => $e->getMessage(),
                 'message' => 'Une erreur inattendue est survenue.',
             ], 500);
         }
@@ -390,5 +398,22 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         $username = $request->input('username');
         $exists = User::where('username', $username)->exists();
         return response()->json(['exists' => $exists], 200);
+    }
+
+    public function checkPasswordExists($id,$password)
+    {
+        $exists = User::where('id', $id)->exists();
+        if($exists){
+            if (Hash::check($password, $exists->password)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "password actuel okay"
+                ]);
+            }
+        }
+        return response()->json([
+            'success' => false,
+            'message' => "password actuel invalid"
+        ]);
     }
 }

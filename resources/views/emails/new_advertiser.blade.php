@@ -8,9 +8,9 @@
 <body>
     <div>
         <img src="{{asset('images/bailleurnet.png')}}" alt="Bailleurnet" style="margin: 10px;">
-        <p>Salut,</p>
+        <p>Hello,</p>
         
-        <p>Vous avez un nouveau utilisatteur</p>
+        <p>Vous avez un nouveau utilisatteur dans le système.</p>
     </div>
 </body>
 </html>

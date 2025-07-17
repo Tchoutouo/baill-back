@@ -440,26 +440,47 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
         
-    function getTrieAnnonce($categ = null, $country = null, $city = null, $user_id = null)
+    function getTrieAnnonce($data)
     {
-        try {            
+        try {
             $ordreExpr = "CASE
-                WHEN user_id = ?        THEN 0         
+                WHEN user_id = ?        THEN 0
                 WHEN abonnement_id = 3  THEN 1
                 WHEN abonnement_id = 2  THEN 2
                 WHEN abonnement_id = 1  THEN 3
                 ELSE 4
             END AS ordre";
-    
+
+            $categ = $data['categ'];
+            $lang = isset($data['lang']) ? $data['lang']: null;
+            $country = isset($data['country']) ? $data['country'] : null;
+            $city = isset($data['city']) ? $data['city'] : null;
+            $user_id = isset($data['user_id']) ? $data['user_id'] : null;
+            $amount_min = isset($data['amount_min']) ? $data['amount_min'] : null;
+            $amount_max = isset($data['amount_max']) ? $data['amount_max'] : null;
+            $asc = isset($data['asc']) ? $data['asc'] : null;
+
             $annonces = $this->model
                 ->with(['users', 'categories', 'abonnements'])
                 ->where('status', 3)
-    
-                ->when($categ,   fn ($q) =>
-                    $q->whereHas('categories',
-                        fn ($c) => $c->where('title', 'LIKE', "%$categ%")))
+
+                ->when($categ, function ($q) use ($categ, $lang) {
+                    if ($lang) {
+                        $q->whereHas('categories.translate', function ($c) use ($categ) {
+                            $c->where('title', 'LIKE', "%$categ%");
+                        });
+                    } else {
+                        $q->whereHas('categories', function ($c) use ($categ) {
+                            $c->where('title', 'LIKE', "%$categ%");
+                        });
+                    }
+                })
                 ->when($country, fn ($q) =>
                     $q->where('country', 'LIKE', "%$country%"))
+                ->when($amount_min, fn ($q) =>
+                    $q->where('price', '>=', $amount_min))
+                ->when($amount_max, fn ($q) =>
+                    $q->where('price', '<=', $amount_max))
                 ->when($city,    fn ($q) =>
                     $q->where('location', 'LIKE', "%$city%"))
     
@@ -473,10 +494,24 @@ class AnnonceRepository   extends ResourcesRepository
                 ->select('*')
                 ->selectRaw($ordreExpr, [$user_id])
                 ->orderBy('ordre')
-                ->orderByDesc('created_at')
+                ->when($asc, function ($q) {
+                    $q->orderBy('created_at', 'asc');
+                }, function ($q) {
+                    $q->orderByDesc('created_at');
+                })
+                
                 ->get();
     
             foreach ($annonces as $annonce) {
+
+                if ($lang) { // envoyé les titles des catégories en anglais
+                    foreach ($annonce->categories as $categorie) {
+                        foreach ($categorie->translate as $translate) {
+                            $categorie->title = $translate->title;
+                        }
+                    }
+                }
+
                 if ($ab = $annonce->abonnements) {
                     $ab->price_after_remise = $ab->price
                                             - ($ab->price * $ab->remise / 100);
@@ -484,7 +519,7 @@ class AnnonceRepository   extends ResourcesRepository
                 $annonce->url_image = $this->pictureController->getImage($annonce->id);
             }
         } catch (\Exception $th) {
-            \Log::error('Erreur lors du tri des annonces : ' . $th->getMessage());
+            Log::error('Erreur lors du tri des annonces : ' . $th->getMessage());
             return null;
         }
 
@@ -500,7 +535,7 @@ class AnnonceRepository   extends ResourcesRepository
             Mail::to($email)->send(new PaymentValidateMail($intitule,$amount,$mode_paiement, $typeAbonnement));
             return true;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de l\'envoi du mail après paiement: ' . $e->getMessage());
+            Log::error('Erreur lors de l\'envoi du mail après paiement: ' . $e->getMessage());
             
             return false;
         }
