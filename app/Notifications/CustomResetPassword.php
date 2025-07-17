@@ -44,7 +44,7 @@ class CustomResetPassword extends Notification
             //     'email' => $notifiable->getEmailForPasswordReset(),
             // ]));
 
-            $url = $this->url_front.$this->token.'/'.$notifiable->getEmailForPasswordReset();
+            $url = $this->url_front.'/'.$this->token.'/'.$notifiable->getEmailForPasswordReset();
             
             return (new MailMessage)
                         ->view('emails.password_forget', [ 'url'=> $url, 'user'=> $notifiable]);
