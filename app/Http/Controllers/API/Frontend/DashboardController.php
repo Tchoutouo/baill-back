@@ -29,11 +29,11 @@ class DashboardController extends \App\Http\Controllers\Controller
         $this->categorieRepository = $categorieRepository;
     }
 
-    function dashboard($user_id = null){
+    function dashboard($user_id = null, $lang = null){
         try{
             $allAnnonce = $this->annonceRepository->getAllAnnonceFront($user_id);
             $annonceUne = $this->annonceRepository->getAnnonceUne($user_id);
-            $allCategorie = $this->categorieRepository->getAll();
+            $allCategorie = $this->categorieRepository->getAll($lang);
 
             if(isset($allCategorie)){
                 return response()->json([

@@ -173,7 +173,7 @@ Route::middleware(['updated_statut.annonce'])
     /**Route index visiteur */
     Route::middleware(['updated_statut.annonce'])
         ->prefix('/home_back')->controller(DashboardController::class)->group(function(){
-            Route::get('/{user?}', 'dashboard');
+            Route::get('/{user?}/{lang?}', 'dashboard');
             Route::post('/trie', 'trie');
             Route::post('/contact', 'contact');
     });
