@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\PaymentValidateMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sail\Console\PublishCommand;
 use Nette\Utils\Random;
@@ -213,7 +214,7 @@ class AnnonceRepository   extends ResourcesRepository
     }
 
 
-    function getAnnonce($annonce_id) {
+    function getAnnonce($annonce_id, $lang = null) {
         // Récupération des annonces pour un utilisateur
         $annonce = $this->model->with('users','categories','abonnements')->where('id', $annonce_id)->first();
         
@@ -233,6 +234,14 @@ class AnnonceRepository   extends ResourcesRepository
                 $picture  = $this->pictureController->getImage($annonce->id);
                 
                 $annonce['url_image']= $picture;
+
+                if ($lang) { // envoyé les titles des catégories en anglais
+                    foreach ($annonce->categories as $categorie) {
+                            if($categorie->title_en){
+                                $categorie->title = $categorie->title_en;
+                            }
+                    }
+                }
 
             return $annonce;
         }
@@ -466,8 +475,8 @@ class AnnonceRepository   extends ResourcesRepository
 
                 ->when($categ, function ($q) use ($categ, $lang) {
                     if ($lang) {
-                        $q->whereHas('categories.translate', function ($c) use ($categ) {
-                            $c->where('title', 'LIKE', "%$categ%");
+                        $q->whereHas('categories', function ($c) use ($categ) {
+                            $c->where('title_en', 'LIKE', "%$categ%");
                         });
                     } else {
                         $q->whereHas('categories', function ($c) use ($categ) {
@@ -499,16 +508,16 @@ class AnnonceRepository   extends ResourcesRepository
                 }, function ($q) {
                     $q->orderByDesc('created_at');
                 })
-                
+
                 ->get();
     
             foreach ($annonces as $annonce) {
 
                 if ($lang) { // envoyé les titles des catégories en anglais
                     foreach ($annonce->categories as $categorie) {
-                        foreach ($categorie->translate as $translate) {
-                            $categorie->title = $translate->title;
-                        }
+                            if($categorie->title_en){
+                                $categorie->title = $categorie->title_en;
+                            }
                     }
                 }
 
