@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\Backend\StripeControllers;
 use App\Http\Controllers\API\Backend\PaymentController;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class AnnonceController extends \App\Http\Controllers\Controller
@@ -444,10 +445,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
     }
 
     /**show */
-    public function get_annonce($annonce_id)
+    public function get_annonce($annonce_id, $lang = null)
     {
         try{
-            $annonce = $this->annonceRepository->getAnnonce($annonce_id);
+            $annonce = $this->annonceRepository->getAnnonce($annonce_id, $lang);
             
             if($annonce){
                 return response()->json([
@@ -463,7 +464,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            \Log::error('Erreur lors de l\'affichage d\'une annonce: ' . $e->getMessage());
+            Log::error('Erreur lors de l\'affichage d\'une annonce: ' . $e->getMessage());
 
             return response()->json($e);
         }

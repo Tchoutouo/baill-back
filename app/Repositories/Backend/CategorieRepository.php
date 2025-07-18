@@ -21,15 +21,14 @@ class CategorieRepository   extends ResourcesRepository
     }
 
     public function getAll($lang = null) {
-        if ($lang) {
-            $categories = $this->model->with('translate')->get();
+        $categories = $this->model->get();
+        if ($lang && !empty($categories)) {
             foreach ($categories as $categorie) {
-                foreach ($categorie->translate as $translate) {
-                    $categorie->title = $translate->title;
-                }
+                    if($categorie->title_en){
+                        $categorie->title = $categorie->title_en;
+                    }
             }
-        }else{
-            $categories = $this->model->get();
+            return $categories;
         }
         
         return $categories;
@@ -47,6 +46,9 @@ class CategorieRepository   extends ResourcesRepository
         $categorie = $this->model;
         $categorie->title= $data['title'];
         $categorie->description= $data['description'];
+        if ($data['title_en']) {
+            $categorie->title_en= $data['title_en'];
+        }
         $categorie->save();
         // $array_sous = $data["array_sous"];
 
@@ -70,6 +72,9 @@ class CategorieRepository   extends ResourcesRepository
         if(isset($categorie)){
             $categorie->title= $data['title'];
             $categorie->description= $data['description'];
+            if ($data['title_en']) {
+                $categorie->title_en= $data['title_en'];
+            }
             $categorie->save();
             // $array_sous = $data["array_sous"];
 
