@@ -63,7 +63,7 @@ class DashboardController extends \App\Http\Controllers\Controller
     {
         try{
             // dd($request->data);
-            $allAnnonce = $this->annonceRepository->getTrieAnnonce($request->data);
+            $allAnnonce = $this->annonceRepository->getTrieAnnonce( json_decode($request->data, true) );
             if(isset($allAnnonce)){
                 return response()->json([
                     'success' => true,
