@@ -40,10 +40,10 @@ class CategorieController extends \App\Http\Controllers\Controller
     }
 
     /** index */
-    public function ListingCategorie(Request $request)
+    public function ListingCategorie( $lang = null )
     {
         try{
-            $allCategorie = $this->categorieRepository->getAllCategories(null, null);
+            $allCategorie = $this->categorieRepository->getAllCategories(null, null, $lang);
             if(!empty($allCategorie)){
                 return response()->json([
                     'success'=>true,

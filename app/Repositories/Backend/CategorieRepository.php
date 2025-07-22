@@ -136,14 +136,20 @@ class CategorieRepository   extends ResourcesRepository
     }
 
 
-    public function getAllCategories($nbre, $search = null){
+    public function getAllCategories($nbre, $search = null, $lang = null){
         $allCateg = $this->model;
         if (isset($allCateg)) {
 
             if ($search) {
-                $allCateg = $allCateg->where(function ($q) use ($search) {
-                    $q->where('title', 'LIKE', "%$search%");
-                });
+                if($lang && $lang === 'en'){
+                    $allCateg = $allCateg->where(function ($q) use ($search) {
+                        $q->where('title_en', 'LIKE', "%$search%");
+                    });
+                }else{
+                    $allCateg = $allCateg->where(function ($q) use ($search) {
+                        $q->where('title', 'LIKE', "%$search%");
+                    });
+                }
             }
 
             if($nbre){
@@ -153,6 +159,13 @@ class CategorieRepository   extends ResourcesRepository
                 $allCateg = $allCateg->orderBy('created_at', 'desc')->get();
             }
 
+            if ($lang && $lang === 'en') { // envoyé les titles des catégories en anglais
+                foreach ($allCateg as $categorie) {
+                    if($categorie->title_en){
+                        $categorie->title = $categorie->title_en;
+                    }
+                }
+            }
             return $allCateg;
         }
         return null;

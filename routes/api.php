@@ -168,7 +168,7 @@ Route::middleware(['updated_statut.annonce'])
 
     Route::get('/get_annonce/{id}/{lang?}',[AnnonceController::class, 'get_annonce']);
 
-    Route::get('/categorie_back_public',[CategorieController::class,'ListingCategorie']);
+    Route::get('/categorie_back_public/{lang?}',[CategorieController::class,'ListingCategorie']);
 
     /**Route index visiteur */
     Route::middleware(['updated_statut.annonce'])

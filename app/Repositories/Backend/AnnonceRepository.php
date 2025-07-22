@@ -474,7 +474,7 @@ class AnnonceRepository   extends ResourcesRepository
                 ->where('status', 3)
 
                 ->when($categ, function ($q) use ($categ, $lang) {
-                    if ($lang) {
+                    if ($lang && $lang === 'en') {
                         $q->whereHas('categories', function ($c) use ($categ) {
                             $c->where('title_en', 'LIKE', "%$categ%");
                         });
@@ -493,12 +493,12 @@ class AnnonceRepository   extends ResourcesRepository
                 ->when($city,    fn ($q) =>
                     $q->where('location', 'LIKE', "%$city%"))
     
-                ->when($user_id,
-                    fn ($q) => $q->where('user_id', $user_id),
-                    fn ($q) =>
-                        $q->whereHas('abonnements', fn ($qa) =>
-                            $qa->where('hight_lite', 1)
-                            ->whereIn('abonnements.id', [1, 2, 3])))
+                // ->when($user_id,
+                //     fn ($q) => $q->where('user_id', $user_id),
+                //     fn ($q) =>
+                //         $q->whereHas('abonnements', fn ($qa) =>
+                //             $qa->where('hight_lite', 1)
+                //             ->whereIn('abonnements.id', [1, 2, 3])))
     
                 ->select('*')
                 ->selectRaw($ordreExpr, [$user_id])
@@ -513,7 +513,7 @@ class AnnonceRepository   extends ResourcesRepository
     
             foreach ($annonces as $annonce) {
 
-                if ($lang) { // envoyé les titles des catégories en anglais
+                if ($lang && $lang === 'en') { // envoyé les titles des catégories en anglais
                     foreach ($annonce->categories as $categorie) {
                             if($categorie->title_en){
                                 $categorie->title = $categorie->title_en;
