@@ -38,14 +38,14 @@ class AddVersionEnglishCategoriesTableSeeder extends Seeder
                         if ($categorie->title === "Evènementiel") {
                             $categorie->title_en = "Events";
                         }
-                        if ($categorie->title === "Terrain non bâti") {
-                            $categorie->title_en = "Unbuilt land";
+                        if ($categorie->title === "Terrain agricole") {
+                            $categorie->title_en = "Agricultural land";
                         }
                         if ($categorie->title === "Habitation") {
                             $categorie->title_en = "House";
                         }
-                        if ($categorie->title === "Espace commercial") {
-                            $categorie->title_en = "Commercial area";
+                        if ($categorie->title === "Bureaux et boutiques") {
+                            $categorie->title_en = "Offices and shops";
                         }
                         if ($categorie->title === "Technicien") {
                             $categorie->title_en = "Technician";
@@ -55,6 +55,21 @@ class AddVersionEnglishCategoriesTableSeeder extends Seeder
                         }
                         if ($categorie->title === "Site touristique") {
                             $categorie->title_en = "Tourist resort";
+                        }
+                        if ($categorie->title === "Colis et courrier") {
+                            $categorie->title_en = "Parcels and mail";
+                        }
+                        if ($categorie->title === "Transport urbain") {
+                            $categorie->title_en = "Urban transport";
+                        }
+                        if ($categorie->title === "SOS Boutiquier") {
+                            $categorie->title_en = "SOS Shopkeeper";
+                        }
+                        if ($categorie->title === "Billet d'avions") {
+                            $categorie->title_en = "Plane ticket";
+                        }
+                        if ($categorie->title === "Assurance") {
+                            $categorie->title_en = "Insurance";
                         }
                     }
     
