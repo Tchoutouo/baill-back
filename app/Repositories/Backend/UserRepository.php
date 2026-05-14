@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories\Backend;
+use App\Enums\ProfilCode;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Repositories\ResourcesRepository;
@@ -20,7 +21,7 @@ class UserRepository   extends ResourcesRepository
 
     public function getAllUsers() {
         
-        $user = $this->model->where('profil_id', 3)->count();
+        $user = $this->model->where('profil_id', ProfilCode::Advertiser->value)->count();
         
         return $user;
     }
@@ -41,7 +42,7 @@ class UserRepository   extends ResourcesRepository
         $user->city= $data['city'];
         $user->neighborhood= $data['neighborhood'];
         $user->password= $data['password'];
-        $user->profil_id= "2";
+        $user->profil_id= ProfilCode::Admin->value;
         $user->save();
 
         return $user;
@@ -62,7 +63,7 @@ class UserRepository   extends ResourcesRepository
         $user->city= $data['city'];
         $user->neighborhood= $data['neighborhood'];
         $user->password= $data['password'];
-        $user->profil_id= "2";
+        $user->profil_id= ProfilCode::Admin->value;
         $user->save();
 
         return $user;
@@ -90,7 +91,7 @@ class UserRepository   extends ResourcesRepository
 
     /**Listing des utilisateurs bloqués */
     public function getUserLock(){
-        $userlock = $this->model->where('status',0)->where('profil_id', 3)->get();
+        $userlock = $this->model->where('status', 0)->where('profil_id', ProfilCode::Advertiser->value)->get();
 
         if (isset($userlock)) {
 

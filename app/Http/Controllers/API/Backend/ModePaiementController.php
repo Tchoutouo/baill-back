@@ -6,6 +6,7 @@ use App\Repositories\Backend\ModePaiementRepository;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ModePaiementController extends \App\Http\Controllers\Controller
 {
@@ -41,7 +42,8 @@ class ModePaiementController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -72,7 +74,8 @@ class ModePaiementController extends \App\Http\Controllers\Controller
         }catch(Exception $e){
             \Log::error('Erreur lors du changement des modes de paiement: ' . $e->getMessage());
             
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -92,7 +95,7 @@ class ModePaiementController extends \App\Http\Controllers\Controller
             if(isset($result) && !empty($result)){
                 return response()->json([
                     "success"=>true,
-                    "data"=>"Status changé avec success"
+                    "data"=>"Status changÃ© avec success"
                 ]);
             }else{
                 return response()->json([
@@ -106,7 +109,10 @@ class ModePaiementController extends \App\Http\Controllers\Controller
                 'data_paiement' => $arrayModePayment,
             ]);
 
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 }
+
+

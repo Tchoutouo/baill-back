@@ -34,12 +34,13 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }else{
                 return response()->json([
                     "success"=>false,
-                    "message"=>"Aucune donnée trouvée..."
+                    "message"=>"Aucune donnÃ©e trouvÃ©e..."
                 ]);
             }
 
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -47,7 +48,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
     public function store(Request $request)
     {
         try {
-            // Validation avec messages personnalisés
+            // Validation avec messages personnalisÃ©s
             $validatedData = $request->validate([
                 'username' => 'required|string|max:255|unique:users,username',
                 'last_name' => 'required|string|max:255',
@@ -65,35 +66,35 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 // ]
             ], [
                 'username.required' => 'Le nom d\'utilisateur est requis.',
-                'username.unique' => 'Ce nom d\'utilisateur est déjà utilisé.',
+                'username.unique' => 'Ce nom d\'utilisateur est dÃ©jÃ  utilisÃ©.',
                 'last_name.required' => 'Le nom de famille est requis.',
-                'first_name.required' => 'Le prénom est requis.',
+                'first_name.required' => 'Le prÃ©nom est requis.',
                 'email.required' => 'L\'adresse email est requise.',
-                'email.email' => 'L\'adresse email doit être valide.',
-                'email.unique' => 'Cette adresse email est déjà utilisée.',
-                'whatsapp_number.required' => 'Le numéro WhatsApp est requis.',
-                'whatsapp_number.unique' => 'Ce numéro WhatsApp est déjà utilisé.',
-                'whatsapp_number.min' => 'Le numéro WhatsApp doit contenir au moins 9 chiffres.',
-                'whatsapp_number.max' => 'Le numéro WhatsApp ne peut pas dépasser 20 chiffres.',
+                'email.email' => 'L\'adresse email doit Ãªtre valide.',
+                'email.unique' => 'Cette adresse email est dÃ©jÃ  utilisÃ©e.',
+                'whatsapp_number.required' => 'Le numÃ©ro WhatsApp est requis.',
+                'whatsapp_number.unique' => 'Ce numÃ©ro WhatsApp est dÃ©jÃ  utilisÃ©.',
+                'whatsapp_number.min' => 'Le numÃ©ro WhatsApp doit contenir au moins 9 chiffres.',
+                'whatsapp_number.max' => 'Le numÃ©ro WhatsApp ne peut pas dÃ©passer 20 chiffres.',
                 'country.required' => 'Le pays est requis.',
                 'city.required' => 'La ville est requise.',
                 'neighborhood.required' => 'Le quartier est requis.',
                 // 'password.required' => 'Le mot de passe est requis.',
-                // 'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
-                // 'password.regex' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
+                // 'password.min' => 'Le mot de passe doit contenir au moins 8 caractÃ¨res.',
+                // 'password.regex' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractÃ¨re spÃ©cial.',
             ]);
 
             // Hasher le mot de passe
             // $validatedData['password'] = Hash::make($validatedData['password']);
 
-            // Créer l'utilisateur
+            // CrÃ©er l'utilisateur
             $user = $this->advertiserRepository->created($validatedData);
 
             if ($user) {
                 if($user !== 1){
                     return response()->json([
                         'success' => true,
-                        'message' => 'Utilisateur enregistré avec succès.',
+                        'message' => 'Utilisateur enregistrÃ© avec succÃ¨s.',
                         'data' => [
                             'user_id' => $user->id,
                             'username' => $user->username,
@@ -162,7 +163,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 return response()->json([
                     'success' => true,
                     'data' => $advUpdate,
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -174,10 +175,10 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -207,46 +208,55 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
     /**destroy */
     public function destroy(Request $request, $id)
     {
-        try{
+        try {
             $advertiser = $this->advertiserRepository->getById($id);
 
-            // Si utilisateur à un abonnement
-            if($advertiser)
-            {
+            if (!$advertiser) {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet annonceur abonnement en cours',
-                    ]
-                );
-    
-            }else{
-                $result = $this->advertiserRepository->destroy($id);
-    
-                if(isset($result))
-                {
-                    return response()->json([
-                        'message' => 'Une erreur est survenu lors de la suppression',
-                        ]
-                    );
-                    
-    
-                }else{
-                    return response()->json([
-                        'message' => 'Annonceur supprimé avec success',
-                        ]
-                    );
-    
-                }
+                    'success' => false,
+                    'message' => 'Annonceur introuvable.',
+                ], 404);
             }
-        }
-        catch(Exception $e){
-            return response()->json($e);
+
+            $hasActiveAnnonces = $advertiser->annonces()
+                ->whereIn('status', ['1', '3'])
+                ->exists();
+
+            if ($hasActiveAnnonces) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Impossible de supprimer : cet annonceur a des annonces en cours.',
+                ], 422);
+            }
+
+            $deleted = $this->advertiserRepository->destroy($id);
+
+            if ($deleted) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Annonceur supprimÃ© avec succÃ¨s.',
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de la suppression.',
+            ], 500);
+
+        } catch (Exception $e) {
+            Log::error('Erreur suppression annonceur: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur inattendue est survenue.',
+            ], 500);
         }
     }
 
@@ -260,7 +270,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             if(isset($result) && !empty($result)){
                 return response()->json([
                     "success"=>true,
-                    "data"=>"Status changé avec success"
+                    "data"=>"Status changÃ© avec success"
                 ]);
             }else{
                 return response()->json([
@@ -270,7 +280,8 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
 
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -299,7 +310,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 if ($updatePass === true) {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Modification effectuée avec success',
+                        'message' => 'Modification effectuÃ©e avec success',
                         ]
                     );
                 }else {
@@ -318,10 +329,10 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -344,10 +355,10 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             $forgetPass = $this->advertiserRepository->forgetPassword($advertiser, $datas);
             if(isset($forgetPass)){
                 
-                if ($forgetPass === true) { //Si le mail a été envoyé
+                if ($forgetPass === true) { //Si le mail a Ã©tÃ© envoyÃ©
                     return response()->json([
                         'success' => true,
-                        'message' => 'Réinitialisation effectuée avec success ',
+                        'message' => 'RÃ©initialisation effectuÃ©e avec success ',
                         ]
                     );
                 }else {
@@ -366,10 +377,10 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -417,3 +428,4 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         ]);
     }
 }
+

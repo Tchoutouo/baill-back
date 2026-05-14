@@ -46,7 +46,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
         
     }
 
-    /** Listing des annonces coté admin */
+    /** Listing des annonces cotÃ© admin */
     public function getAllAnnonce($nbr_annonce, $search = null)
     {
         try{
@@ -67,18 +67,25 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
     /** Listing des annonces */
     public function index($user_id, $nbr_annonce, $search = null)
     {
+        $authUser = Auth::user();
+
+        // Un annonceur ne peut consulter que ses propres annonces
+        if ((int) $authUser->id !== (int) $user_id) {
+            return response()->json(['success' => false, 'message' => 'AccÃ¨s non autorisÃ©.'], 403);
+        }
+
         try{
-            $user = $this->userRepository->getById($user_id);
-            //$allAnnonce = $this->annonceRepository->getAllAnnonce($user->id, $nbr_annonce, $search);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, $user->id,  $search);
-            
+            $user = $this->userRepository->getById($authUser->id);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce($nbr_annonce, $authUser->id, $search);
+
             if(isset($allAnnonce)){
                 return response()->json([
                     'success' => true,
@@ -94,15 +101,22 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
     //Change status annonces
     public function changeStatus($user_id, $annonce_id, $new_status, $dataPaiement = null){
         try {
-            
+
             $user = Auth::user();
+
+            // VÃ©rifier que l'annonce appartient bien Ã  l'utilisateur connectÃ©
+            $annonce = $this->annonceRepository->getById($annonce_id);
+            if (!$annonce || (int) $annonce->user_id !== (int) $user->id) {
+                return response()->json(['success' => false, 'message' => 'AccÃ¨s non autorisÃ©.'], 403);
+            }
 
             if($new_status == 3 && $dataPaiement){
                 $donnee = [
@@ -147,32 +161,32 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     if($mailPaiement){
                         return response()->json([
                             'success' => true,
-                            'message' => 'Paiement réussi... Mise à jour effectuée avec success. Mail de confirmation envoyé à l\'administrateur',
+                            'message' => 'Paiement rÃ©ussi... Mise Ã  jour effectuÃ©e avec success. Mail de confirmation envoyÃ© Ã  l\'administrateur',
                             // 'url' => route('dashboard',['id'=>$user_id]),
                         ]);
                     }else{
                         return response()->json([
                             'success' => true,
-                            'message' => 'Paiement réussi... Mise à jour effectuée avec success. Erreur lors de l\'envoi du mail de confirmation',
+                            'message' => 'Paiement rÃ©ussi... Mise Ã  jour effectuÃ©e avec success. Erreur lors de l\'envoi du mail de confirmation',
                             // 'url' => route('dashboard',['id'=>$user_id]),
                         ]);
                     }
                 }
             }
             
-            $changeStatus = $this->annonceRepository->changeStatusAnnonce($user_id, $annonce_id, $new_status);
+            $changeStatus = $this->annonceRepository->changeStatusAnnonce($user->id, $annonce_id, $new_status);
 
             if(isset($changeStatus)){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Mise à jour effectuée avec success',
+                    'message' => 'Mise Ã  jour effectuÃ©e avec success',
                     // 'url' => route('dashboard',['id'=>$user_id]),
                 ]);
             }
             else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'Echec lors de la mise à jour du status',
+                    'message' => 'Echec lors de la mise Ã  jour du status',
                 ]);
             }
         } catch (Exception $e) {
@@ -191,14 +205,14 @@ class AnnonceController extends \App\Http\Controllers\Controller
         if(isset($changeStatus)){
             return response()->json([
                 'success' => true,
-                'message' => 'Status changé avec success',
+                'message' => 'Status changÃ© avec success',
                 // 'url' => route('dashboard',['id'=>$user_id])
             ]);
         }
         else{
             return response()->json([
                 'success' => false,
-                'message' => 'Echec lors de la mise à jour du status',
+                'message' => 'Echec lors de la mise Ã  jour du status',
             ]);
         }
     }
@@ -206,20 +220,27 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
     //Change abonnement annonce
     public function changeAbonnement($user_id, $annonce_id, $new_abonnement){
-        
-        $changeAbonnement = $this->annonceRepository->changeAbonnementAnnonce($user_id, $annonce_id, $new_abonnement);
+
+        $authId = Auth::id();
+
+        // VÃ©rifier que l'annonce appartient bien Ã  l'utilisateur connectÃ©
+        $annonce = $this->annonceRepository->getById($annonce_id);
+        if (!$annonce || (int) $annonce->user_id !== (int) $authId) {
+            return response()->json(['success' => false, 'message' => 'AccÃ¨s non autorisÃ©.'], 403);
+        }
+
+        $changeAbonnement = $this->annonceRepository->changeAbonnementAnnonce($authId, $annonce_id, $new_abonnement);
 
         if(isset($changeAbonnement)){
             return response()->json([
                 'success' => true,
-                'message' => 'Abonnement changé avec success',
-                'url' => route('dashboard',['id'=>$user_id])
+                'message' => 'Abonnement changÃ© avec success',
             ]);
         }
         else{
             return response()->json([
                 'success' => false,
-                'message' => 'Echec lors de la mise à jour du status',
+                'message' => 'Echec lors de la mise Ã  jour du status',
             ]);
         }
     }
@@ -235,7 +256,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 'categorie'=>$allCategorie,
             ]);
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -247,29 +269,32 @@ class AnnonceController extends \App\Http\Controllers\Controller
         $user = Auth::user();
         try{
             $request -> validate([
-                    'title' => 'required|string|max:255', 
+                    'title' => 'required|string|max:255',
                     'description' => 'required|string',
                     'price' => 'required|numeric',
                     'country' => 'required|string|max:255',
                     'categorie' => 'required|array',
                     'abonnement_id' => 'required|string|max:255',
-                    'user_id' => 'required|string|max:255',
+                    // user_id n'est pas acceptÃ© du client â€” forcÃ© via Auth::id()
                 ],
                 [
                 'error' => 'Erreur...',
                 ]
             );
 
+            // user_id forcÃ© depuis le token â€” jamais depuis le corps de la requÃªte
+            $safeData = array_merge($request->all(), ['user_id' => $user->id]);
+
             if($user->qte_free == 0 && $request->abonnement_id === "1"){
 
-                $inputs = $this->annonceRepository->created($request->all());
+                $inputs = $this->annonceRepository->created($safeData);
 
                 $this->pictureController->storePicture($request, $inputs['annonce']->id);
 
                 if ($inputs) {
                     return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistrée mais pas publiée, quota d\' annonce free atteint.',
+                            'message' => 'Annonce enregistrÃ©e mais pas publiÃ©e, quota d\' annonce free atteint.',
                         ]
                     );
                 }else{
@@ -282,8 +307,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
             }
 
             if($request->abonnement_id === "1"){
-                
-                $inputs = $this->annonceRepository->created($request->all());
+
+                $inputs = $this->annonceRepository->created($safeData);
 
                 $this->pictureController->storePicture($request, $inputs['annonce']->id);
 
@@ -293,13 +318,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
                     $free = $this->userRepository->decrementFree($user->id);
                     return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistrée et publiée',
+                            'message' => 'Annonce enregistrÃ©e et publiÃ©e',
                         ]
                     );
                 }else{
                     return response()->json([
                             'success' => false,
-                            'message' => 'Annonce enregistré avec statut encours. Mais attaché à aucune catégorie',
+                            'message' => 'Annonce enregistrÃ© avec statut encours. Mais attachÃ© Ã  aucune catÃ©gorie',
                         ]
                     );
                 }
@@ -315,10 +340,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
             $dataPaiement['customer'] = $user->username;
             $dataPaiement['date_paiement'] = Carbon::now()->format('Y-m-d');
 
-            $inputs = $this->annonceRepository->created($request->all());
+            $inputs = $this->annonceRepository->created($safeData);
 
             $this->pictureController->storePicture($request, $inputs['annonce']->id);
-            
+
             $inputsAnnonce = $this->annonceHandler->storeAnnonce($inputs,$dataPaiement);
 
 
@@ -331,14 +356,14 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
                         return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistré et paiement réussi. Votre administrateur a reçu un message de confirmation',
+                            'message' => 'Annonce enregistrÃ© et paiement rÃ©ussi. Votre administrateur a reÃ§u un message de confirmation',
                             ]
                         );
 
                     }else{
                         return response()->json([
                             'success' => true,
-                            'message' => 'Annonce enregistré et paiement réussi. Votre administrateur n\'a pas reçu un message de confirmation',
+                            'message' => 'Annonce enregistrÃ© et paiement rÃ©ussi. Votre administrateur n\'a pas reÃ§u un message de confirmation',
                             ]
                         );
                     }
@@ -349,7 +374,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                         return response()->json([
                                 'success' => true,
                                 'verify' => true,
-                                'message' => 'Annonce enregistré en attente de validation...',
+                                'message' => 'Annonce enregistrÃ© en attente de validation...',
                                 'data' => $inputsAnnonce,
                             ]
                         );
@@ -357,7 +382,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
                     return response()->json([
                             'success' => false,
-                            'message' => 'Annonce enregistré mais echec de paiement',
+                            'message' => 'Annonce enregistrÃ© mais echec de paiement',
                             'error-payment' => $inputsAnnonce,
                         ]
                     );
@@ -368,7 +393,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
                 return response()->json([
                         'success' => true,
                         'status_free' => $free,
-                        'message' => 'Annonce enregistré et paiement free, mais elle ne sera pas mise en avant',
+                        'message' => 'Annonce enregistrÃ© et paiement free, mais elle ne sera pas mise en avant',
                     ]
                 );
             }
@@ -376,13 +401,13 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
         }catch(ValidationException $e){
 
-            \Log::error('Erreur lors de la création d\'une annonce: ' . $e->getMessage(), [
+            \Log::error('Erreur lors de la crÃ©ation d\'une annonce: ' . $e->getMessage(), [
                 'erreur_validation' => $e->validator->errors(),
             ]);
-            // Récupérer les erreurs lié à la validation
+            // RÃ©cupÃ©rer les erreurs liÃ© Ã  la validation
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -418,7 +443,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             if($pictures){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -432,10 +457,10 @@ class AnnonceController extends \App\Http\Controllers\Controller
             \Log::error('Erreur lors de la mise a jour d\'une annonce: ' . $e->getMessage(), [
                 'erreur_validation' => $e->validator->errors(),
             ]);
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -466,7 +491,8 @@ class AnnonceController extends \App\Http\Controllers\Controller
         catch(Exception $e){
             Log::error('Erreur lors de l\'affichage d\'une annonce: ' . $e->getMessage());
 
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -481,7 +507,7 @@ class AnnonceController extends \App\Http\Controllers\Controller
             {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Annonce supprimé avec success',
+                    'message' => 'Annonce supprimÃ© avec success',
                     ]
                 );
 
@@ -499,7 +525,9 @@ class AnnonceController extends \App\Http\Controllers\Controller
 
             \Log::error('Erreur lors de la suppression d\'une annonce: ' . $e->getMessage());
 
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 }
+

@@ -32,9 +32,17 @@ return [
     ],
 
     'stripe' => [
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
+        'key'            => env('STRIPE_KEY'),
+        'secret'         => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'freemopay' => [
+        'app_key'        => env('APPKEY_FREEMOPAY'),
+        'secret_key'     => env('SECRETKEY_FREEMOPAY'),
+        'token'          => env('TOKENMOMO_FREEMOPAY'),
+        'base_url'       => env('FREEMOPAY_BASE_URL'),
+        'webhook_secret' => env('FREEMOPAY_WEBHOOK_SECRET'),
     ],
 
 ];

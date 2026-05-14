@@ -3,22 +3,47 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_new_users_can_register(): void
+    protected function setUp(): void
     {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+        parent::setUp();
+        // Insert profils directly — avoids Profil::truncate() which causes an
+        // implicit MySQL commit that breaks the RefreshDatabase transaction wrapper.
+        DB::table('profils')->insertOrIgnore([
+            ['id' => 1, 'name' => 'Super Administrateur', 'code' => 'SUP_ADMIN'],
+            ['id' => 2, 'name' => 'Administrateur',       'code' => 'ADMIN'],
+            ['id' => 3, 'name' => 'Advertiser',           'code' => 'ADVERT'],
+        ]);
+    }
+
+    public function test_new_advertiser_can_register(): void
+    {
+        Mail::fake();
+
+        $response = $this->postJson('/api/advertiser_back/store', [
+            'username'         => 'testuser',
+            'first_name'       => 'Test',
+            'last_name'        => 'User',
+            'email'            => 'test@example.com',
+            'whatsapp_number'  => '+237612345678',
+            'country'          => 'Cameroun',
+            'city'             => 'Douala',
+            'neighborhood'     => 'Akwa',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertNoContent();
+        $response->assertStatus(201)
+                 ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('users', [
+            'email'    => 'test@example.com',
+            'username' => 'testuser',
+        ]);
     }
 }

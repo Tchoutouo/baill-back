@@ -25,8 +25,25 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $guarded = [
-        'id',
+    protected $fillable = [
+        'name',
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'picture',
+        'number',
+        'whatsapp_number',
+        'cni',
+        'site_url',
+        'neighborhood',
+        'city',
+        'country',
+        'date_of_birth',
+        'place_of_birth',
+        'sex',
+        // profil_id, status, qte_free, email_verified_at intentionally excluded
     ];
 
     /**
@@ -82,13 +99,13 @@ class User extends Authenticatable
     //** Un users ne peut publier 0 ou +sieurs paiements */
     public function paiements():HasMany
     {
-        return $this->hasMany(Paiement::class,'paiement_id');
+        return $this->hasMany(Paiement::class, 'user_id');
     }
 
     //** Un user peut avoir un ou plusieurs droit d'accès */
     public function access_rights():BelongsToMany
     {
-        return $this->belongsToMany(AccessRight::class,'user_access_rights','access_right_id', 'user_id');
+        return $this->belongsToMany(AccessRight::class, 'user_access_rights', 'user_id', 'access_right_id');
     }
 
 }

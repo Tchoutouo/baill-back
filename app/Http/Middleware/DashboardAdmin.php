@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\ProfilCode;
 
 class DashboardAdmin
 {
@@ -16,15 +17,15 @@ class DashboardAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->profil_id == "2" || Auth::user()->profil_id == "1") {
+        $profilId = (int) Auth::user()->profil_id;
+        if ($profilId === ProfilCode::Admin->value || $profilId === ProfilCode::SuperAdmin->value) {
             return $next($request);
         }
         else{
-            // dd("bien");
             return response()->json([
-                "success"=>false,
-                "message"=>"Access non autorisé...",
-            ]);
+                'success' => false,
+                'message' => 'Accès non autorisé.',
+            ], 403);
         }
     }
     

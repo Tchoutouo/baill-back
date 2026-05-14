@@ -12,8 +12,15 @@ class Paiement extends Model
 
     protected $table = 'paiements';
 
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'mode_paiement',
+        'montant',
+        'date_paiement',
+        'number',
+        'reference',
+        'user_id',
+        'abonnement_id',
+        // statut is system-controlled — excluded
     ];
     /** Un paiement peut être effectuer par un user */
     public function users():BelongsTo

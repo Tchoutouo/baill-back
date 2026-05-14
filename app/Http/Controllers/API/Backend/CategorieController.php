@@ -6,6 +6,7 @@ use App\Repositories\Backend\CategorieRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class CategorieController extends \App\Http\Controllers\Controller
 {
@@ -35,7 +36,8 @@ class CategorieController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -57,7 +59,8 @@ class CategorieController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -80,23 +83,23 @@ class CategorieController extends \App\Http\Controllers\Controller
             if($inputs)
             {
                 return response()->json([
-                    'message' => 'Categorie enregistré avec success',
+                    'message' => 'Categorie enregistrÃ© avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
-                    'message' => 'Categorie non enregistré verifier vos donnée',
+                    'message' => 'Categorie non enregistrÃ© verifier vos donnÃ©e',
                     ]
                 );
     
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -122,7 +125,7 @@ class CategorieController extends \App\Http\Controllers\Controller
             if($result){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -133,10 +136,10 @@ class CategorieController extends \App\Http\Controllers\Controller
                 );
             }
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation',
@@ -161,7 +164,8 @@ class CategorieController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -181,15 +185,15 @@ class CategorieController extends \App\Http\Controllers\Controller
                 {
                     return response()->json([
                         'success' => true,
-                        'message' => 'categorie supprimée avec success',
+                        'message' => 'categorie supprimÃ©e avec success',
                         ]
                     );
                 
-                //Si elle est associée à une annonce pas de suppression
+                //Si elle est associÃ©e Ã  une annonce pas de suppression
                 }else{
                     return response()->json([
                         'success' => false,
-                        'message' => 'Cette catégorie est attachée à une annonce',
+                        'message' => 'Cette catÃ©gorie est attachÃ©e Ã  une annonce',
                         ]
                     );
     
@@ -204,12 +208,13 @@ class CategorieController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
 
-    //** Listes des annonces en fonction des catégories */
+    //** Listes des annonces en fonction des catÃ©gories */
     public function categAnnonce($arrayCateg){
         
         try{
@@ -230,8 +235,11 @@ class CategorieController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
 }
+
+

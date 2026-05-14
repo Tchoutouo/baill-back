@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Repositories\Backend;
+use App\Enums\ProfilCode;
 use App\Models\User;
-use App\Models\Profil;
 use App\Repositories\ResourcesRepository;
 use App\Repositories\Backend\AnnonceRepository;
 use Illuminate\Http\Request;
@@ -35,61 +35,42 @@ class AdvertiserRepository   extends ResourcesRepository
     /**created user et envoyé une notification à l'admin */
     public function created($data = array()) {
         try {
-
             $storeAdv = DB::transaction(function () use($data) {
-                //defininir création de user
                 $advertiser = $this->model;
-                
-                $advertiser->name= $data['username'];
-                $advertiser->username= $data['username'];
-                $advertiser->last_name= $data['last_name'];
-                $advertiser->first_name= $data['first_name'];
-                $advertiser->email= $data['email'];
-                $advertiser->whatsapp_number= $data['whatsapp_number'];
-                $advertiser->country= $data['country'];
-                $advertiser->city= $data['city'];
-                $advertiser->neighborhood= $data['neighborhood'];
-                $advertiser->profil_id= 3;
+
+                $advertiser->name          = $data['username'];
+                $advertiser->username      = $data['username'];
+                $advertiser->last_name     = $data['last_name'];
+                $advertiser->first_name    = $data['first_name'];
+                $advertiser->email         = $data['email'];
+                $advertiser->whatsapp_number = $data['whatsapp_number'];
+                $advertiser->country       = $data['country'];
+                $advertiser->city          = $data['city'];
+                $advertiser->neighborhood  = $data['neighborhood'];
+                $advertiser->profil_id     = ProfilCode::Advertiser->value;
                 $advertiser->email_verified_at = null;
-                
-                
-                // $user_mail = "biocleanmoumbe@gmail.com";
-                // $user_mail = "nomdecodeyvaltt@gmail.com";
 
-                //Envoie du mail à l'admin et annonceur
+                $newpassword = $this->PasswordRandom(8);
+
                 try {
-
-                    $newpassword = $this->PasswordRandom(8);
                     Mail::to($data['email'])->send(new PasswordAdvertiser($data['email'], $newpassword, $data['username']));
-
-                    Mail::to(env('MAIL_FROM_ADDRESS'))->send(new NewAdvertiserMail());
-                    
+                    Mail::to(config('mail.from.address'))->send(new NewAdvertiserMail());
                 } catch (\Exception $e) {
                     Log::warning('Erreur lors de l\'envoi de l\'email a l\'admin ou annonceur: ' . $e->getMessage());
-                    // Faire échouer l'inscription si l'email ne peut pas être envoyé
-                    DB::rollBack();
-                    return 1;
+                    return 1; // user not saved — transaction commits a no-op
                 }
 
-                $advertiser->password = $newpassword;
+                $advertiser->password = Hash::make($newpassword);
                 $advertiser->save();
 
                 return $advertiser;
             });
-            DB::commit();
-    
+
+            return $storeAdv ?? null;
+
         } catch (Exception $e) {
             Log::error('Erreur lors de la créaction d\'un utilisateur bailleur: ' . $e->getMessage());
-
-            DB::rollBack();
-        }
-        
-        if(isset($storeAdv)){
-
-            return $storeAdv;
-
-        }else{
-
+            return null;
         }
     }
 
@@ -120,7 +101,7 @@ class AdvertiserRepository   extends ResourcesRepository
             $path = $images->store('images', 'public');
             $advertiser->picture= $path;
         }
-        $advertiser->profil_id= "3";
+        $advertiser->profil_id= ProfilCode::Advertiser->value;
         $advertiser->save();
 
         return $advertiser;
@@ -152,16 +133,21 @@ class AdvertiserRepository   extends ResourcesRepository
     }
 
     /**destroy user */
-    public function destroy($id) {
-        //defininir destroy de user
-        
+    public function destroy($id): bool
+    {
+        $advertiser = $this->model->find($id);
+        if (!$advertiser) {
+            return false;
+        }
+        $advertiser->delete();
+        return true;
     }
 
 
     //**Listing des users */
     public function getAlluser($paginate , $search = null){
 
-        $allAdv = $this->model->withCount("annonces")->where('profil_id',3);
+        $allAdv = $this->model->withCount("annonces")->where('profil_id', ProfilCode::Advertiser->value);
 
         if($search){
             $allAdv = $allAdv->where(function($q) use ($search){

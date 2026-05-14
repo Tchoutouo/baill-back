@@ -27,7 +27,8 @@ class UserController extends \App\Http\Controllers\Controller
         try{
             return response()->json([]);
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -54,21 +55,22 @@ class UserController extends \App\Http\Controllers\Controller
             {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Utilisateur enregistré avec success',
+                    'message' => 'Utilisateur enregistrÃ© avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'Utilisateur non enregistré verifier vos donnée',
+                    'message' => 'Utilisateur non enregistrÃ© verifier vos donnÃ©e',
                     ]
                 );
     
             }
 
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -85,7 +87,7 @@ class UserController extends \App\Http\Controllers\Controller
             if($result){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -96,7 +98,8 @@ class UserController extends \App\Http\Controllers\Controller
                 );
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -121,7 +124,8 @@ class UserController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -132,11 +136,11 @@ class UserController extends \App\Http\Controllers\Controller
         try{
             $userabonnement = $this->userRepository->getById($id);
 
-            // Si utilisateur à un abonnement
+            // Si utilisateur Ã  un abonnement
             if($userabonnement)
             {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet annonceur abonnement en cours',
+                    'message' => 'Vous ne pouvez pas supprimÃ© cet annonceur abonnement en cours',
                     ]
                 );
     
@@ -153,7 +157,7 @@ class UserController extends \App\Http\Controllers\Controller
     
                 }else{
                     return response()->json([
-                        'message' => 'Utilisateur supprimé avec success',
+                        'message' => 'Utilisateur supprimÃ© avec success',
                         ]
                     );
     
@@ -161,7 +165,8 @@ class UserController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -179,18 +184,18 @@ class UserController extends \App\Http\Controllers\Controller
             if($status === Password::RESET_LINK_SENT){
                 return response()->json([
                         'success' => true,
-                        'message' => 'Lien de réinitialisation envoyé avec success',
+                        'message' => 'Lien de rÃ©initialisation envoyÃ© avec success',
                     ]
                 );
             }else{
                 return response()->json([
                         'success' => false,
-                        'message' => "Email inexistant dans le système...",
+                        'message' => "Email inexistant dans le systÃ¨me...",
                     ]
                 );
             }
         } catch (\Exception $e) {
-            Log::error('Error lors mise à jour du password : ' . $e->getMessage());
+            Log::error('Error lors mise Ã  jour du password : ' . $e->getMessage());
             dd($e);
         }
 
@@ -217,10 +222,11 @@ class UserController extends \App\Http\Controllers\Controller
 
 
         } catch (\Exception $e) {
-            Log::error('Error lors mise à jour du nouveau password : ' . $e->getMessage());
+            Log::error('Error lors mise Ã  jour du nouveau password : ' . $e->getMessage());
         }
 
     }
 
 
 }
+

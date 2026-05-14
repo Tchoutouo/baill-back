@@ -5,7 +5,6 @@ use App\Models\Annonce;
 use App\Models\Picture;
 use App\Repositories\Backend\AbonnementRepository;
 use App\Repositories\ResourcesRepository;
-use App\Http\Controllers\API\Backend\PictureController;
 use Illuminate\Support\Carbon;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -14,18 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
-use Laravel\Sail\Console\PublishCommand;
-use Nette\Utils\Random;
 
 class AnnonceRepository   extends ResourcesRepository
 {
     protected $abonnementRepository;
-    protected $pictureController;
 
-    public function __construct(Annonce $annonce, AbonnementRepository $abonnementRepository, PictureController $pictureController) {
+    public function __construct(Annonce $annonce, AbonnementRepository $abonnementRepository) {
         $this->model = $annonce;
         $this->abonnementRepository = $abonnementRepository;
-        $this->pictureController = $pictureController;
     }
 
     /**count annonces */
@@ -165,7 +160,7 @@ class AnnonceRepository   extends ResourcesRepository
         try {            
             // Récupération des annonces pour un utilisateur
             $arrayAnnonce = $this->model
-                ->with('categories','abonnements');
+                ->with(['categories', 'abonnements', 'pictures']);
 
             // Si user_id existe
             if($user_id){
@@ -196,9 +191,8 @@ class AnnonceRepository   extends ResourcesRepository
     
                     if(isset($annonce)){
                         $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
-                        $picture  = $this->pictureController->getImage($annonce->id);
-                        $annonce['url_image']= $picture;
-    
+                        $annonce['url_image'] = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
+
                     }
                 }
     
@@ -216,7 +210,7 @@ class AnnonceRepository   extends ResourcesRepository
 
     function getAnnonce($annonce_id, $lang = null) {
         // Récupération des annonces pour un utilisateur
-        $annonce = $this->model->with('users','categories','abonnements')->where('id', $annonce_id)->first();
+        $annonce = $this->model->with(['users', 'categories', 'abonnements', 'pictures'])->where('id', $annonce_id)->first();
         
         
         // Vérifiez si la collection est vide
@@ -231,9 +225,7 @@ class AnnonceRepository   extends ResourcesRepository
                     $annonce['next_expiration_date'] = $annonce->expiration_date;
                 }
 
-                $picture  = $this->pictureController->getImage($annonce->id);
-                
-                $annonce['url_image']= $picture;
+                $annonce['url_image'] = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
 
                 if ($lang) { // envoyé les titles des catégories en anglais
                     foreach ($annonce->categories as $categorie) {
@@ -374,18 +366,18 @@ class AnnonceRepository   extends ResourcesRepository
 
     //** Fonction côté visiteur */
 
-    function getAllAnnonceFront($user_id = null)
+    function getAllAnnonceFront($user_id = null, int $limit = 20)
     {
-        $ordreExpr = "CASE 
-            WHEN user_id = ? THEN 0 
-            WHEN abonnement_id = 3 THEN 1 
-            WHEN abonnement_id = 2 THEN 2 
-            WHEN abonnement_id = 1 THEN 3 
-            ELSE 3 
+        $ordreExpr = "CASE
+            WHEN user_id = ? THEN 0
+            WHEN abonnement_id = 3 THEN 1
+            WHEN abonnement_id = 2 THEN 2
+            WHEN abonnement_id = 1 THEN 3
+            ELSE 3
         END as ordre";
 
         $annonces = $this->model
-            ->with(['users', 'categories', 'abonnements'])
+            ->with(['users', 'categories', 'abonnements', 'pictures'])
             ->where('status', 3)
             ->where(function ($query) use ($user_id) {
                 $query->where('user_id', $user_id)
@@ -398,12 +390,13 @@ class AnnonceRepository   extends ResourcesRepository
             ->selectRaw($ordreExpr, [$user_id])
             ->orderBy('ordre')
             ->orderByDesc('created_at')
+            ->take($limit)
             ->get();
 
-    
+
         foreach ($annonces as $annonce) {
             $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
-            $annonce->url_image = $this->pictureController->getImage($annonce->id);
+            $annonce->url_image = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
         }
     
         return $annonces;
@@ -422,7 +415,7 @@ class AnnonceRepository   extends ResourcesRepository
         END as ordre";
 
         $annonces = $this->model
-            ->with(['users', 'categories', 'abonnements'])
+            ->with(['users', 'categories', 'abonnements', 'pictures'])
             ->where('status', 3)
             ->where(function ($query) use ($user_id) {
                 $query->where('user_id', $user_id)
@@ -435,13 +428,11 @@ class AnnonceRepository   extends ResourcesRepository
             ->selectRaw($ordreExpr, [$user_id])
             ->orderByDesc('created_at')
             ->get();
-                                   
-        // Vérifiez si la collection est vide
+
         if ($annonces->isNotEmpty()) {
             foreach ($annonces as $key => $annonce) {
                 $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
-                $picture  = $this->pictureController->getImage($annonce->id);
-                $annonce['url_image']= $picture;
+                $annonce['url_image'] = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
             }
 
             return $annonces;
@@ -470,7 +461,7 @@ class AnnonceRepository   extends ResourcesRepository
             $asc = isset($data['asc']) ? $data['asc'] : null;
 
             $annonces = $this->model
-                ->with(['users', 'categories', 'abonnements'])
+                ->with(['users', 'categories', 'abonnements', 'pictures'])
                 ->where('status', 3)
 
                 ->when($categ, function ($q) use ($categ, $lang) {
@@ -525,7 +516,7 @@ class AnnonceRepository   extends ResourcesRepository
                     $ab->price_after_remise = $ab->price
                                             - ($ab->price * $ab->remise / 100);
                 }
-                $annonce->url_image = $this->pictureController->getImage($annonce->id);
+                $annonce->url_image = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
             }
         } catch (\Exception $th) {
             Log::error('Erreur lors du tri des annonces : ' . $th->getMessage());

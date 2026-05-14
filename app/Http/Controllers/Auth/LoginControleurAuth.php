@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Enums\ProfilCode;
 use App\Models\Profil;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class LoginControleurAuth extends Controller
 
             
             //redirection en fonction du profil
-            if ($user->profil_id == "2") {
+            if ((int) $user->profil_id === ProfilCode::Admin->value) {
                 
                 return response()->json([
                     'success' => true,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Backend;
 use App\Repositories\Backend\SousCategorieRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SousCategorieController extends \App\Http\Controllers\Controller
 {
@@ -22,7 +23,8 @@ class SousCategorieController extends \App\Http\Controllers\Controller
         try{
             return response()->json([]);
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -46,18 +48,19 @@ class SousCategorieController extends \App\Http\Controllers\Controller
             if($inputs)
             {
                 return response()->json([
-                    'message' => 'Sous-categorie enregistré avec success',
+                    'message' => 'Sous-categorie enregistrÃ© avec success',
                     ]
                 );
             }else{
                 return response()->json([
-                    'message' => 'Sous-categorie non enregistré verifier vos données',
+                    'message' => 'Sous-categorie non enregistrÃ© verifier vos donnÃ©es',
                     ]
                 );
             }
 
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -78,7 +81,7 @@ class SousCategorieController extends \App\Http\Controllers\Controller
             $result = $this->sous_categorieRepository->updated($request->all(),$sous_categorie);
             if($result){
                 return response()->json([
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -88,7 +91,8 @@ class SousCategorieController extends \App\Http\Controllers\Controller
                 );
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -112,7 +116,8 @@ class SousCategorieController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -123,13 +128,13 @@ class SousCategorieController extends \App\Http\Controllers\Controller
         try{
             $sous_categorie = $this->sous_categorieRepository->getById($id);
 
-            // Si cette sous-categorie est associée à une categorie
+            // Si cette sous-categorie est associÃ©e Ã  une categorie
             $result = $this->sous_categorieRepository->destroy($id);
             //dd($result);
             if($sous_categorie)
             {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet sous_categories abonnement en cours',
+                    'message' => 'Vous ne pouvez pas supprimÃ© cet sous_categories abonnement en cours',
                     ]
                 );
     
@@ -146,7 +151,7 @@ class SousCategorieController extends \App\Http\Controllers\Controller
     
                 }else{
                     return response()->json([
-                        'message' => 'categorie supprimé avec success',
+                        'message' => 'categorie supprimÃ© avec success',
                         ]
                     );
     
@@ -154,7 +159,10 @@ class SousCategorieController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 }
+
+

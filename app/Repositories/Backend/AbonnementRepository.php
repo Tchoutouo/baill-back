@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories\Backend;
+use App\Enums\ProfilCode;
 use App\Models\Abonnement;
 use App\Repositories\ResourcesRepository;
 use \Illuminate\Support\Facades\DB;
@@ -130,7 +131,7 @@ class AbonnementRepository   extends ResourcesRepository
                         WHERE annonces.abonnement_id = abonnements.id
                     ) as total_users'));
         
-        if($user->profil_id === 3){
+        if ((int) $user->profil_id === ProfilCode::Advertiser->value) {
             if($user->qte_free == 0 ) {
                 $abonnement = $abonnement->where('id','<>',1);
             }

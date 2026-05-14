@@ -9,6 +9,7 @@ use App\Repositories\Backend\CategorieRepository;
 use App\Repositories\Backend\UserRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -61,7 +62,10 @@ class DashboardController extends Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 }
+
+

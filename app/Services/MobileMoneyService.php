@@ -17,11 +17,11 @@ class MobileMoneyService
 
     public function __construct()
     {
-        $this->appKey = env('APPKEY_FREEMOPAY');
-        $this->secretKey = env('SECRETKEY_FREEMOPAY');
-        $this->token = env('TOKENMOMO_FREEMOPAY');
-        $this->baseUrl = env('FREEMOPAY_BASE_URL');
-        $this->client = new Client();
+        $this->appKey    = config('services.freemopay.app_key');
+        $this->secretKey = config('services.freemopay.secret_key');
+        $this->token     = config('services.freemopay.token');
+        $this->baseUrl   = config('services.freemopay.base_url');
+        $this->client    = new Client();
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 
 class AbonnementController extends \App\Http\Controllers\Controller
@@ -38,7 +39,8 @@ class AbonnementController extends \App\Http\Controllers\Controller
                 ]);
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -64,24 +66,24 @@ class AbonnementController extends \App\Http\Controllers\Controller
             {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Abonnement enregistré avec success',
+                    'message' => 'Abonnement enregistrÃ© avec success',
                     ]
                 );
     
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'Abonnement non enregistré verifier vos donnée',
+                    'message' => 'Abonnement non enregistrÃ© verifier vos donnÃ©e',
                     ]
                 );
     
             }
 
         }catch(ValidationException $e){
-            // Récupérer les erreurs
+            // RÃ©cupÃ©rer les erreurs
             $errors = $e->validator->errors();
 
-            // Retourner les erreurs en réponse JSON ou autre objet
+            // Retourner les erreurs en rÃ©ponse JSON ou autre objet
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur d\' enregistrement',
@@ -111,7 +113,7 @@ class AbonnementController extends \App\Http\Controllers\Controller
             if($result){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Modification effectuée avec success',
+                    'message' => 'Modification effectuÃ©e avec success',
                     ]
                 );
             }else{
@@ -122,7 +124,8 @@ class AbonnementController extends \App\Http\Controllers\Controller
                 );
             }
         }catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -147,7 +150,8 @@ class AbonnementController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
 
         }
     }
@@ -158,11 +162,11 @@ class AbonnementController extends \App\Http\Controllers\Controller
         try{
             $abonnement = $this->abonnementRepository->getById($id);
 
-            // Si utilisateur à un abonnement
+            // Si utilisateur Ã  un abonnement
             if($abonnement)
             {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimé cet abonnement en cours',
+                    'message' => 'Vous ne pouvez pas supprimÃ© cet abonnement en cours',
                     ]
                 );
     
@@ -178,7 +182,7 @@ class AbonnementController extends \App\Http\Controllers\Controller
                     
                 }else{
                     return response()->json([
-                        'message' => 'Abonnement supprimé avec success',
+                        'message' => 'Abonnement supprimÃ© avec success',
                         ]
                     );
     
@@ -186,7 +190,8 @@ class AbonnementController extends \App\Http\Controllers\Controller
             }
         }
         catch(Exception $e){
-            return response()->json($e);
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
         }
     }
 
@@ -197,14 +202,16 @@ class AbonnementController extends \App\Http\Controllers\Controller
         if(isset($changeStatus)){
             return response()->json([
                 'success' => true,
-                'message' => 'Status changé avec success'
+                'message' => 'Status changÃ© avec success'
             ]);
         }
         else{
             return response()->json([
                 'success' => false,
-                'message' => 'Echec lors de la mise à jour du status',
+                'message' => 'Echec lors de la mise Ã  jour du status',
             ]);
         }
     }
 }
+
+
