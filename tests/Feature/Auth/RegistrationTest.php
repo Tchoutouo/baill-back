@@ -27,7 +27,7 @@ class RegistrationTest extends TestCase
     {
         Mail::fake();
 
-        $response = $this->postJson('/api/advertiser_back/store', [
+        $response = $this->postJson('/api/v1/advertiser_back/store', [
             'username'         => 'testuser',
             'first_name'       => 'Test',
             'last_name'        => 'User',

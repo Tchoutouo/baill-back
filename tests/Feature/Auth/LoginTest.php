@@ -29,7 +29,7 @@ class LoginTest extends TestCase
             'status'   => true,
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'identifiant' => $user->email,
             'password'    => 'secret1234',
         ]);
@@ -46,7 +46,7 @@ class LoginTest extends TestCase
             'status'   => true,
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'identifiant' => $user->whatsapp_number,
             'password'    => 'secret1234',
         ]);
@@ -62,7 +62,7 @@ class LoginTest extends TestCase
             'status'   => true,
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'identifiant' => $user->email,
             'password'    => 'wrong-password',
         ]);
@@ -78,7 +78,7 @@ class LoginTest extends TestCase
             'status'   => false,
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'identifiant' => $user->email,
             'password'    => 'secret1234',
         ]);
