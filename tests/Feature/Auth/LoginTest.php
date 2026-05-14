@@ -36,7 +36,8 @@ class LoginTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJsonPath('success', true)
-                 ->assertJsonStructure(['token', 'data', 'redirect_url']);
+                 ->assertJsonStructure(['data', 'redirect_url'])
+                 ->assertCookieNotExpired('auth_token');
     }
 
     public function test_advertiser_can_login_with_whatsapp_number(): void

@@ -28,23 +28,25 @@ class LoginControleurAuth extends Controller
             $user->profil_code = $profil->code;
 
             
-            //redirection en fonction du profil
-            if ((int) $user->profil_id === ProfilCode::Admin->value) {
-                
-                return response()->json([
-                    'success' => true,
-                    'data' => $user,
-                    'token' => $token,
-                    'redirect_url' => route('dashboard_admin', ['id' => $user])
-                ]);
-            }else{
-                return response()->json([
-                    'success' => true,
-                    'data' => $user,
-                    'token' => $token,
-                    'redirect_url' => route('dashboard_advertiser', ['id' => $user])
-                ]);
-            }
+            $redirectUrl = (int) $user->profil_id === ProfilCode::Admin->value
+                ? route('dashboard_admin', ['id' => $user])
+                : route('dashboard_advertiser', ['id' => $user]);
+
+            return response()->json([
+                'success'      => true,
+                'data'         => $user,
+                'redirect_url' => $redirectUrl,
+            ])->cookie(
+                'auth_token',
+                $token,
+                60 * 24 * 7,            // 7 jours
+                '/',
+                null,
+                config('session.secure'), // true en production (HTTPS)
+                true,                     // httpOnly
+                false,
+                'Lax'
+            );
         }else{
             return response()->json([
                 'success' => false,

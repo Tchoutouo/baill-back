@@ -27,6 +27,12 @@ Route::prefix('v1')->group(function () {
         Route::match(['post', 'options'], '/login', [LoginControleurAuth::class, 'login']);
     });
 
+    Route::middleware(['auth:sanctum'])->post('/logout', function (Request $request) {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['success' => true])
+            ->withoutCookie('auth_token');
+    })->name('logout');
+
     /** ── Routes Admin ────────────────────────────────────────────────────── */
 
     Route::middleware(['auth:sanctum', 'access.admin'])
