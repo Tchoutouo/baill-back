@@ -10,6 +10,7 @@ use App\Repositories\Backend\UserRepository;
 use App\Repositories\Backend\PaiementRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class DashboardAdminController extends Controller
@@ -35,8 +36,30 @@ class DashboardAdminController extends Controller
             $this->paiementRepository = $paiementRepository;
         }
 
-    /** Dashbord admin */
+    /** Vider le cache dashboard (à appeler après toute mutation de données) */
+    public static function clearCache(): void
+    {
+        Cache::forget('dashboard_admin');
+    }
+
+    /** Dashbord admin — résultat mis en cache 5 minutes */
     public function dashboard()
+    {
+        try{
+            $payload = Cache::remember('dashboard_admin', 300, function () {
+                return $this->buildDashboard();
+            });
+
+            return response()->json($payload);
+
+        }catch(Exception $e){
+            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
+        }
+    }
+
+    /** Construit les données du dashboard (appelé uniquement si cache manquant) */
+    private function buildDashboard(): array
     {
         try{
             // ── KPIs principaux ──────────────────────────────────────────────
@@ -90,68 +113,47 @@ class DashboardAdminController extends Controller
             // ── Utilisateurs bloqués ─────────────────────────────────────────
             $userLock = $this->userRepository->getUserLock();
 
-            return response()->json([
+            return [
                 'success' => true,
 
-                // KPIs globaux
                 'total_users'    => $totalUsers,
                 'total_annonces' => $totalAnnonces,
                 'total_montant'  => $totalRevenue,
 
-                // Croissance mensuelle
                 'growth' => [
-                    'users' => [
-                        'this_month' => $newUsersThisMonth,
-                        'last_month' => $newUsersLastMonth,
-                        'rate'       => $userGrowthRate,
-                    ],
-                    'annonces' => [
-                        'this_month' => $newAnnoncesThisMonth,
-                        'last_month' => $newAnnoncesLastMonth,
-                        'rate'       => $annonceGrowthRate,
-                    ],
-                    'revenue' => [
-                        'this_month' => $revenueThisMonth,
-                        'last_month' => $revenueLastMonth,
-                        'rate'       => $revenueGrowthRate,
-                    ],
+                    'users'    => ['this_month' => $newUsersThisMonth,    'last_month' => $newUsersLastMonth,    'rate' => $userGrowthRate],
+                    'annonces' => ['this_month' => $newAnnoncesThisMonth, 'last_month' => $newAnnoncesLastMonth, 'rate' => $annonceGrowthRate],
+                    'revenue'  => ['this_month' => $revenueThisMonth,     'last_month' => $revenueLastMonth,     'rate' => $revenueGrowthRate],
                 ],
 
-                // Tendances sur 6 mois
                 'trends' => [
-                    'users'   => $userGrowthTrend,
+                    'users'    => $userGrowthTrend,
                     'annonces' => $annonceTrend,
-                    'revenue' => $revenueMonthlyTrend,
+                    'revenue'  => $revenueMonthlyTrend,
                 ],
 
-                // Répartitions
                 'progress_abonnement' => $progressAbonnement,
                 'progress_status'     => $progressStatus,
                 'users_by_profile'    => $usersByProfile,
                 'revenue_by_mode'     => $revenueByMode,
 
-                // Activité récente
                 'recent_users'    => $recentUsers,
                 'recent_annonces' => $recentAnnonces,
                 'recent_payments' => $recentPayments,
 
-                // Classements
-                'top_advertisers'  => $topAdvertisers,
+                'top_advertisers'   => $topAdvertisers,
                 'tab_categ_popular' => $categPopulaire,
 
-                // Géographie
                 'geo' => [
                     'users'    => $usersByCountry,
                     'annonces' => $annoncesByCountry,
                 ],
 
-                // Modération
                 'tab_user_lock' => $userLock,
-            ]);
-
+            ];
         }catch(Exception $e){
-            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
+            Log::error('Dashboard build error: ' . $e->getMessage());
+            throw $e;
         }
     }
 }

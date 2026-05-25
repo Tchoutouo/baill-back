@@ -48,19 +48,25 @@ class UserRepository   extends ResourcesRepository
             ->get();
     }
 
-    /** Tendance d'inscriptions mensuelle sur N mois */
+    /** Tendance d'inscriptions mensuelle sur N mois — 1 requête groupBy au lieu de N */
     public function userGrowthTrend($months = 6){
+        $start = Carbon::now()->subMonths($months - 1)->startOfMonth();
+
+        $rows = $this->model
+            ->where('created_at', '>=', $start)
+            ->selectRaw('YEAR(created_at) as yr, MONTH(created_at) as mo, COUNT(*) as cnt')
+            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
+            ->get()
+            ->keyBy(fn($r) => sprintf('%04d-%02d', $r->yr, $r->mo));
+
         $results = [];
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $count = $this->model
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
+            $key  = $date->format('Y-m');
             $results[] = [
-                'month' => $date->format('Y-m'),
+                'month' => $key,
                 'label' => $date->locale('fr')->isoFormat('MMM Y'),
-                'count' => $count,
+                'count' => (int) ($rows[$key]->cnt ?? 0),
             ];
         }
         return $results;

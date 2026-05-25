@@ -85,20 +85,26 @@ class PaiementRepository   extends ResourcesRepository
             ->get();
     }
 
-    /** Tendance mensuelle des revenus sur N mois */
+    /** Tendance mensuelle des revenus sur N mois — 1 requête groupBy au lieu de N */
     public function monthlyRevenueTrend($months = 6){
+        $start = Carbon::now()->subMonths($months - 1)->startOfMonth();
+
+        $rows = $this->model
+            ->where('statut', 2)
+            ->where('date_paiement', '>=', $start)
+            ->selectRaw('YEAR(date_paiement) as yr, MONTH(date_paiement) as mo, SUM(montant) as total')
+            ->groupByRaw('YEAR(date_paiement), MONTH(date_paiement)')
+            ->get()
+            ->keyBy(fn($r) => sprintf('%04d-%02d', $r->yr, $r->mo));
+
         $results = [];
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $total = $this->model
-                ->where('statut', 2)
-                ->whereYear('date_paiement', $date->year)
-                ->whereMonth('date_paiement', $date->month)
-                ->sum('montant');
+            $key  = $date->format('Y-m');
             $results[] = [
-                'month' => $date->format('Y-m'),
+                'month' => $key,
                 'label' => $date->locale('fr')->isoFormat('MMM Y'),
-                'total' => (float) $total,
+                'total' => (float) ($rows[$key]->total ?? 0),
             ];
         }
         return $results;

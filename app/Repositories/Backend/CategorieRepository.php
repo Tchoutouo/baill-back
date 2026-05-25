@@ -107,32 +107,31 @@ class CategorieRepository   extends ResourcesRepository
 
 
     public function getAnnonceCateg($arrayCateg){
+        // 1 requête pour toutes les catégories demandées avec eager loading
+        $categories = $this->model
+            ->with(['annonces' => function ($q) {
+                $q->with(['pictures:id,annonce_id,location', 'users:id,username,email,country']);
+            }])
+            ->whereIn('id', $arrayCateg)
+            ->get()
+            ->keyBy('id');
 
-        for ($i=0; $i < count($arrayCateg); $i++) {
+        $annonces = collect();
 
-            $categorie = $this->model->with('annonces')->find($arrayCateg[$i]);
+        foreach ($arrayCateg as $categId) {
+            $categorie = $categories->get($categId);
+            if (!$categorie) continue;
 
-            $annonces = $categorie->annonces()->get();
-            $arrayCa = [];
-
-            foreach ($annonces as $annonce) {
-                $arrayCa[]= $categorie->title;
-                
-                $picture  = $this->pictureController->getImage($annonce->id);
-                //$image = [];
-                
-                //Parcourir chaque image add à son annonce
-                // foreach ($picture as $pictu) {
-                //    $image[] = $pictu->location;
-                // }
-                
-                $annonce['url_image']= $picture;
-                $annonce['users'] = User::find($annonce->user_id);
-                $annonce['categorie'] = $arrayCa;
+            foreach ($categorie->annonces as $annonce) {
+                $annonce['url_image'] = $annonce->pictures
+                    ->map(fn($p) => asset('storage/' . $p->location))
+                    ->all();
+                $annonce['categorie'] = [$categorie->title];
+                $annonces->push($annonce);
             }
         }
 
-        return $annonces;
+        return $annonces->values();
     }
 
 

@@ -141,7 +141,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('/home_back')->controller(DashboardController::class)->group(function () {
         Route::get('/{user?}/{lang?}', 'dashboard');
         Route::post('/trie', 'trie');
-        Route::post('/contact', 'contact');
+        Route::middleware(['throttle:20,60'])->post('/contact', 'contact');
     });
 
     /** ── Mot de passe oublié ─────────────────────────────────────────────── */
