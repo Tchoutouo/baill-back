@@ -3,40 +3,20 @@
 namespace Database\Seeders;
 
 use App\Models\ModePaiement;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ModePaiementSeed extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $modes = [
+            ['title' => 'Stripe',       'code' => 'stripe', 'is_active' => 1],
+            ['title' => 'Orange Money', 'code' => 'om',     'is_active' => 0],
+            ['title' => 'Mobile Money', 'code' => 'momo',   'is_active' => 0],
+        ];
 
-        ModePaiement::create([
-            "title"=>"Stripe",
-            "code"=>"stripe",
-            "is_active"=> 1,
-        ]);
-
-        ModePaiement::create([
-            "title"=>"Orange Money",
-            "code"=>"om",
-            "is_active"=> 0,
-        ]);
-
-        ModePaiement::create([
-            "title"=>"Mobile Money",
-            "code"=>"momo",
-            "is_active"=> 0,
-        ]);
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
+        foreach ($modes as $data) {
+            ModePaiement::firstOrCreate(['code' => $data['code']], $data);
+        }
     }
 }
-

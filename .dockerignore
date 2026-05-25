@@ -1,0 +1,12 @@
+vendor
+.git
+.gitignore
+*.md
+.env
+.env.*
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+tests

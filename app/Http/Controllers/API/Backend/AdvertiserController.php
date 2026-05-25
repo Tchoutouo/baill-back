@@ -411,21 +411,14 @@ class AdvertiserController extends \App\Http\Controllers\Controller
         return response()->json(['exists' => $exists], 200);
     }
 
-    public function checkPasswordExists($id,$password)
+    public function checkPasswordExists(Request $request)
     {
-        $exists = User::where('id', $id)->exists();
-        if($exists){
-            if (Hash::check($password, $exists->password)) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "password actuel okay"
-                ]);
-            }
+        $request->validate(['id' => 'required', 'password' => 'required']);
+        $user = User::find($request->id);
+        if ($user && Hash::check($request->password, $user->password)) {
+            return response()->json(['success' => true, 'message' => 'password actuel okay']);
         }
-        return response()->json([
-            'success' => false,
-            'message' => "password actuel invalid"
-        ]);
+        return response()->json(['success' => false, 'message' => 'password actuel invalid']);
     }
 }
 

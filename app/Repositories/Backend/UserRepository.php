@@ -20,10 +20,70 @@ class UserRepository   extends ResourcesRepository
     }
 
     public function getAllUsers() {
-        
-        $user = $this->model->where('profil_id', ProfilCode::Advertiser->value)->count();
-        
-        return $user;
+        return $this->model->count();
+    }
+
+    /** Nouveaux utilisateurs ce mois-ci */
+    public function newUsersThisMonth(){
+        return $this->model
+            ->whereYear('created_at', Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+    }
+
+    /** Nouveaux utilisateurs le mois dernier */
+    public function newUsersLastMonth(){
+        return $this->model
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+    }
+
+    /** Répartition par profil */
+    public function usersByProfile(){
+        return $this->model
+            ->select('profil_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as total'))
+            ->groupBy('profil_id')
+            ->with('profils:id,name')
+            ->get();
+    }
+
+    /** Tendance d'inscriptions mensuelle sur N mois */
+    public function userGrowthTrend($months = 6){
+        $results = [];
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $count = $this->model
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $results[] = [
+                'month' => $date->format('Y-m'),
+                'label' => $date->locale('fr')->isoFormat('MMM Y'),
+                'count' => $count,
+            ];
+        }
+        return $results;
+    }
+
+    /** Inscriptions récentes */
+    public function recentUsers($limit = 5){
+        return $this->model
+            ->with('profils:id,name')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get(['id', 'username', 'email', 'country', 'city', 'status', 'profil_id', 'created_at']);
+    }
+
+    /** Top pays par nombre d'annonceurs */
+    public function usersByCountry($limit = 5){
+        return $this->model
+            ->where('profil_id', ProfilCode::Advertiser->value)
+            ->select('country', \Illuminate\Support\Facades\DB::raw('COUNT(*) as total'))
+            ->groupBy('country')
+            ->orderByDesc('total')
+            ->limit($limit)
+            ->get();
     }
 
     

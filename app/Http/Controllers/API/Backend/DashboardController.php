@@ -35,9 +35,13 @@ class DashboardController extends Controller
     public function dashboard($user_id)
     {
         try{
+            $authUser = \Illuminate\Support\Facades\Auth::user();
+            if ((int) $authUser->id !== (int) $user_id) {
+                return response()->json(['success' => false, 'message' => 'Accès non autorisé.'], 403);
+            }
 
             $user = $this->userRepository->getById($user_id);
-            $allAnnonce = $this->annonceRepository->getAllAnnonce(5,$user->id);
+            $allAnnonce = $this->annonceRepository->getAllAnnonce(5, $user->id);
             $annoncePublisher = $this->annonceRepository->getAnnoncePublisher($user->id);
             $annonceExpired = $this->annonceRepository->getAnnonceExpired($user->id);
             $annonceInProgress = $this->annonceRepository->getAnnonceInProgress($user->id);

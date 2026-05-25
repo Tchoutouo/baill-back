@@ -9,6 +9,7 @@ use App\Http\Controllers\API\Backend\CategorieController;
 use App\Http\Controllers\API\Backend\StripeControllers;
 use App\Http\Controllers\API\Backend\PaymentController;
 use App\Http\Controllers\API\Backend\DashboardAdminController;
+use App\Http\Controllers\API\Backend\DashboardController as BackendDashboardController;
 use App\Http\Controllers\API\Backend\ModePaiementController;
 use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
@@ -51,7 +52,7 @@ Route::prefix('v1')->group(function () {
         });
 
     Route::middleware(['auth:sanctum', 'access.admin'])
-        ->prefix('/advertiser_bac')->controller(AdvertiserController::class)
+        ->prefix('/advertiser_back')->controller(AdvertiserController::class)
         ->group(function () {
             Route::patch('/change/{id}', 'status');
         });
@@ -93,7 +94,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'access.advertiser'])
         ->prefix('/dashboard_advertiser')
-        ->controller(DashboardController::class)
+        ->controller(BackendDashboardController::class)
         ->group(function () {
             Route::get('/{id}', 'dashboard')->name('dashboard_advertiser');
         });

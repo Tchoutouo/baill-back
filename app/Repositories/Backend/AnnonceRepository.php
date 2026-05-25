@@ -178,32 +178,20 @@ class AnnonceRepository   extends ResourcesRepository
             }
 
             $arrayAnnonce = $arrayAnnonce->orderBy('created_at', 'desc')
-            ->paginate($nbr_annonce);
-            // Vérifiez si la collection est vide
-            if ($arrayAnnonce->isNotEmpty()) {
-                foreach ($arrayAnnonce as $annonce) {
-                    
-                    if ($annonce->status === '0' ) {
-                        $annonce['next_expiration_date'] = '...';
-                    }else {
-                        $annonce['next_expiration_date'] = $annonce->expiration_date;
-                    }
-    
-                    if(isset($annonce)){
-                        $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
-                        $annonce['url_image'] = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
+                ->paginate($nbr_annonce);
 
-                    }
-                }
-    
-                return $arrayAnnonce;
+            foreach ($arrayAnnonce as $annonce) {
+                $annonce['next_expiration_date'] = ($annonce->status === '0') ? '...' : $annonce->expiration_date;
+                $annonce->abonnements->price_after_remise = $annonce->abonnements->price
+                    - ($annonce->abonnements->price * ($annonce->abonnements->remise / 100));
+                $annonce['url_image'] = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
             }
+
+            return $arrayAnnonce; // paginator vide retourné tel quel — permet au dashboard d'afficher success:true
+
         } catch (\Exception $th) {
             Log::error('Erreur lors de l\'affichage des annonces: ' . $th->getMessage());
-
-            return response()->json([
-                'error'=>$th
-            ]);
+            return null;
         }
     }
 
@@ -309,42 +297,102 @@ class AnnonceRepository   extends ResourcesRepository
         return $progressStatus;
     }
 
+    /** Nouvelles annonces ce mois-ci */
+    public function newAnnoncesThisMonth(){
+        return $this->model
+            ->whereYear('created_at', Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+    }
+
+    /** Nouvelles annonces le mois dernier */
+    public function newAnnoncesLastMonth(){
+        return $this->model
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+    }
+
+    /** Tendance mensuelle de création d'annonces sur N mois */
+    public function annonceTrend($months = 6){
+        $results = [];
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $count = $this->model
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $results[] = [
+                'month' => $date->format('Y-m'),
+                'label' => $date->locale('fr')->isoFormat('MMM Y'),
+                'count' => $count,
+            ];
+        }
+        return $results;
+    }
+
+    /** Top annonceurs par nombre d'annonces */
+    public function topAdvertisers($limit = 5){
+        return $this->model
+            ->select('user_id', DB::raw('COUNT(*) as total_annonces'), DB::raw('SUM(CASE WHEN status=3 THEN 1 ELSE 0 END) as published'))
+            ->with('users:id,username,email,country')
+            ->groupBy('user_id')
+            ->orderByDesc('total_annonces')
+            ->limit($limit)
+            ->get();
+    }
+
+    /** Annonces récentes */
+    public function recentAnnonces($limit = 5){
+        return $this->model
+            ->with(['users:id,username', 'abonnements:id,name', 'categories:id,title'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get(['id', 'title', 'status', 'country', 'neighborhood', 'user_id', 'abonnement_id', 'created_at']);
+    }
+
+    /** Répartition des annonces par pays (top N) */
+    public function annoncesByCountry($limit = 5){
+        return $this->model
+            ->select('country', DB::raw('COUNT(*) as total'))
+            ->groupBy('country')
+            ->orderByDesc('total')
+            ->limit($limit)
+            ->get();
+    }
+
     // Change status annonces
     function changeStatusAnnonce($user_id, $annonce_id, $new_status){
-        
         try {
+            $query = $this->model->with('abonnements')->where('id', $annonce_id);
             if ($user_id) {
-                $annonce = $this->model->with('abonnements')->where('user_id', $user_id)->where('id', $annonce_id)->first();
+                $query->where('user_id', $user_id);
             }
-            else{
-                $annonce = $this->model->where('id', $annonce_id)->first();
+            $annonce = $query->first();
+
+            if (!$annonce) {
+                return null;
             }
-            if(isset($annonce))
-            {
-                $type = $annonce->abonnements->type_time;
-                $time = $annonce->abonnements->time;
-                if($type === 'M')
-                {
-                    $time = $annonce->validity_period * 30;
-                }
-                elseif($type === 'A'){
-                    $time = $annonce->validity_period * 365;
-                }
-                
-                if($new_status === '3' && $annonce->status === '1' || $annonce->status === '0'){// Si c'est en cours et statut actuel est à 1:en_cours
-                    $annonce->update([
-                        'expiration_date' => now()->addDays($time)->format('Y-m-d'),
-                    ]);
-                }
-    
-                $annonce->update([
-                    'status' => $new_status,
-                    'updated_at' => now(),
-                ]);
-    
-    
-                return true;
+
+            $type = $annonce->abonnements->type_time;
+            $time = $annonce->abonnements->time;
+
+            if ($type === 'M') {
+                $time = ($annonce->validity_period ?? 1) * 30;
+            } elseif ($type === 'A') {
+                $time = ($annonce->validity_period ?? 1) * 365;
             }
+
+            // Recalculer la date d'expiration seulement quand on publie depuis "en cours" ou "expiré"
+            if ((string) $new_status === '3' && in_array((string) $annonce->status, ['1', '0'])) {
+                $annonce->expiration_date = now()->addDays($time)->format('Y-m-d');
+            }
+
+            // Assignation directe car status/expiration_date sont exclus de $fillable
+            $annonce->status = $new_status;
+            $annonce->save();
+
+            return true;
         } catch (\Exception $th) {
             Log::error('Erreur lors de la mise à jour du status : ' . $th->getMessage());
             return null;
@@ -368,24 +416,17 @@ class AnnonceRepository   extends ResourcesRepository
 
     function getAllAnnonceFront($user_id = null, int $limit = 20)
     {
+        // Priorité : annonces du user connecté > ANNUEL > MENSUEL > Free
         $ordreExpr = "CASE
             WHEN user_id = ? THEN 0
             WHEN abonnement_id = 3 THEN 1
             WHEN abonnement_id = 2 THEN 2
-            WHEN abonnement_id = 1 THEN 3
             ELSE 3
         END as ordre";
 
         $annonces = $this->model
             ->with(['users', 'categories', 'abonnements', 'pictures'])
             ->where('status', 3)
-            ->where(function ($query) use ($user_id) {
-                $query->where('user_id', $user_id)
-                    ->orWhereHas('abonnements', function ($q) {
-                        $q->where('hight_lite', 1)
-                            ->whereIn('abonnements.id', [1, 2, 3]);
-                    });
-            })
             ->select('*')
             ->selectRaw($ordreExpr, [$user_id])
             ->orderBy('ordre')
@@ -393,12 +434,12 @@ class AnnonceRepository   extends ResourcesRepository
             ->take($limit)
             ->get();
 
-
         foreach ($annonces as $annonce) {
-            $annonce->abonnements->price_after_remise  = $annonce->abonnements->price - ( $annonce->abonnements->price * ($annonce->abonnements->remise/100) );
+            $annonce->abonnements->price_after_remise = $annonce->abonnements->price
+                - ($annonce->abonnements->price * ($annonce->abonnements->remise / 100));
             $annonce->url_image = $annonce->pictures->map(fn($p) => asset('storage/' . $p->location))->all();
         }
-    
+
         return $annonces;
     }
     

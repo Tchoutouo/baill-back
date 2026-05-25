@@ -159,43 +159,32 @@ class AbonnementController extends \App\Http\Controllers\Controller
     /**destroy */
     public function destroy(Request $request, $id)
     {
-        try{
-            $abonnement = $this->abonnementRepository->getById($id);
+        try {
+            $abonnement = \App\Models\Abonnement::find($id);
 
-            // Si utilisateur Ã  un abonnement
-            if($abonnement)
-            {
-                return response()->json([
-                    'message' => 'Vous ne pouvez pas supprimÃ© cet abonnement en cours',
-                    ]
-                );
-    
-            }else{
-                $result = $this->abonnementRepository->destroy($id);
-    
-                if(isset($result))
-                {
-                    return response()->json([
-                        'message' => 'Une erreur est survenu lors de la suppression',
-                        ]
-                    );
-                    
-                }else{
-                    return response()->json([
-                        'message' => 'Abonnement supprimÃ© avec success',
-                        ]
-                    );
-    
-                }
+            if (!$abonnement) {
+                return response()->json(["success" => false, "message" => "Abonnement introuvable."], 404);
             }
-        }
-        catch(Exception $e){
-            Log::error('Erreur inattendue dans ' . class_basename($this) . ': ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Une erreur inattendue est survenue.'], 500);
+
+            $inUse = \App\Models\Annonce::where("abonnement_id", $id)->exists();
+            if ($inUse) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "Impossible de supprimer : cet abonnement est utilise par des annonces.",
+                ], 422);
+            }
+
+            $abonnement->delete();
+
+            return response()->json(["success" => true, "message" => "Abonnement supprime avec succes."]);
+
+        } catch (Exception $e) {
+            Log::error("Erreur inattendue dans " . class_basename($this) . ": " . $e->getMessage());
+            return response()->json(["success" => false, "message" => "Une erreur inattendue est survenue."], 500);
         }
     }
 
-    public function statusAbonnement($id){
+        public function statusAbonnement($id){
      
         $changeStatus = $this->abonnementRepository->changeStatusAbonnement($id);
 
