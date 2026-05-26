@@ -1,0 +1,338 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix baill: <http://bailleurnet.cm/ontology#> .
+
+<http://bailleurnet.cm/ontology#>
+    a owl:Ontology ;
+    rdfs:label "BailleurNet Ontologie" ;
+    rdfs:comment "Générée automatiquement depuis le schéma MySQL — 2026-05-25T16:30:08+00:00" .
+
+# ── Classes OWL ────────────────────────────────────────────────────────
+
+baill:Abonnement a owl:Class ;
+    rdfs:label "Forfait d'abonnement" .
+
+baill:DroitAcces a owl:Class ;
+    rdfs:label "Droit d'accès" .
+
+baill:Annonce a owl:Class ;
+    rdfs:label "Annonce immobilière" .
+
+baill:Categorie a owl:Class ;
+    rdfs:label "Catégorie d'annonce" .
+
+baill:ModePaiement a owl:Class ;
+    rdfs:label "Mode de paiement" .
+
+baill:Paiement a owl:Class ;
+    rdfs:label "Paiement" .
+
+baill:Photo a owl:Class ;
+    rdfs:label "Photo d'annonce" .
+
+baill:Profil a owl:Class ;
+    rdfs:label "Profil utilisateur" .
+
+baill:SousCategorie a owl:Class ;
+    rdfs:label "Sous-catégorie" .
+
+baill:Annonceur a owl:Class ;
+    rdfs:label "Annonceur / utilisateur" .
+
+# ── Data Properties ────────────────────────────────────────────────────
+
+baill:name a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:string .
+
+baill:time a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:integer .
+
+baill:typeTime a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:string .
+
+baill:price a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:integer .
+
+baill:type a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:string .
+
+baill:isActived a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:integer .
+
+baill:hightLite a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:integer .
+
+baill:remise a owl:DatatypeProperty ;
+    rdfs:domain baill:Abonnement ;
+    rdfs:range  xsd:integer .
+
+baill:name a owl:DatatypeProperty ;
+    rdfs:domain baill:DroitAcces ;
+    rdfs:range  xsd:string .
+
+baill:code a owl:DatatypeProperty ;
+    rdfs:domain baill:DroitAcces ;
+    rdfs:range  xsd:string .
+
+baill:title a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:subtitle a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:description a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:price a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:integer .
+
+baill:contact a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:country a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:neighborhood a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:location a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:status a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:isForward a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:reference a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:string .
+
+baill:expirationDate a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:date .
+
+baill:validityPeriod a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  xsd:integer .
+
+baill:title a owl:DatatypeProperty ;
+    rdfs:domain baill:Categorie ;
+    rdfs:range  xsd:string .
+
+baill:titleEn a owl:DatatypeProperty ;
+    rdfs:domain baill:Categorie ;
+    rdfs:range  xsd:string .
+
+baill:description a owl:DatatypeProperty ;
+    rdfs:domain baill:Categorie ;
+    rdfs:range  xsd:string .
+
+baill:title a owl:DatatypeProperty ;
+    rdfs:domain baill:ModePaiement ;
+    rdfs:range  xsd:string .
+
+baill:code a owl:DatatypeProperty ;
+    rdfs:domain baill:ModePaiement ;
+    rdfs:range  xsd:string .
+
+baill:isActive a owl:DatatypeProperty ;
+    rdfs:domain baill:ModePaiement ;
+    rdfs:range  xsd:integer .
+
+baill:modePaiement a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:string .
+
+baill:reference a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:string .
+
+baill:montant a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:integer .
+
+baill:datePaiement a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:date .
+
+baill:number a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:decimal .
+
+baill:statut a owl:DatatypeProperty ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  xsd:string .
+
+baill:location a owl:DatatypeProperty ;
+    rdfs:domain baill:Photo ;
+    rdfs:range  xsd:string .
+
+baill:name a owl:DatatypeProperty ;
+    rdfs:domain baill:Profil ;
+    rdfs:range  xsd:string .
+
+baill:code a owl:DatatypeProperty ;
+    rdfs:domain baill:Profil ;
+    rdfs:range  xsd:string .
+
+baill:title a owl:DatatypeProperty ;
+    rdfs:domain baill:SousCategorie ;
+    rdfs:range  xsd:string .
+
+baill:description a owl:DatatypeProperty ;
+    rdfs:domain baill:SousCategorie ;
+    rdfs:range  xsd:string .
+
+baill:name a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:username a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:firstName a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:lastName a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:email a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:password a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:picture a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:number a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:whatsappNumber a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:cni a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:siteUrl a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:neighborhood a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:city a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:country a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:qteFree a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:integer .
+
+baill:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:date .
+
+baill:placeOfBirth a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:date .
+
+baill:sex a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:pmType a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:pmLastFour a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:string .
+
+baill:trialEndsAt a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:dateTime .
+
+baill:status a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:integer .
+
+baill:dateUpdate a owl:DatatypeProperty ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  xsd:date .
+
+# ── Object Properties (FK) ──────────────────────────────────────────────
+
+baill:souscritA a owl:ObjectProperty ;
+    rdfs:label  "souscrit à" ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  baill:Abonnement .
+
+baill:publiePar a owl:ObjectProperty ;
+    rdfs:label  "publié par" ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  baill:Annonceur .
+
+baill:souscritA a owl:ObjectProperty ;
+    rdfs:label  "souscrit à" ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  baill:Abonnement .
+
+baill:publiePar a owl:ObjectProperty ;
+    rdfs:label  "publié par" ;
+    rdfs:domain baill:Paiement ;
+    rdfs:range  baill:Annonceur .
+
+baill:appartientA a owl:ObjectProperty ;
+    rdfs:label  "appartient à" ;
+    rdfs:domain baill:Photo ;
+    rdfs:range  baill:Annonce .
+
+baill:aProfil a owl:ObjectProperty ;
+    rdfs:label  "a profil" ;
+    rdfs:domain baill:Annonceur ;
+    rdfs:range  baill:Profil .
+
+baill:appartientA a owl:ObjectProperty ;
+    rdfs:label  "appartient à catégorie" ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  baill:Categorie .
+
+baill:aPhoto a owl:ObjectProperty ;
+    rdfs:domain baill:Annonce ;
+    rdfs:range  baill:Photo .
+

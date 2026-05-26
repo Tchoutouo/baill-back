@@ -15,6 +15,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('payments:check')->everyMinute();
         $schedule->command('annonces:expire')->hourly();
         $schedule->command('sanctum:prune-expired', ['--hours=168'])->daily();
+
+        $minutes = max(1, (int) round(config('agent.sync_interval', 600) / 60));
+        $schedule->command('ontology:sync')
+            ->cron("*/{$minutes} * * * *")
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

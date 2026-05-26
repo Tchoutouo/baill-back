@@ -58,12 +58,7 @@ class AdvertiserController extends \App\Http\Controllers\Controller
                 'country' => 'required|string|max:255',
                 'city' => 'required|string|max:255',
                 'neighborhood' => 'required|string|max:255',
-                // 'password' => [
-                //     'required',
-                //     'string',
-                //     'min:8',
-                //     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
-                // ]
+                'password'    => 'required|string|min:8',
             ], [
                 'username.required' => 'Le nom d\'utilisateur est requis.',
                 'username.unique' => 'Ce nom d\'utilisateur est dÃ©jÃ  utilisÃ©.',
@@ -90,27 +85,27 @@ class AdvertiserController extends \App\Http\Controllers\Controller
             // CrÃ©er l'utilisateur
             $user = $this->advertiserRepository->created($validatedData);
 
-            if ($user) {
-                if($user !== 1){
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Utilisateur enregistrÃ© avec succÃ¨s.',
-                        'data' => [
-                            'user_id' => $user->id,
-                            'username' => $user->username,
-                            'email' => $user->email
-                        ]
-                    ], 201);
-                }else{
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Erreur lors de l\'enregistrement de l\'utilisateur echec d\'envoi email.',
-                    ], 500);
-                }
+            if ($user && $user !== 1 && $user !== 2) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Compte créé. Vérifiez vos emails pour activer votre compte.',
+                    'data'    => [
+                        'user_id'  => $user->id,
+                        'username' => $user->username,
+                        'email'    => $user->email,
+                    ]
+                ], 201);
+            } elseif ($user === 2) {
+                // Compte créé mais l'email de vérification n'a pas pu partir
+                return response()->json([
+                    'success'       => true,
+                    'email_failed'  => true,
+                    'message'       => 'Compte créé mais l\'email de vérification n\'a pas pu être envoyé. Contactez le support.',
+                ], 201);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erreur lors de l\'enregistrement de l\'utilisateur.',
+                    'message' => 'Erreur lors de la création du compte.',
                 ], 500);
             }
 

@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordForgetMail;
 use App\Mail\NewAdvertiserMail;
 use App\Mail\PasswordAdvertiser;
+use App\Mail\VerifyEmailMail;
+use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -47,21 +49,27 @@ class AdvertiserRepository   extends ResourcesRepository
                 $advertiser->country       = $data['country'];
                 $advertiser->city          = $data['city'];
                 $advertiser->neighborhood  = $data['neighborhood'];
-                $advertiser->profil_id     = ProfilCode::Advertiser->value;
+                $advertiser->profil_id        = ProfilCode::Advertiser->value;
                 $advertiser->email_verified_at = null;
+                $advertiser->status            = 0; // inactif jusqu'à vérification de l'email
 
-                $newpassword = $this->PasswordRandom(8);
+                $plainToken = Str::random(64);
+                $advertiser->password      = Hash::make($data['password']);
+                $advertiser->remember_token = Hash::make($plainToken);
+                $advertiser->save();
+
+                $verifyUrl = env('VERIFY_EMAIL_URL', env('FRONTEND_URL') . '/verify-email')
+                    . '/' . $plainToken
+                    . '/' . $data['email'];
 
                 try {
-                    Mail::to($data['email'])->send(new PasswordAdvertiser($data['email'], $newpassword, $data['username']));
+                    Mail::to($data['email'])->send(new VerifyEmailMail($data['email'], $data['username'], $verifyUrl));
                     Mail::to(config('mail.from.address'))->send(new NewAdvertiserMail());
                 } catch (\Exception $e) {
-                    Log::warning('Erreur lors de l\'envoi de l\'email a l\'admin ou annonceur: ' . $e->getMessage());
-                    return 1; // user not saved — transaction commits a no-op
+                    Log::warning('Erreur lors de l\'envoi de l\'email de vérification: ' . $e->getMessage());
+                    // Le compte est créé mais l'email n'a pas pu partir — on le signale
+                    return 2;
                 }
-
-                $advertiser->password = Hash::make($newpassword);
-                $advertiser->save();
 
                 return $advertiser;
             });

@@ -27,7 +27,6 @@ class LoginControleurAuth extends Controller
             $user->profil_name = $profil->name;
             $user->profil_code = $profil->code;
 
-            
             $redirectUrl = (int) $user->profil_id === ProfilCode::Admin->value
                 ? route('dashboard_admin', ['id' => $user])
                 : route('dashboard_advertiser', ['id' => $user]);
@@ -39,18 +38,25 @@ class LoginControleurAuth extends Controller
             ])->cookie(
                 'auth_token',
                 $token,
-                60 * 24 * 7,            // 7 jours
+                60 * 24 * 7,
                 '/',
                 null,
-                config('session.secure'), // true en production (HTTPS)
-                true,                     // httpOnly
+                config('session.secure'),
+                true,
                 false,
                 'Lax'
             );
-        }else{
+        } elseif (is_null($user->email_verified_at)) {
             return response()->json([
                 'success' => false,
-                'message' => "Ce compte a été bloqué...",
+                'reason'  => 'email_not_verified',
+                'message' => "Veuillez vérifier votre adresse e-mail pour activer votre compte.",
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'reason'  => 'account_blocked',
+                'message' => "Ce compte a été bloqué. Contactez le support.",
             ]);
         }
     }

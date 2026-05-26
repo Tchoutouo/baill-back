@@ -1,0 +1,128 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix baill: <http://bailleurnet.cm/ontology#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ═══════════════════════════════════════════════════════════════
+#  SHACL Shapes — BailleurNet
+#  Source autoritaire : config/agent.php → shacl_shapes
+#  Ce fichier sert à la documentation et aux outils RDF externes.
+# ═══════════════════════════════════════════════════════════════
+
+# ── Annonce ──────────────────────────────────────────────────────
+baill:AnnonceShape a sh:NodeShape ;
+    sh:targetClass baill:Annonce ;
+
+    sh:property [
+        sh:path        baill:title ;
+        sh:name        "Titre" ;
+        sh:minCount    1 ;
+        sh:maxLength   255 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:description ;
+        sh:name        "Description" ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:price ;
+        sh:name        "Prix (FCFA)" ;
+        sh:minCount    1 ;
+        sh:minInclusive 0 ;
+        sh:datatype    xsd:integer ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:location ;
+        sh:name        "Localisation" ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:contact ;
+        sh:name        "Contact" ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:appartientA ;
+        sh:name        "Catégorie" ;
+        sh:minCount    1 ;
+        sh:class       baill:Categorie ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:souscritA ;
+        sh:name        "Forfait" ;
+        sh:minCount    1 ;
+        sh:class       baill:Abonnement ;
+    ] .
+
+# ── Annonceur ────────────────────────────────────────────────────
+baill:AnnonceurShape a sh:NodeShape ;
+    sh:targetClass baill:Annonceur ;
+
+    sh:property [
+        sh:path        baill:username ;
+        sh:name        "Nom d'utilisateur" ;
+        sh:minCount    1 ;
+        sh:minLength   3 ;
+        sh:maxLength   50 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:email ;
+        sh:name        "Email" ;
+        sh:minCount    1 ;
+        sh:pattern     "^[^@]+@[^@]+\\.[^@]+$" ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:password ;
+        sh:name        "Mot de passe" ;
+        sh:minCount    1 ;
+        sh:minLength   8 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:whatsapp_number ;
+        sh:name        "WhatsApp" ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+    ] .
+
+# ── Categorie ────────────────────────────────────────────────────
+baill:CategorieShape a sh:NodeShape ;
+    sh:targetClass baill:Categorie ;
+
+    sh:property [
+        sh:path        baill:title ;
+        sh:minCount    1 ;
+        sh:maxLength   255 ;
+        sh:datatype    xsd:string ;
+    ] .
+
+# ── Abonnement ───────────────────────────────────────────────────
+baill:AbonnementShape a sh:NodeShape ;
+    sh:targetClass baill:Abonnement ;
+
+    sh:property [
+        sh:path        baill:name ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path        baill:price ;
+        sh:minCount    1 ;
+        sh:minInclusive 0 ;
+        sh:datatype    xsd:integer ;
+    ] .

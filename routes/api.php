@@ -15,6 +15,8 @@ use App\Http\Controllers\API\Frontend\DashboardController;
 use App\Http\Controllers\Auth\LoginControleurAuth;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\AgentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -133,6 +135,15 @@ Route::prefix('v1')->group(function () {
             Route::put('/updatePassword/{id}', 'updatePassword');
         });
 
+    /** ── Agent conversationnel ──────────────────────────────────────────── */
+
+    // Accessible à tous (visiteurs + authentifiés) — throttle 30 req/min
+    Route::middleware(['throttle:30,1'])->prefix('/agent')->controller(AgentController::class)->group(function () {
+        Route::post('/chat',    'chat');
+        Route::post('/stream',  'stream');
+        Route::delete('/session', 'clearSession');
+    });
+
     /** ── Routes publiques (visiteurs) ───────────────────────────────────── */
 
     Route::get('/get_annonce/{id}/{lang?}', [AnnonceController::class, 'get_annonce']);
@@ -149,6 +160,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/forget-password', [PasswordResetLinkController::class, 'store']);
     Route::post('/reset-password', [NewPasswordController::class, 'store']);
     Route::get('/reset-password/{token}/{email?}', [NewPasswordController::class, 'verifyToken'])->name('password.reset');
+
+    /** ── Vérification d'email ───────────────────────────────────────────── */
+
+    Route::get('/verify-email/{token}/{email}', [EmailVerificationController::class, 'verify']);
 
     /** ── Vérifications d'unicité (inscription) ───────────────────────────── */
 
